@@ -1,14 +1,8 @@
-# tryRouter
-
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+建立專案方式
+1. clone the MarcHighSpeedRailVue repository to your directory
+2. console. run >> cd MarcHighSpeedRailVue --> npm install --> npm install bootstrap --> npm install sass --> npm install sass-loader
+3. console run >> npm run dev
+4. [chrome: localhost:5173]檢查vite專案環境有建立成功否
 
 ## Project Setup
 

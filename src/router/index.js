@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-const Home = {template: '<div>Home</div>'}
+const Home = { template: '<div>Home</div>' }
 // const About = {template: '<div>About</div>'}
 import booking from '../components/booking.vue'
 import shopping from '../components/shopping.vue'
 import lostItem from '../components/lostItem.vue'
+import employeeLogin from '../views/EmployeeLoginView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -20,8 +21,12 @@ const router = createRouter({
       component: booking
     },
     {
-      path:'/shopping',
+      path: '/shopping',
       component: shopping
+    },
+    {
+      path: '/employee',
+      component: employeeLogin
     }
   ]
 })

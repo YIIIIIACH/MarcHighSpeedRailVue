@@ -1,3 +1,5 @@
+請看群組更新關於前端環境的一些設定
+
 建立專案方式
 1. clone the MarcHighSpeedRailVue repository to your directory
 2. console. run >> cd MarcHighSpeedRailVue --> npm install --> npm install bootstrap --> npm install sass --> npm install sass-loader

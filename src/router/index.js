@@ -4,13 +4,14 @@ const Home = { template: '<div>Home</div>' }
 import booking from '../components/booking.vue'
 import shopping from '../components/shopping.vue'
 import lostItem from '../components/lostItem.vue'
-import employeeLogin from '../views/EmployeeLoginView.vue'
+import employeeLogin from '../views/employeeLoginView.vue'
+import employeeIndex from '../components/backendNavbar.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      component: Home
+      component: Home,
     },
     {
       path: '/lostItem',
@@ -25,8 +26,12 @@ const router = createRouter({
       component: shopping
     },
     {
-      path: '/employee',
+      path: '/emp/login',
       component: employeeLogin
+    },
+    {
+      path: '/emp/index',
+      component: employeeIndex
     }
   ]
 })

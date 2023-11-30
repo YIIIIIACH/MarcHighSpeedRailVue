@@ -13,13 +13,12 @@ const app = createApp(App)
 const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
 
 const httpClient = axios.create({
-    withCredentials: true,
+    withCredentials: false,
     baseURL: backendURL
 });
 
 app.use(createPinia())
 app.use(router)
-
 app.mount('#app')
 
 export default httpClient;

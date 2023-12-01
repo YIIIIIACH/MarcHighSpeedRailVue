@@ -4,7 +4,7 @@ const Home = { template: '<div>Home</div>' }
 import booking from '../views/booking.vue'
 import shopping from '../components/shopping.vue'
 import lostItem from '../components/lostItem.vue'
-import employeeLogin from '../views/employeeLoginView.vue'
+import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'
 const router = createRouter({
   history: createWebHistory(),

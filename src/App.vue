@@ -36,7 +36,7 @@ console.log(!path.includes('emp'))
             <router-link to="/shopping" class="nav-link">shopping</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/employee" class="nav-link">employee</router-link>
+            <router-link to="/emp/login" class="nav-link">employee</router-link>
           </li>
         </ul>
         <form class="d-flex">

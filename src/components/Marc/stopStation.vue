@@ -1,12 +1,14 @@
 <script setup>
-const props = defineProps(['stopSt'])
+import {ref ,onMounted,onUpdated} from 'vue'
+const props = defineProps(['stopSt','picked'])
 </script>
 <template>
-    <div class="stationDisplayBox"> 
-        <div class="circle"></div>{{ stopSt.stationName }}
+    <div class="stationDisplayBox" >
+        <div :class="{ circle:true, 'selected': picked}"></div>{{ stopSt.stationName }}
     </div>
 </template>
 <style>
+
 .circle{
     border:8px orange solid;
     border-radius: 15px;
@@ -18,4 +20,9 @@ const props = defineProps(['stopSt'])
     margin-top: 20px;
     display: flex;
 }
+.selected{
+    background-color: orange;
+    border:10px black solid
+}
+
 </style>

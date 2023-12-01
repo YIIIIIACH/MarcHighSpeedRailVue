@@ -1,11 +1,12 @@
 <script>
+import {ref, reactive} from 'vue'
+import httpClient from '../main'
 import  scheduleList from  '../components/Marc/scheduleList.vue'
 import scheduleSearchCondition from '../components/Marc/scheduleSearchCondition.vue'
 import timeShiftButton from '../components/Marc/timeShiftButton.vue'
 import displayScheduleStopStation from '../components/Marc/displayScheduleStopStation.vue'
-import httpClient from '@/main';
 import backendURL from '@/main'
-import { ref ,reactive , onMounted} from 'vue'
+import { onMounted} from 'vue'
     export default{
         setup(){
             return {
@@ -17,26 +18,24 @@ import { ref ,reactive , onMounted} from 'vue'
                 //'一般票','早鳥票','學生票','商務票'
                 selectDiscount: ref(''),
                 scheduleSearchResult: reactive([]),
-                scheduleStopStations: ref([
-                    // {
-                    //     stationId:14,
-                    //     stationName:'南港站'
-                    // },
-                    // {
-                    //     stationId:15,
-                    //     stationName:'台北站'
-                    // },
-                    // {
-                    //     stationId:16,
-                    //     stationName:'板橋站'
-                    // }
-                ])
+                scheduleStopStations: ref([]),
+                showScheduleStopStation: ref(false)
             }
         },
         computed:{
             
         },
         methods:{
+            stChange:function(newst){
+                console.log(' st change')
+                this.selectStartStation.value = newst;
+                console.log( this.selectStartStation.value)
+            },
+            edChange:function(newst){
+                console.log(' ed change')
+                this.selectEndStation.value = newst;
+                console.log( this.selectEndStation.value)
+            },
             searchTimeShift: function( hr){
                 // update new search time
                 let tmpDate = new Date();
@@ -79,19 +78,34 @@ import { ref ,reactive , onMounted} from 'vue'
                         this.scheduleSearchResult.push( tmp)
                     }
                 }).then(()=>{
-                    // console.log( this.scheduleSearchResult)
+                    if( this.scheduleSearchResult.length>0){
+                        this.refreshStopStationDisplay(this.scheduleSearchResult[0].scheduleId)
+                    }else{
+                        while(this.scheduleStopStations.length>0){
+                            this.scheduleStopStations.pop();
+                        }
+                    }
                 })
             },
             refreshStopStationDisplay:function(schid){
+                this.showScheduleStopStation=false;
                 httpClient.get('/getScheduleStopStationByScheduleId?schid='+schid)
                 .then((res)=>{
                     while(this.scheduleStopStations.length>0){
                         this.scheduleStopStations.pop();
                     }
-                    for( let schspst of res.data){
+                    // SORT by sequence
+                    let tmp = [];
+                    for( let spst of res.data){
+                        tmp.push(spst);
+                    }
+                    tmp.sort((a,b)=>{
+                        return a.railRouteStopStation - b.railRouteStopStation;
+                    })
+                    for( let schspst of tmp){
                         this.scheduleStopStations.push(schspst);
                     }
-                    // console.log(res.data)
+                    this.showScheduleStopStation=true;
                 })
             }
         },
@@ -134,17 +148,18 @@ import { ref ,reactive , onMounted} from 'vue'
 
 <template >
     <div class="bookingSystem">
-        <div class="displayStopStation">
-            <displayScheduleStopStation :stop-stations="scheduleStopStations"></displayScheduleStopStation>
-        </div>
-        <div class="displaySchedule">
-            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  @search="(edst)=>goSearch(edst)"></scheduleSearchCondition>
+            <displayScheduleStopStation :stop-stations="scheduleStopStations" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)"></displayScheduleStopStation>
+            <div class="displaySchedule">
+                <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :stst="selectStartStation" :edst="selectEndStation" @search="(edst)=>goSearch(edst)"></scheduleSearchCondition>
+                <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
             <scheduleList :schedules="scheduleSearchResult" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
-            <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
         </div>
     </div>
 </template>
 <style>
+    /* .display-stop-station{
+        width:160px
+    } */
     .bookingSystem{
         padding: 0px;
         margin: 20px 15%;

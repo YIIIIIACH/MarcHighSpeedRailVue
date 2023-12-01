@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 const Home = { template: '<div>Home</div>' }
 // const About = {template: '<div>About</div>'}
-import booking from '../views/booking.vue'
-import shopping from '../views/shopping.vue'
+import booking from '../views/bookingSystem/booking.vue'
 import lostItem from '../components/lostItem.vue'
 import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'

@@ -1,10 +1,10 @@
 <script>
 import {ref, reactive} from 'vue'
-import httpClient from '../main'
-import  scheduleList from  '../components/Marc/scheduleList.vue'
-import scheduleSearchCondition from '../components/Marc/scheduleSearchCondition.vue'
-import timeShiftButton from '../components/Marc/timeShiftButton.vue'
-import displayScheduleStopStation from '../components/Marc/displayScheduleStopStation.vue'
+import httpClient from '../../main'
+import  scheduleList from  '../../components/Marc/scheduleList.vue'
+import scheduleSearchCondition from '../../components/Marc/scheduleSearchCondition.vue'
+import timeShiftButton from '../../components/Marc/timeShiftButton.vue'
+import displayScheduleStopStation from '../../components/Marc/displayScheduleStopStation.vue'
 import backendURL from '@/main'
 import { onMounted} from 'vue'
     export default{
@@ -48,22 +48,11 @@ import { onMounted} from 'vue'
             goSearch:function(sted){
                 //find allStation which stationName.euqals sted[0].station ==>reasign
                 this.selectDiscount=sted[2]
-                for( let t of this.allStation){
-                    if(t.stationName == sted[0].stationName){
-                        this.selectStartStation.value = t;
-                    }
-                }
-                for( let t of this.allStation){
-                    if(t.stationName == sted[1].stationName){
-                        this.selectEndStation.value= t;
-                    }
-                }
                 this.search();
             },
             search:function(){
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
-                // console.log('search string: '+this.selectStartStation.value.stationId+'/'+this.selectEndStation.value.stationId+'/'+(this.departTime.time.getYear()+1900)+'-'+this.departTime.time.getMonth()+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes()+'/'+this.selectDiscount)
                 httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation.value.stationId+'/'+this.selectEndStation.value.stationId+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
                 .then(res=>{
                     // try to sort array of schedule in here 
@@ -117,6 +106,7 @@ import { onMounted} from 'vue'
         },
         beforeMount(){
             // fetch all station 
+            this.departTime.time.setMinutes(0);
             httpClient.get('/getAllStation')
             .then((res)=>{
                 let a = res.data;

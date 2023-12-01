@@ -1,3 +1,9 @@
+01 Dec 新增npm模組
+@vuepic/vue-datepicker
+安裝方式
+終端機輸入：npm install @vuepic/vue-datepicker
+
+
 請看群組更新關於前端環境的一些設定
 
 建立專案方式

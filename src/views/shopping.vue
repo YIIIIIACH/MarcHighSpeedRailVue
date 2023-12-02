@@ -6,8 +6,8 @@ export default {
   setup() {
     return {
       // cardText : ref(''),
-      products: ref([]), //要渲染的資料
-      source_products: ref([]), //原始資料
+      products: ref([]), //要渲染的商品資料
+      source_products: ref([]), //原始商品資料
 
       keyword: ref(""), 
 
@@ -15,19 +15,42 @@ export default {
       maxPrice: ref(""),
 
       productType: ref(""),
+
+      // totalPages: ref(0),
+
+      currentPage: ref(1),
+      perpage: ref(8), //一頁的商品資料數
+
     };
   },
-  computed: {},
+  computed: {
+    totalPage() {
+        return Math.ceil(this.products.length / this.perpage)
+        //Math.ceil()取最小分頁整數
+    },
+    pageStart() {
+        return (this.currentPage - 1) * this.perpage
+        //取得該頁第一個值的index
+    },
+    pageEnd() {
+        return this.currentPage * this.perpage
+        //取得該頁最後一個值的index
+    }
+  },
   methods: {
+
+    setPage(page) {
+        if(page <= 0 || page > this.totalPage) {
+            return //結束方法
+        }
+        this.currentPage = page
+    },
+
     search: function () {
       // fetch product by keyword
-      console.log('search')
       this.products = [];
       httpClient
-        .get(
-          "http://localhost:8080/MarcHighSpeedRail/product/findByNameLike?nameInput=" +
-            this.keyword
-        )
+        .get("http://localhost:8080/MarcHighSpeedRail/product/findByNameLike?nameInput=" +this.keyword)
         .then((res) => {
           let kps = res.data;
           for (let p of kps) {
@@ -43,13 +66,7 @@ export default {
       console.log('search  by price')
       this.products = [];
       httpClient
-        .get(
-          "http://localhost:8080/MarcHighSpeedRail/product/findByPrice?firstPrice=" +
-            this.minPrice +
-            "&" +
-            "secondPrice=" +
-            this.maxPrice
-        )
+        .get( "http://localhost:8080/MarcHighSpeedRail/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
         .then((res) => {
           let pps = res.data;
           for (let p of pps) {
@@ -60,26 +77,46 @@ export default {
           console.log(err);
         });
     },
-    searchByType: function () {
-      //     this.products = [];
-      //     httpClient
-      //     .get('http://localhost:8080/MarcHighSpeedRail/product/findByType?selectType=' + )
-      console.log("aa");
-    },
     selectedType(type) {
         // 2. 參數(type) asign 給 productType
       this.productType = type;
         // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
       this.products = this.source_products.filter(p=>p.productType==type);
     },
+
+    // goToPage: function(page){
+    //   httpClient
+    //   .get('http://localhost:8080/MarcHighSpeedRail/product/page?p=' + page)
+    //   .then((res)=>{
+    //     let page = res.data;
+    //     let ps = page.content;
+
+    //     this.products = [];
+    //     this.source_products = [];
+
+    //     for (let p of ps) { 
+    //       this.source_products.push(p);
+    //       this.products.push(p);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+
+    // }
   },
   components: {},
   beforeMount() {
-    // fetch all product before mount
+    // fetch all product and pages before mount
     httpClient
+      // .get("http://localhost:8080/MarcHighSpeedRail/product/page?p=1")
       .get("http://localhost:8080/MarcHighSpeedRail/products")
       .then((res) => {
         let ps = res.data;
+        // let page = res.data;
+        // let ps = page.content;
+        // this.totalPages = page.totalPages
+
         for (let p of ps) { 
             // 1. 遍歷出來的 product 放到 source_products & products
           this.source_products.push(p);
@@ -109,10 +146,20 @@ export default {
             |
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '紀念品','btn-primary': productType == '紀念品', }"
-              @click="selectedType('紀念品')"
+              :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
+              @click="selectedType('精選食品')"
             >
-              紀念品
+              精選食品
+            </button>
+            |
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-lg mb-0 border-0 btn-width"
+              :class="{'btn-outline-primary': productType != '日用生活','btn-primary': productType == '日用生活', }"
+              @click="selectedType('日用生活')"
+            >
+              日用生活
             </button>
             |
           </li>
@@ -120,20 +167,10 @@ export default {
           <li class="nav-item">
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '生活用品','btn-primary': productType == '生活用品', }"
-              @click="selectedType('生活用品')"
+              :class="{'btn-outline-primary': productType != '旅行戶外','btn-primary': productType == '旅行戶外', }"
+              @click="selectedType('旅行戶外')"
             >
-              生活用品
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
-              @click="selectedType('數位產品')"
-            >
-              數位產品
+              旅行戶外
             </button>
             |
           </li>
@@ -150,30 +187,40 @@ export default {
           <li class="nav-item">
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '模型','btn-primary': productType == '模型', }"
-              @click="selectedType('模型')"
+              :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
+              @click="selectedType('數位產品')"
             >
-              模型
+              數位產品
             </button>
             |
           </li>
           <li class="nav-item">
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '文具','btn-primary': productType == '文具', }"
-              @click="selectedType('文具')"
+              :class="{'btn-outline-primary': productType != '紀念商品','btn-primary': productType == '紀念商品', }"
+              @click="selectedType('紀念商品')"
             >
-              文具
+              紀念商品
             </button>
             |
           </li>
           <li class="nav-item">
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '旅行用品','btn-primary': productType == '旅行用品', }"
-              @click="selectedType('旅行用品')"
+              :class="{'btn-outline-primary': productType != '經典模型','btn-primary': productType == '經典模型', }"
+              @click="selectedType('經典模型')"
             >
-              旅行用品
+              經典模型
+            </button>
+            |
+          </li>
+          <li class="nav-item">
+            <button
+              class="btn btn-lg mb-0 border-0 btn-width"
+              :class="{'btn-outline-primary': productType != '實用文具','btn-primary': productType == '實用文具', }"
+              @click="selectedType('實用文具')"
+            >
+              實用文具
             </button>
             |
           </li>
@@ -194,10 +241,10 @@ export default {
 
   <!-- 產品 -->
   <div class="each-product">
-    <div class="card card-gap" style="width: 300px" v-for="p of products" :key="p.productId">
-        <div class=""> 
-            <!-- {{p.productId}} -->
-            <img :src="p.PhotoData" class="img-thumbnail" :alt="p.productName" />
+    <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId">
+        <div> 
+            {{p.productId}}
+            <img :src="p.PhotoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
             <p class="card-title">{{ p.productName }}</p>
             <span>${{ p.productPrice }}</span>
         </div>
@@ -209,18 +256,29 @@ export default {
   </div>
 
   <!-- 分頁 -->
-  <nav aria-label="...">
-    <ul class="pagination">
-      <li class="page-item disabled">
-        <span class="page-link">Previous</span>
+  <nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center">
+      <!-- 上一頁 -->
+      <li class="page-item" @click.prevent="setPage(currentPage-1)">
+        <a class="page-link" href="#" aria-label="Previous">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
       </li>
-      <div>
-        <li class="page-item">
-          <a class="page-link" href="#">{{pageNumber}}</a>
-         </li>
-      </div>
-      <li class="page-item">
-        <a class="page-link" href="#">Next</a>
+
+      <!-- 頁數 -->
+      <!-- <div v-for="page in totalPages" :key="page" :class="{ active: pageNumber === page }"> -->
+        <li class="page-item" :class="{'active': (currentPage === (page))}"
+            v-for="(page, index) in totalPage" :key="index" @click.prevent="setPage(page)">
+          <!-- <a class="page-link" href="#" @click="goToPage(page)">{{ page }}</a> -->
+          <a class="page-link" href="#">{{ page }}</a>
+        </li>
+      <!-- </div> -->
+      
+      <!-- 下一頁 -->
+      <li class="page-item" @click.prevent="setPage(currentPage+1)">
+        <a class="page-link" href="#" aria-label="Next">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
       </li>
     </ul>
   </nav>

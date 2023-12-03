@@ -10,8 +10,8 @@ import { onMounted} from 'vue'
     export default{
         setup(){
             return {
-                selectStartStation: ref(-1),
-                selectEndStation: ref(-1),
+                selectStartStation: ref(14),
+                selectEndStation: ref(25),
                 departTime: reactive({'time':new Date()}),
                 allStation: reactive([]),
                 allDiscount: ref([]),
@@ -19,7 +19,7 @@ import { onMounted} from 'vue'
                 selectDiscount: ref(''),
                 scheduleSearchResult: reactive([]),
                 scheduleStopStations: ref([]),
-                showScheduleStopStation: ref(false)
+                showScheduleStopStation: ref(true)
             }
         },
         computed:{
@@ -44,13 +44,23 @@ import { onMounted} from 'vue'
                 this.search();
             },
             goSearch:function(){
-                //find allStation which stationName.euqals sted[0].station ==>reasign
-                // this.selectDiscount=sted[2]
                 console.log('go search')
                 this.search();
             },
             search:function(){
-                
+                while(this.allStation.length>0){
+                    this.allStation.pop();
+                }
+                httpClient.get('/getAllStation')
+                .then((res)=>{
+                    let a = res.data;
+                    for( let st of a){
+                        this.allStation.push(st)
+                    }
+                }).catch((err)=>{
+                    console.log(err)
+                })
+                // this.showScheduleStopStation=false
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
                 httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
@@ -74,7 +84,6 @@ import { onMounted} from 'vue'
                 })
             },
             refreshStopStationDisplay:function(schid){
-                this.showScheduleStopStation=false;
                 httpClient.get('/getScheduleStopStationByScheduleId?schid='+schid)
                 .then((res)=>{
                     while(this.scheduleStopStations.length>0){
@@ -91,9 +100,6 @@ import { onMounted} from 'vue'
                     for( let schspst of tmp){
                         this.scheduleStopStations.push(schspst);
                     }
-                    this.showScheduleStopStation=true;
-                    
-                    console.log(res.data)
                 })
             }
         },

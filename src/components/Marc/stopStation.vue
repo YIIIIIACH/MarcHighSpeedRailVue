@@ -1,10 +1,11 @@
 <script setup>
 import {ref ,onMounted,onUpdated} from 'vue'
-const props = defineProps(['stopSt','picked'])
+const props = defineProps(['stopSt','pickedStart','pickedEnd'])
+const emits= defineEmits(['changeStop'])
 </script>
 <template>
-    <div class="stationDisplayBox" >
-        <div :class="{ circle:true, 'selected': picked}"></div>{{ stopSt.stationName }}
+    <div class="stationDisplayBox" @click="$emit('changeStop',props.stopSt)"  >
+        <button :class="{ circle:true, 'selectedStart': pickedStart,'selectedEnd':pickedEnd}"  ></button><label style="font-size: 28px;font-weight:bold;align-self: center;">{{ stopSt.stationName }}</label>
     </div>
 </template>
 <style>
@@ -15,14 +16,20 @@ const props = defineProps(['stopSt','picked'])
     width: 50px;
     height:50px;
     background-color: white;
+    align-self: center;
 }
 .stationDisplayBox{
     margin-top: 20px;
     display: flex;
 }
-.selected{
-    background-color: orange;
+.selectedEnd{
+    background-color: rgb(255, 225, 0);
     border:10px black solid
 }
+.selectedStart{
+    background-color: rgb(255, 102, 0);
+    border:10px black solid
+}
+
 
 </style>

@@ -10,8 +10,8 @@ import { onMounted} from 'vue'
     export default{
         setup(){
             return {
-                selectStartStation: ref({ }),
-                selectEndStation: ref({ }),
+                selectStartStation: ref(-1),
+                selectEndStation: ref(-1),
                 departTime: reactive({'time':new Date()}),
                 allStation: reactive([]),
                 allDiscount: ref([]),
@@ -23,18 +23,16 @@ import { onMounted} from 'vue'
             }
         },
         computed:{
-            
         },
         methods:{
             stChange:function(newst){
-                console.log(' st change')
-                this.selectStartStation.value = newst;
-                console.log( this.selectStartStation.value)
+                this.selectStartStation = newst;
             },
             edChange:function(newst){
-                console.log(' ed change')
-                this.selectEndStation.value = newst;
-                console.log( this.selectEndStation.value)
+                this.selectEndStation = newst;
+            },
+            discChange:function(newDisc){
+                this.selectDiscount=newDisc;
             },
             searchTimeShift: function( hr){
                 // update new search time
@@ -45,15 +43,17 @@ import { onMounted} from 'vue'
                 // refresh on scheudle list
                 this.search();
             },
-            goSearch:function(sted){
+            goSearch:function(){
                 //find allStation which stationName.euqals sted[0].station ==>reasign
-                this.selectDiscount=sted[2]
+                // this.selectDiscount=sted[2]
+                console.log('go search')
                 this.search();
             },
             search:function(){
+                
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
-                httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation.value.stationId+'/'+this.selectEndStation.value.stationId+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
+                httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
                 .then(res=>{
                     // try to sort array of schedule in here 
                     res.data.sort( function(a,b){
@@ -66,14 +66,15 @@ import { onMounted} from 'vue'
                     for( let tmp of res.data){
                         this.scheduleSearchResult.push( tmp)
                     }
+                    
                 }).then(()=>{
                     if( this.scheduleSearchResult.length>0){
                         this.refreshStopStationDisplay(this.scheduleSearchResult[0].scheduleId)
-                    }else{
-                        while(this.scheduleStopStations.length>0){
-                            this.scheduleStopStations.pop();
-                        }
                     }
+                    
+                    // while(this.scheduleStopStations.length>0){
+                    //     this.scheduleStopStations.pop();
+                    // }
                 })
             },
             refreshStopStationDisplay:function(schid){
@@ -95,6 +96,8 @@ import { onMounted} from 'vue'
                         this.scheduleStopStations.push(schspst);
                     }
                     this.showScheduleStopStation=true;
+                    
+                    console.log(res.data)
                 })
             }
         },
@@ -116,8 +119,8 @@ import { onMounted} from 'vue'
             }).catch((err)=>{
                 console.log(err)
             }).then(()=>{
-                this.selectStartStation.value=this.allStation[0]
-                this.selectEndStation.value=this.allStation[this.allStation.length-1]
+                this.selectStartStation=this.allStation[0].stationId
+                this.selectEndStation=this.allStation[this.allStation.length-1].stationId
             }).then(()=>{
                 // fetch the default result of schedule
                 this.search();
@@ -137,10 +140,10 @@ import { onMounted} from 'vue'
 </script>
 
 <template >
-    <div class="bookingSystem">
-            <displayScheduleStopStation :stop-stations="scheduleStopStations" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)"></displayScheduleStopStation>
+    <div class="bookingSystem"><!--@ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" 'changeStSt','changeEdSt'-->
+            <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
             <div class="displaySchedule">
-                <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :stst="selectStartStation" :edst="selectEndStation" @search="(edst)=>goSearch(edst)"></scheduleSearchCondition>
+                <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
                 <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
             <scheduleList :schedules="scheduleSearchResult" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
         </div>

@@ -6,6 +6,9 @@ const wealthShowDisc = computed(()=>{
         return !(name==='一般票' || name==='商務票')
     })
 })
+const getLink = computed(()=>{
+    return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId
+})
 </script>
 <template>
     <div class="card schedulecardbox">
@@ -36,6 +39,9 @@ const wealthShowDisc = computed(()=>{
             <div class="timestationbox" style="padding:7%">
                 <a href="#" @click.stop="" class="btn btn-primary">  前往訂票</a>
             </div>
+            <!-- <router-link to="{name:'bookBuinessSeat',params:{schid:this.props.info.scheduleId,ststid:this.props.info.getOnStation.stationId,edstid:this.props.info.getOffStation.stationId}}">商務艙訂位</router-link> -->
+            <!-- <router-link to="/booking/buinessSeat/${info.scheduleId}/${info.getOnStation.stationId}/${info.getOffStation.stationId}">商務艙訂位</router-link> -->
+            <a :href="getLink">link here</a>
         </div>
     </div>
 </template>

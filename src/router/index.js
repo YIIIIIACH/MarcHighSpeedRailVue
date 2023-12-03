@@ -7,6 +7,7 @@ import goodsDetail from '../views/shopping/goodsDetail.vue'
 import lostItem from '../components/lostItem.vue'
 import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'
+import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -41,6 +42,11 @@ const router = createRouter({
     {
       path: '/emp/index',
       component: employeeIndex
+    },
+    {
+      path: '/booking/buinessSeat/:schid/:ststid/:edstid',
+      component: buinessBooking,
+      props:true
     }
   ]
 })

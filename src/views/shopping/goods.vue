@@ -1,13 +1,12 @@
 <script>
 import httpClient from "@/main";
-import backendURL from "@/main";
 import { ref, reactive, onMounted } from "vue";
 export default {
   setup() {
     return {
       // cardText : ref(''),
       products: ref([]), //要渲染的商品資料
-      source_products: ref([]), //原始商品資料
+      source_products: ref([]), //原始商品資料，用於暫存所有資料
 
       keyword: ref(""), 
 
@@ -16,10 +15,12 @@ export default {
 
       productType: ref(""),
 
-      // totalPages: ref(0),
+      highlightId: ref(0),
 
       currentPage: ref(1),
       perpage: ref(8), //一頁的商品資料數
+
+
 
     };
   },
@@ -39,14 +40,19 @@ export default {
   },
   methods: {
 
+    // 導向商品詳細頁
+    goToGoodsDetail(productId) {
+      this.$router.push({ name: 'goods-detail', params: { id: productId } });
+    },
+    //設定分頁
     setPage(page) {
         if(page <= 0 || page > this.totalPage) {
             return //結束方法
         }
         this.currentPage = page
     },
-
-    search: function () {
+    
+    searchByKeyword: function () {
       // fetch product by keyword
       this.products = [];
       httpClient
@@ -63,7 +69,6 @@ export default {
     },
     searchByPrice: function () {
       // fetch product by price
-      console.log('search  by price')
       this.products = [];
       httpClient
         .get( "http://localhost:8080/MarcHighSpeedRail/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
@@ -84,26 +89,13 @@ export default {
       this.products = this.source_products.filter(p=>p.productType==type);
     },
 
-    // goToPage: function(page){
-    //   httpClient
-    //   .get('http://localhost:8080/MarcHighSpeedRail/product/page?p=' + page)
-    //   .then((res)=>{
-    //     let page = res.data;
-    //     let ps = page.content;
-
-    //     this.products = [];
-    //     this.source_products = [];
-
-    //     for (let p of ps) { 
-    //       this.source_products.push(p);
-    //       this.products.push(p);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
-
-    // }
+    // 游標進出事件
+    handleMouseOver: function(productId) {
+      this.highlightId = productId;
+    },
+    handleMouseLeave: function() {
+      this.highlightId = null;
+    },
   },
   components: {},
   beforeMount() {
@@ -135,7 +127,7 @@ export default {
   <!-- 搜尋欄 -->
   <div class="search-bar">
     <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
-    <button class="btn btn-outline-success" @click="search" type="submit">search</button>
+    <button class="btn btn-outline-success" @click="searchByKeyword" type="submit">search</button>
   </div>
 
   <!-- 分類 -->
@@ -235,24 +227,20 @@ export default {
                 ——
                 <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
             </div>
-        <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">搜尋</button>
+        <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
     </fieldset>
   </aside>
 
   <!-- 產品 -->
   <div class="each-product">
-    <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId">
-        <div> 
-            {{p.productId}}
-            <img :src="p.PhotoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
-            <p class="card-title">{{ p.productName }}</p>
-            <span>${{ p.productPrice }}</span>
-        </div>
-        <div class="card-body">
-            <!-- <p class="card-text">{{p.productDescription}}</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a> -->
-        </div> 
-    </div>
+    <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
+      <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
+        <!-- {{p.productId}} -->
+        <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
+        <p class="card-title">{{ p.productName }}</p>
+        <span>${{ p.productPrice }}</span>
+      </div>
+    </div> 
   </div>
 
   <!-- 分頁 -->
@@ -281,6 +269,7 @@ export default {
         </a>
       </li>
     </ul>
+
   </nav>
 </template>
 
@@ -331,7 +320,5 @@ export default {
 .btn-width{
     width: 200px;
 }
-.color{
-    background-color:blue;
-}
+
 </style>

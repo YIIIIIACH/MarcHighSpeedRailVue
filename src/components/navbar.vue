@@ -21,7 +21,7 @@
                         <router-link to="/booking" class="nav-link">Booking</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link to="/shopping" class="nav-link">shopping</router-link>
+                        <router-link to="/goods" class="nav-link">shopping</router-link>
                     </li>
                     <li class="nav-item">
                         <router-link to="/emp/login" class="nav-link">employee</router-link>

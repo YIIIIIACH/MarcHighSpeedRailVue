@@ -71,10 +71,6 @@ import { onMounted} from 'vue'
                     if( this.scheduleSearchResult.length>0){
                         this.refreshStopStationDisplay(this.scheduleSearchResult[0].scheduleId)
                     }
-                    
-                    // while(this.scheduleStopStations.length>0){
-                    //     this.scheduleStopStations.pop();
-                    // }
                 })
             },
             refreshStopStationDisplay:function(schid){
@@ -141,7 +137,7 @@ import { onMounted} from 'vue'
 
 <template >
     <div class="bookingSystem"><!--@ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" 'changeStSt','changeEdSt'-->
-            <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
+            <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
             <div class="displaySchedule">
                 <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
                 <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>

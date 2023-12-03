@@ -1,22 +1,25 @@
 <script setup>
 import {ref ,onMounted,onUpdated} from 'vue'
-const props = defineProps(['stopSt','pickedStart','pickedEnd'])
+const props = defineProps(['stations','pickedStart','pickedEnd','willStop'])
 const emits= defineEmits(['changeStop'])
 </script>
 <template>
-    <div class="stationDisplayBox" @click="$emit('changeStop',props.stopSt)"  >
-        <button :class="{ circle:true, 'selectedStart': pickedStart,'selectedEnd':pickedEnd}"  ></button><label style="font-size: 28px;font-weight:bold;align-self: center;">{{ stopSt.stationName }}</label>
+    <div class="stationDisplayBox" @click="$emit('changeStop',props.stations)"  >
+        <button :class="{ circle:true,'will-stop':willStop, 'selectedStart': pickedStart,'selectedEnd':pickedEnd}"  ></button><label style="font-size: 28px;font-weight:bold;align-self: center;">{{ stations.stationName }}</label>
     </div>
 </template>
 <style>
 
 .circle{
-    border:8px orange solid;
+    border:8px rgb(188, 188, 188) solid;
     border-radius: 15px;
     width: 50px;
     height:50px;
     background-color: white;
     align-self: center;
+}
+.will-stop{
+    border:8px orange solid;
 }
 .stationDisplayBox{
     margin-top: 20px;

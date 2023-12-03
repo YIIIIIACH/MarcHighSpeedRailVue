@@ -1,10 +1,16 @@
 <script setup>
 import stopStation from './stopStation.vue'
 import {ref,computed} from 'vue'
-const props = defineProps(['stopStations','display','stst','edst'])
+const props = defineProps(['allStations','display','stst','edst','stopStations'])
 const emits = defineEmits(['changeStSt','changeEdSt'])
-const getStopStSeq = computed(()=>{
-})
+const willStop = (stid)=>{
+  for( let i=0; i<props.stopStations.length; i++){
+    if( props.stopStations[i].stopStation.stationId==stid){
+      return true
+    }
+  }
+  return false
+}
 const startOrEnd = ref(false);
 function changeStopSt(newStop){
   if(startOrEnd.value){
@@ -18,15 +24,15 @@ function changeStopSt(newStop){
 </script>
 <template>
     <TransitionGroup name="list" tag="ul" class="side-bar">
-        <li v-for="st of stopStations" v-show="display" :key="st.stopStation.stationId" >
-            <stopStation   @changeStop="(newStop)=>changeStopSt(newStop.stationId)" :stopSt="st.stopStation" :pickedStart="st.stopStation.stationId==stst" :pickedEnd="st.stopStation.stationId==edst"></stopStation>
+        <li v-for="st of allStations" v-show="display" :key="st.stationId" >
+            <stopStation   @changeStop="(newStop)=>changeStopSt(newStop.stationId)" :stations="st" :pickedStart="st.stationId==stst" :pickedEnd="st.stationId==edst" :willStop="willStop(st.stationId)"></stopStation>
         </li>
     </TransitionGroup>
 </template>
 <style>
 .side-bar{
     margin: left 5%;
-    width: 160px;
+    width: 220px;
     list-style-type: none;
 }
 /* .list-leave-active { */

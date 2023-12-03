@@ -25,7 +25,7 @@ export default {
       this.products = [];
       httpClient
         .get(
-          "http://localhost:8080/MarcHighSpeedRail/product/findByNameLike?nameInput=" +
+          "/product/findByNameLike?nameInput=" +
             this.keyword
         )
         .then((res) => {
@@ -44,7 +44,7 @@ export default {
       this.products = [];
       httpClient
         .get(
-          "http://localhost:8080/MarcHighSpeedRail/product/findByPrice?firstPrice=" +
+          "/product/findByPrice?firstPrice=" +
             this.minPrice +
             "&" +
             "secondPrice=" +
@@ -63,7 +63,7 @@ export default {
     searchByType: function () {
       //     this.products = [];
       //     httpClient
-      //     .get('http://localhost:8080/MarcHighSpeedRail/product/findByType?selectType=' + )
+      //     .get('/product/findByType?selectType=' + )
       console.log("aa");
     },
     selectedType(type) {
@@ -77,7 +77,7 @@ export default {
   beforeMount() {
     // fetch all product before mount
     httpClient
-      .get("http://localhost:8080/MarcHighSpeedRail/products")
+      .get("/products")
       .then((res) => {
         let ps = res.data;
         for (let p of ps) { 

@@ -26,7 +26,6 @@ function changeSelectStation(selectst, newStationName){
     <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon3">搜尋時間</span> <!-- yyyy-MM-ddTHH:mm-->
         <Datepicker class="form-control" id="datetimeInput" v-model="props.selectdatetime.time"></Datepicker>
-    <!-- <input :value="props.selectdatetime.time" type="datetime"  format class="form-control" id="datetimeInput" aria-describedby="basic-addon3"> -->
     <span class="input-group-text" id="basic-addon3">購票模式</span> <!-- @change="selectDisc=$event.target.value"-->
     <select class="form-select" aria-label="Default select example"   @change="selectDisc=$event.target.value">
         <option v-for="(discType,idx) of props.allDiscount" :key="idx">{{ discType }}</option>

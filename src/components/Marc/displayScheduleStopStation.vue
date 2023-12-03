@@ -38,9 +38,11 @@ function changeStopSt(newStop){
     width: 220px;
     list-style-type: none;
 }
-/* .list-leave-active { */
+.list-leave-active {
+  transition :all 0.7s ease;
+}
 .list-enter-active{
-  transition: all 0.5s ease;
+  transition: all 0.7s ease;
 }
 /* .list-leave-to { */
 .list-enter-from{

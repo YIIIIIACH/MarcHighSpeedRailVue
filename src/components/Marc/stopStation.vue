@@ -17,6 +17,7 @@ const emits= defineEmits(['changeStop'])
     height:50px;
     background-color: white;
     align-self: center;
+    z-index: 100;
 }
 .will-stop{
     border:8px orange solid;
@@ -27,11 +28,11 @@ const emits= defineEmits(['changeStop'])
 }
 .selectedEnd{
     background-color: rgb(255, 225, 0);
-    border:10px black solid
+    border:10px rgb(138, 77, 28) solid
 }
 .selectedStart{
     background-color: rgb(255, 102, 0);
-    border:10px black solid
+    border:10px rgb(138, 77, 28) solid
 }
 
 

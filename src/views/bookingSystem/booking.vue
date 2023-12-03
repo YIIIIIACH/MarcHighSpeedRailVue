@@ -19,7 +19,10 @@ import { onMounted} from 'vue'
                 selectDiscount: ref(''),
                 scheduleSearchResult: reactive([]),
                 scheduleStopStations: ref([]),
-                showScheduleStopStation: ref(true)
+                showScheduleStopStation: ref(true),
+                showProgressBar:ref(false),
+                pbStart:ref('0%'),
+                pbEnd:ref('100%')
             }
         },
         computed:{
@@ -27,9 +30,35 @@ import { onMounted} from 'vue'
         methods:{
             stChange:function(newst){
                 this.selectStartStation = newst;
+                this.pbEnd='0%' 
             },
             edChange:function(newst){
                 this.selectEndStation = newst;
+                // determine is forward seqence 
+                if(newst > this.selectStartStation){
+                    for( let i=0;i < this.allStation.length; i++){
+                        if(this.allStation[i].stationId==this.selectStartStation){
+                            this.pbStart= ( (100*i) /(this.allStation.length-1))+'%'
+                        }
+                    }
+                    for( let i=0;i < this.allStation.length; i++){
+                        if(this.allStation[i].stationId==newst){
+                            this.pbEnd= ( (100*i) /(this.allStation.length-1) - parseFloat( this.pbStart.split('%')[0]))+'%'
+                        }
+                    }
+                }else{
+                    for( let i=0;i < this.allStation.length; i++){
+                        if(this.allStation[i].stationId==newst){
+                            this.pbStart= ( (100*i) /(this.allStation.length-1))+'%'
+                        }
+                    }
+                    for( let i=0;i < this.allStation.length; i++){
+                        if(this.allStation[i].stationId==this.selectStartStation){
+                            this.pbEnd= ( (100*i) /(this.allStation.length-1) - parseFloat( this.pbStart.split('%')[0]))+'%'
+                        }
+                    }
+                }
+
             },
             discChange:function(newDisc){
                 this.selectDiscount=newDisc;
@@ -48,6 +77,10 @@ import { onMounted} from 'vue'
                 this.search();
             },
             search:function(){
+                this.showProgressBar=false
+                setTimeout(() => {
+                    this.showProgressBar=true;
+                }, 700);
                 while(this.allStation.length>0){
                     this.allStation.pop();
                 }
@@ -65,6 +98,7 @@ import { onMounted} from 'vue'
                 //proximateTime  yyyy-MM-dd-HH-mm
                 httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
                 .then(res=>{
+                    
                     // try to sort array of schedule in here 
                     res.data.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
@@ -75,6 +109,11 @@ import { onMounted} from 'vue'
                     }
                     for( let tmp of res.data){
                         this.scheduleSearchResult.push( tmp)
+                    }
+                    if(this.scheduleSearchResult.length==0){
+                        while(this.scheduleStopStations.length>0){
+                            this.scheduleStopStations.pop();
+                        }
                     }
                     
                 }).then(()=>{
@@ -110,6 +149,7 @@ import { onMounted} from 'vue'
             displayScheduleStopStation
         },
         beforeMount(){
+            setTimeout(()=>this.showProgressBar=true,700)
             // fetch all station 
             this.departTime.time.setMinutes(0);
             httpClient.get('/getAllStation')
@@ -142,13 +182,26 @@ import { onMounted} from 'vue'
 </script>
 
 <template >
-    <div class="bookingSystem"><!--@ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" 'changeStSt','changeEdSt'-->
-            <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
-            <div class="displaySchedule">
-                <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
-                <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
+    <div class="bookingSystem">
+        <transition name="fade" mode="in-out">
+            <!-- <div class="progress progress-bar-vertical" v-show="showProgressBar">
+                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 77%;"></div>
+            </div> -->
+            <div class="progress progress-bar-vertical" v-show="showProgressBar">
+            <div class="progress-bar" role="progressbar" :style="{'height':pbStart}"></div>
+            <div class="progress-bar" role="progressbar"  style="background-color: rgb(255, 195, 14);" :style="{'height':pbEnd}">
+            </div>
+        </div>
+        </transition>
+        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
+        <div class="displaySchedule">
+            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
+            <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
             <scheduleList :schedules="scheduleSearchResult" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
         </div>
+    </div>
+    <div class="container">
+        
     </div>
 </template>
 <style>
@@ -156,6 +209,7 @@ import { onMounted} from 'vue'
         width:160px
     } */
     .bookingSystem{
+        position:relative;
         padding: 0px;
         margin: 20px 15%;
         display: flex;
@@ -167,5 +221,37 @@ import { onMounted} from 'vue'
     .displaySchedule{
         width:80%;
         margin: 0px;
+    }
+    .progress-bar-vertical {
+        position:absolute;
+        left:50px;
+        top:40px;
+        width: 30px;
+        min-height: 780px;
+        border-radius: 10px;
+        display: flex;
+        flex-direction: column;
+        /* align-items: flex-end; */
+        float:left;
+        z-index: 10;
+    }
+
+    .progress-bar-vertical
+    .progress-bar {
+        width: 100%;
+        background-color: rgb(255, 255, 255);
+        z-index: 10;
+    }
+    
+    .fade-enter-active{
+        transition: opacity .5s
+    }
+    .fade-leave-active {
+        transition: opacity .07s;
+    }
+
+    .fade-enter-from,
+    .fade-leave-to {
+    opacity: 0;
     }
 </style>

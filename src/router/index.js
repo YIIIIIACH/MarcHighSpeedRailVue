@@ -8,6 +8,7 @@ import lostItem from '../components/lostItem.vue'
 import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'
 import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
+import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -20,8 +21,17 @@ const router = createRouter({
       component: lostItem
     },
     {
+      path: '/searchSchedule',
+      component: searchSchedule
+    },
+    {
       path: '/booking',
       component: booking
+    },
+    {
+      path: '/booking/buinessSeat/:schid/:ststid/:edstid/:departTime',
+      component: buinessBooking,
+      props:true
     },
     {
       path: '/goods',
@@ -42,11 +52,6 @@ const router = createRouter({
     {
       path: '/emp/index',
       component: employeeIndex
-    },
-    {
-      path: '/booking/buinessSeat/:schid/:ststid/:edstid/:departTime',
-      component: buinessBooking,
-      props:true
     }
   ]
 })

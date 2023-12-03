@@ -1,8 +1,8 @@
 <script>
 import {ref, reactive} from 'vue'
 import httpClient from '../../main'
-import  scheduleList from  '../../components/Marc/scheduleList.vue'
-import scheduleSearchCondition from '../../components/Marc/scheduleSearchCondition.vue'
+import  scheduleList from  '../../components/Marc/searchSchedule/searchScheduleList.vue'
+import scheduleSearchCondition from '../../components/Marc/searchSchedule/searchScheduleSearchCondition.vue'
 import timeShiftButton from '../../components/Marc/timeShiftButton.vue'
 import displayScheduleStopStation from '../../components/Marc/displayScheduleStopStation.vue'
 import backendURL from '@/main'
@@ -22,21 +22,10 @@ import { onMounted} from 'vue'
                 showScheduleStopStation: ref(true),
                 showProgressBar:ref(false),
                 pbStart:ref('0%'),
-                pbEnd:ref('100%'),
-                //分別代表 一般票 商務票 學生票 早鳥票的優惠 以及額外兩種多餘顏色
-                discColorList:ref(['#ff7f7f','#cfb558','#97e422','#55e9ff','#c385ff','#e8e6c0'])
+                pbEnd:ref('100%')
             }
         },
         computed:{
-            discColor(){
-                //get index of selectDiscount in allDiscount
-                for( let idx = 0; idx<this.allDiscount.length;idx++){
-                    if( this.allDiscount[idx]== this.selectDiscount){
-                        return this.discColorList[idx]
-                    }
-                }
-                return '#ffffff'
-            }
         },
         methods:{
             stChange:function(newst){
@@ -208,7 +197,7 @@ import { onMounted} from 'vue'
         <div class="displaySchedule">
             <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
             <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
-            <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
+            <scheduleList :schedules="scheduleSearchResult" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
         </div>
     </div>
     <div class="container">

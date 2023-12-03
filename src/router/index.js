@@ -44,7 +44,7 @@ const router = createRouter({
       component: employeeIndex
     },
     {
-      path: '/booking/buinessSeat/:schid/:ststid/:edstid',
+      path: '/booking/buinessSeat/:schid/:ststid/:edstid/:departTime',
       component: buinessBooking,
       props:true
     }

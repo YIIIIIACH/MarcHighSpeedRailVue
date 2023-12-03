@@ -1,14 +1,17 @@
 <script setup>
-import { computed} from 'vue'
+import { computed, } from 'vue'
+import 'vue-router'
     const props = defineProps(['info'])
 const wealthShowDisc = computed(()=>{
     return props.info.containTicketDiscountName.filter((name)=>{
         return !(name==='一般票' || name==='商務票')
     })
 })
-const getLink = computed(()=>{
-    return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId
-})
+const getLink = ()=>{
+    console.log('getlink')
+    console.log('here'+props.info.getOnTime)
+    return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId+"/"+props.info.getOnTime
+}
 </script>
 <template>
     <div class="card schedulecardbox">
@@ -37,11 +40,9 @@ const getLink = computed(()=>{
             </a>
                 
             <div class="timestationbox" style="padding:7%">
-                <a href="#" @click.stop="" class="btn btn-primary">  前往訂票</a>
+                <a href="#" @click.stop="this.$router.push(getLink())" class="btn btn-primary">  前往訂票</a>
             </div>
-            <!-- <router-link to="{name:'bookBuinessSeat',params:{schid:this.props.info.scheduleId,ststid:this.props.info.getOnStation.stationId,edstid:this.props.info.getOffStation.stationId}}">商務艙訂位</router-link> -->
-            <!-- <router-link to="/booking/buinessSeat/${info.scheduleId}/${info.getOnStation.stationId}/${info.getOffStation.stationId}">商務艙訂位</router-link> -->
-            <a :href="getLink">link here</a>
+            <!-- <a :href="getLink">link here</a> -->
         </div>
     </div>
 </template>

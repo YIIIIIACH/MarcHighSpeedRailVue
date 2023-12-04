@@ -2,16 +2,29 @@
 import seatColumn from '../../components/Marc/seatColumn.vue';
 import httpClient from '../../main'
 import { onBeforeMount ,reactive, computed} from 'vue'
-// import { useRouter,useRoute} from 'vue-router'
-// const router = useRouter();
-// const route = useRoute();
-const name = 'bookBuinessSeat'
-const props = defineProps(['schid','ststid','edstid'])
+const props = defineProps(['schid','ststid','edstid','departTime'])
 const seats = reactive([])
 const bookeds= reactive([])
+const departTime = reactive(new Date())
 // const railRouteSegment = reactive({})
 // const ticketDiscount = reactive({})
 const info = reactive({})
+const getTotalPrice = computed(()=>{
+    let cnt = 0;
+    let selecteds = seats.filter((st)=> st.selected)
+    for( let slct of selecteds){
+        cnt += info.rrseg.railRouteSegmentTicketPrice * info.ticketDiscount.ticketDiscountPercentage/100-info.ticketDiscount.ticketDiscountAmount;
+    }
+    return cnt;
+})
+const getDepartTime = computed(()=>{
+    return departTime.getFullYear() + '/' + departTime.getMonth() + '/' +departTime.getDate();
+})
+const hasSelect = computed(()=>{
+    console.log('ggg')
+    let res =seats.filter((st)=> st.selected)
+    return res.length>0;
+})
 const getSelected= computed(()=>{
     let res =seats.filter((st)=> st.selected)
     if(res.length==0)return [{'emptyMsg':'你沒有選取座位'}];
@@ -91,39 +104,92 @@ onBeforeMount(() => {
             info.ticketDiscount=res.data[0]
         }
     })
+    //build up departTime;
+    // console.log( props.departTime)
+    let ymd = props.departTime.toString().split(' ')[0]
+    console.log(ymd)
+    ymd = ymd.split('-')
+    let hm = props.departTime.toString().split(' ')[1]
+    console.log(hm)
+    hm = hm.split(':')
+    departTime.setFullYear( ymd[0] )
+    departTime.setMonth(ymd[1]-1)
+    departTime.setDate(ymd[2])
+    departTime.setHours( hm[0])
+    departTime.setMinutes(hm[1])
 })
 
 </script>
 <template>
-    <h1>buiness class booking</h1>
-    <div class="container carriage" >
-        <div style="width: 25%;padding: 0px;"></div>
-        <div>
-            <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
-        </div>
-        <div style="width: 25%;padding: 0px;"></div>
-    </div>
-    <button @click="goBookBuinessSeats">訂商務票</button>
-    <div class="card">
-    <a class="card-header" style="text-decoration: none;" data-bs-toggle="collapse" href="#buinessBookDetail" role="button" aria-expanded="false" aria-controls="buinessBookDetail">
-        查看已選取座位
-    </a>
-    </div>
-    <div class="collapse" id="buinessBookDetail">
-    <div class="card card-body" v-for="selectedSeat of getSelected">
-        <div >
-            {{ selectedSeat.seatId }}{{ selectedSeat.seatCode }}{{ selectedSeat.seatDescirption }}{{ selectedSeat.emptyMsg }}
-             <span v-if="selectedSeat.seatId!=undefined">
-                {{info.ticketDiscount.ticketDiscountName}}:{{ info.rrseg.railRouteSegmentTicketPrice *(info.ticketDiscount.ticketDiscountPercentage/100)-info.ticketDiscount.ticketDiscountAmount+'元' }}
-             </span>
+    <div class="container">
+        <h1>MarcHighSpeedRail 商務艙訂位</h1>
+        <div class=" carriage" >
+            <div >
+                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
+            </div>
         </div>
     </div>
+    <div class="container">
+        <div class="card">
+        <a class="card-header" style="text-decoration: none;" data-bs-toggle="collapse" href="#buinessBookDetail" role="button" aria-expanded="false" aria-controls="buinessBookDetail">
+            查看已選取座位
+        </a>
+        </div>
+        <div class="collapse" id="buinessBookDetail">
+        <div class="card card-body" v-for="selectedSeat of getSelected">
+            <div >
+                {{ selectedSeat.seatId }}{{ selectedSeat.seatCode }}{{ selectedSeat.seatDescirption }}{{ selectedSeat.emptyMsg }}
+                    <span v-if="selectedSeat.seatId!=undefined">
+                    {{info.ticketDiscount.ticketDiscountName}}:{{ info.rrseg.railRouteSegmentTicketPrice *(info.ticketDiscount.ticketDiscountPercentage/100)-info.ticketDiscount.ticketDiscountAmount+'元' }}
+                    </span>
+            </div>
+        </div>
+        </div>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            前往訂票
+        </button>
+    
+        <!-- Modal -->
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">[注意] 商務座訂票須直接付費</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div v-if="hasSelect">
+                    <span>確定要訂位</span>
+                    <div v-for="selectedSeat of getSelected">
+                        <span>{{ selectedSeat.seatCode }}</span>{{ selectedSeat.seatDescirption }}
+                        <span v-if="selectedSeat.seatId!=undefined">
+                        {{info.ticketDiscount.ticketDiscountName}}
+                        </span>
+                    </div>
+                    <div>
+                        <span>總計：{{ getTotalPrice }}元</span>
+                        <br><span>注意將在{{ getDepartTime }}發車</span>
+                    </div>
+                </div>
+                <div v-else>
+                    <span>你沒有選取座位</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                <button type="button" @click="goBookBuinessSeats" class="btn btn-primary">前往付費訂票</button>
+            </div>
+            </div>
+        </div>
+        </div>
     </div>
 </template>
 <style>
 .carriage{
     border: 4px grey solid;
     border-radius: 8px;
-    display:flex
+    display:flex;
+    justify-content: center;
 }
 </style>

@@ -1,8 +1,8 @@
 <script>
 import {ref, reactive} from 'vue'
 import httpClient from '../../main'
-import  scheduleList from  '../../components/Marc/scheduleList.vue'
-import scheduleSearchCondition from '../../components/Marc/scheduleSearchCondition.vue'
+import  scheduleList from  '../../components/Marc/searchSchedule/searchScheduleList.vue'
+import scheduleSearchCondition from '../../components/Marc/searchSchedule/searchScheduleSearchCondition.vue'
 import timeShiftButton from '../../components/Marc/timeShiftButton.vue'
 import displayScheduleStopStation from '../../components/Marc/displayScheduleStopStation.vue'
 import backendURL from '@/main'
@@ -107,15 +107,13 @@ import { onMounted} from 'vue'
                 // this.showScheduleStopStation=false
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
-                ///searchBookableScheduleByTimeGetOnOffStation
-                httpClient.get('/searchBookableScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes()+'/'+this.selectDiscount)
+                httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
                 .then(res=>{
                     
                     // try to sort array of schedule in here 
                     res.data.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
                     })
-                    console.log( res.data)
                     //clear old schedule search result
                     while( this.scheduleSearchResult.length>0){
                         this.scheduleSearchResult.pop();
@@ -190,9 +188,6 @@ import { onMounted} from 'vue'
             }).then(()=>{
                 this.selectDiscount= this.allDiscount[0]
             })
-            // httpClient.get('/getAllDiscount').then((res)=>{
-            //     console.log( res.data)
-            // })
         }
     }
 </script>
@@ -213,7 +208,7 @@ import { onMounted} from 'vue'
         <div class="displaySchedule">
             <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
             <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
-            <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :selectDisc="selectDiscount"></scheduleList>
+            <scheduleList :schedules="scheduleSearchResult"  @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :colorList="discColorList" :allDisc="allDiscount"></scheduleList>
         </div>
     </div>
     <div class="container">

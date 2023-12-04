@@ -30,7 +30,10 @@ console.log(!path.includes('emp'))
             <router-link to="/lostItem" class="nav-link">lost</router-link>
           </li>
           <li class="nav-item">
-            <router-link to="/booking" class="nav-link">Booking</router-link>
+            <router-link to="/searchSchedule" class="nav-link">搜尋班次</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/booking" class="nav-link">高鐵訂票</router-link>
           </li>
           <!-- <li class="nav-item">
             <router-link to="/goods" class="nav-link">shopping</router-link>
@@ -62,4 +65,8 @@ console.log(!path.includes('emp'))
   </section>
 </template>
 
-<style></style>
+<style>
+.nav-link{
+  color: white;
+}
+</style>

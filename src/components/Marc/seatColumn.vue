@@ -16,9 +16,11 @@ const isBooked= function(st){
 </template>
 <style>
 .column{
-    display:flex
+    display:flex;
+    
 }
 .seat{
+    justify-content: center;
     width: 30px;
     height: 30px;
     border: 4px black solid;

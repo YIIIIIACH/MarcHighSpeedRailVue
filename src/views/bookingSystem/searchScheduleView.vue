@@ -16,16 +16,27 @@ import { onMounted} from 'vue'
                 allStation: reactive([]),
                 allDiscount: ref([]),
                 //'一般票','早鳥票','學生票','商務票'
-                selectDiscount: ref(''),
+                selectDiscount: ref('一般票'),
                 scheduleSearchResult: reactive([]),
                 scheduleStopStations: ref([]),
                 showScheduleStopStation: ref(true),
                 showProgressBar:ref(false),
                 pbStart:ref('0%'),
-                pbEnd:ref('100%')
+                pbEnd:ref('100%'),
+                //分別代表 一般票 商務票 學生票 早鳥票的優惠 以及額外兩種多餘顏色
+                discColorList:ref(['#ff7f7f','#cfb558','#97e422','#55e9ff','#c385ff','#e8e6c0'])
             }
         },
         computed:{
+            discColor(){
+                //get index of selectDiscount in allDiscount
+                for( let idx = 0; idx<this.allDiscount.length;idx++){
+                    if( this.allDiscount[idx]== this.selectDiscount){
+                        return this.discColorList[idx]
+                    }
+                }
+                return '#ffffff'
+            }
         },
         methods:{
             stChange:function(newst){
@@ -197,7 +208,7 @@ import { onMounted} from 'vue'
         <div class="displaySchedule">
             <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
             <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
-            <scheduleList :schedules="scheduleSearchResult" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)"></scheduleList>
+            <scheduleList :schedules="scheduleSearchResult"  @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :colorList="discColorList" :allDisc="allDiscount"></scheduleList>
         </div>
     </div>
     <div class="container">

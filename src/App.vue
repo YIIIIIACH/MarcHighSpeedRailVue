@@ -55,4 +55,8 @@ console.log(!path.includes('emp'))
   </section>
 </template>
 
-<style></style>
+<style>
+.nav-link{
+  color: white;
+}
+</style>

@@ -32,8 +32,18 @@ console.log(!path.includes('emp'))
           <li class="nav-item">
             <router-link to="/booking" class="nav-link">Booking</router-link>
           </li>
-          <li class="nav-item">
+          <!-- <li class="nav-item">
             <router-link to="/goods" class="nav-link">shopping</router-link>
+          </li> -->
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="shoppingDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            shopping
+            </a>
+            <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
+              <router-link to="/goods" class="dropdown-item">購物中心</router-link>
+              <router-link to="/goods/cart" class="dropdown-item">我的購物車</router-link>
+              <router-link to="/goods/wish" class="dropdown-item">我的追蹤清單</router-link>
+            </div>
           </li>
           <li class="nav-item">
             <router-link to="/emp/login" class="nav-link">employee</router-link>

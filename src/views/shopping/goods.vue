@@ -19,9 +19,6 @@ export default {
 
       currentPage: ref(1),
       perpage: ref(8), //一頁的商品資料數
-
-
-
     };
   },
   computed: {
@@ -123,7 +120,7 @@ export default {
   <!-- 搜尋欄 -->
   <div class="search-bar">
     <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
-    <button class="btn btn-outline-success" @click="searchByKeyword" type="submit">search</button>
+    <button class="btn btn-outline-success" @click="searchByKeyword" style="width:100px">搜尋</button>
   </div>
 
   <!-- 分類 -->
@@ -214,6 +211,47 @@ export default {
           </li>
         </ul>
   </nav>
+
+  <!-- 展示窗 -->
+  <!-- <div id="carouselExampleCaptions" class="carousel slide mx-auto" data-bs-ride="carousel" style="width:400px">
+    <div class="carousel-indicators">
+      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+    </div>
+    <div>
+      <div class="carousel-inner">
+        <h2 style="text-align:center">熱銷商品</h2>
+        <div class="carousel-item active" >
+          <img :src="products[0].photoData" class="d-block w-100" :alt="products[0].productName">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="showcase-productName">{{products[0].productName}}</h5>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img :src="products[19].photoData" class="d-block w-100" :alt="products[19].productName">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="showcase-productName">{{products[19].productName}}</h5>
+          </div>
+        </div>
+        <div class="carousel-item">
+          <img :src="products[18].photoData" class="d-block w-100" :alt="products[18].productName">
+          <div class="carousel-caption d-none d-md-block">
+            <h5 class="showcase-productName">{{products[18].productName}}</h5>
+          </div>
+        </div>
+      </div>
+      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+    </div>
+  </div> -->
+
   <!-- 側邊攔 -->
   <aside class="sideBar">
     <fieldset>
@@ -315,6 +353,10 @@ export default {
 }
 .btn-width{
     width: 200px;
+    color: aquamarine;
+}
+.showcase-productName{
+  color: rgb(47, 35, 11);
 }
 
 </style>

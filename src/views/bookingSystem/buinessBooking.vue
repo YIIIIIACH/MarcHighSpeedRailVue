@@ -31,6 +31,26 @@ const columns = reactive({
     "D":[],
     "E":[]
 })
+function newGoBuinessBook(){
+    let selectedList = seats.filter((st)=>st.selected).map(st=>st.seatId);
+    httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
+        "seatList": selectedList
+    }
+    )
+    .then((res)=>{
+        console.log(res.data)
+        let str = res.data.toString();
+        let json = JSON.parse(str.slice(8))
+        console.log(json['links'])
+        for( let linkObj of json['links']){
+            if( linkObj['rel'] == 'approve'){
+                window.location= linkObj['href']
+            }
+        }
+    }).catch((err)=>{
+        console.log(err)
+    })
+}
 function goBookBuinessSeats(){
    //get all select seat's scheduleSeatStatus
    let toBookSeatidList = []
@@ -173,7 +193,7 @@ onBeforeMount(() => {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" @click="goBookBuinessSeats" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
+                <button type="button" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
             </div>
             </div>
         </div>

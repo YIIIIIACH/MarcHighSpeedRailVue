@@ -4,6 +4,7 @@ const Home = { template: '<div>Home</div>' }
 import booking from '../views/bookingSystem/booking.vue'
 import goods from '../views/shopping/goods.vue'
 import goodsDetail from '../views/shopping/goodsDetail.vue'
+import shoppingCart from '../views/shopping/shoppingCart.vue'
 import lostItem from '../components/lostItem.vue'
 import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'
@@ -37,13 +38,24 @@ const router = createRouter({
       path: '/goods',
       component: goods
     },
-
     {
       path: '/goods/goodsDetail/:id',
       component: goodsDetail,
       name: 'goods-detail',
       props: true
     },
+    {
+      path: '/shoppingCart/:productId/:memberId',
+      component: shoppingCart,
+      name: 'shoppingCart',
+      props: true
+    },
+    // {
+    //   path: '/shoppingCart/:id', //id指的是memberId
+    //   component: shoppingCart,
+    //   name: 'shoppingCart',
+    //   props: true
+    // },
 
     {
       path: '/emp/login',

@@ -12,7 +12,7 @@ export default {
         beforeMount() {
             const productId = this.id;
 
-            httpClient.get(`http://localhost:8080/MarcHighSpeedRail/api/product/${productId}`)
+            httpClient.get(`/api/product/${productId}`)
             .then((res) =>{
                 //物件用.value
                 //陣列用.push()

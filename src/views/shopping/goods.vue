@@ -5,6 +5,7 @@ export default {
   setup() {
     return {
       // cardText : ref(''),
+      filterMode : ref('全部商品'),
       products: ref([]), //要渲染的商品資料
       source_products: ref([]), //原始商品資料，用於暫存所有資料
 
@@ -66,9 +67,10 @@ export default {
     searchByPrice: function () {
       // fetch product by price
       this.products = [];
-      httpClient.get( "http://localhost:8080/MarcHighSpeedRail/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
+      httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
         .then((res) => {
           let pps = res.data;
+          pps = pps.filter(p=>p.productType==this.filterMode);
           for (let p of pps) {
             this.products.push(p);
           }
@@ -78,6 +80,9 @@ export default {
         });
     },
     selectedType(type) {
+      this.filterMode = type;
+      // retunr page number to 1 
+      this.currentPage= 1;
         // 2. 參數(type) asign 給 productType
       this.productType = type;
         // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType

@@ -8,7 +8,16 @@ export default {
                 product: ref({}),
             }            
         },
-
+        methods:{
+            // 加入購物車
+            addItemToShoppingCart(productId){
+            const memberId = '123abc'
+            httpClient.post('/ShoppinCart/addProductToCart?productId=' + productId + '&' + 'memberId=' + memberId)
+            .then((res) =>{
+                alert(res.data)
+            }
+            )},
+        },
         beforeMount() {
             const productId = this.id;
 
@@ -48,7 +57,7 @@ export default {
     </div>
 
     <div class="mt-5">
-        <button type="button" class="btn btn-primary mx-5" data-bs-toggle="button" autocomplete="off">加入購物車</button>
+        <button type="button" class="btn btn-primary mx-5" @click="addItemToShoppingCart(this.id)">加入購物車</button>
         <button type="button" class="btn btn-primary " data-bs-toggle="button" autocomplete="off">直接購買</button>
     </div>
 </template>

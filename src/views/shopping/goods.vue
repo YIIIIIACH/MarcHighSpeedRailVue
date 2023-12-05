@@ -5,7 +5,7 @@ export default {
   setup() {
     return {
       // cardText : ref(''),
-      filterMode : ref('全部商品'),
+      filterMode: ref('全部商品'),
       products: ref([]), //要渲染的商品資料
       source_products: ref([]), //原始商品資料，用於暫存所有資料
 
@@ -14,34 +14,44 @@ export default {
       minPrice: ref(""),
       maxPrice: ref(""),
 
-      productType: ref(""),
+      productType: ref("全部商品"),
 
       highlightId: ref(0),
 
       currentPage: ref(1),
       perpage: ref(8), //一頁的商品資料數
+
+      priceErrorMessage: ref(''),
     };
   },
   computed: {
     totalPage() {
-        return Math.ceil(this.products.length / this.perpage)
-        //Math.ceil()取最小分頁整數
+      return Math.ceil(this.products.length / this.perpage)
+      //Math.ceil()取最小分頁整數
     },
     pageStart() {
-        return (this.currentPage - 1) * this.perpage
-        //取得該頁第一個值的index
+      return (this.currentPage - 1) * this.perpage
+      //取得該頁第一個值的index
     },
     pageEnd() {
-        return this.currentPage * this.perpage
-        //取得該頁最後一個值的index
+      return this.currentPage * this.perpage
+      //取得該頁最後一個值的index
     }
   },
   methods: {
-
     // 導向商品詳細頁
     goToGoodsDetail(productId) {
       this.$router.push({ name: 'goods-detail', params: { id: productId } });
     },
+    // 加入購物車
+    addItemToShoppingCart(productId){
+      const memberId = '123abc'
+      httpClient.post('/ShoppinCart/addProductToCart?productId=' + productId + '&' + 'memberId=' + memberId)
+      .then((res) =>{
+        alert(res.data)
+      }
+    )},
+
     //設定分頁
     setPage(page) {
         if(page <= 0 || page > this.totalPage) {
@@ -49,11 +59,12 @@ export default {
         }
         this.currentPage = page
     },
-    
+
+    //關鍵字搜尋 
     searchByKeyword: function () {
       // fetch product by keyword
       this.products = [];
-      httpClient.get("http://localhost:8080/MarcHighSpeedRail/product/findByNameLike?nameInput=" +this.keyword)
+      httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
         .then((res) => {
           let kps = res.data;
           for (let p of kps) {
@@ -64,13 +75,27 @@ export default {
           console.log(err);
         });
     },
+    //價格區間搜尋
     searchByPrice: function () {
       // fetch product by price
-      this.products = [];
-      httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
+      this.priceErrorMessage = ''
+      if(this.minPrice == ''){
+        this.priceErrorMessage = '請輸入最小值'
+      }else if(this.maxPrice == ''){
+        this.priceErrorMessage = '請輸入最大值'
+      }
+      //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
+      //   alert('不合法數值')
+      // }
+      else{
+        this.products = [];
+        httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
         .then((res) => {
           let pps = res.data;
-          pps = pps.filter(p=>p.productType==this.filterMode);
+          console.log(pps)
+          if(this.filterMode != '全部商品'){
+            pps = pps.filter(p => p.productType == this.filterMode);
+          }
           for (let p of pps) {
             this.products.push(p);
           }
@@ -78,15 +103,29 @@ export default {
         .catch((err) => {
           console.log(err);
         });
+      }
+    },
+    clearPrice: function(){
+      this.priceErrorMessage = '',
+      this.maxPrice = '',
+      this.minPrice = ''
     },
     selectedType(type) {
+      this.minPrice = '';
+      this.maxPrice = '';
+      this.priceErrorMessage = '';
+
       this.filterMode = type;
       // retunr page number to 1 
       this.currentPage= 1;
         // 2. 參數(type) asign 給 productType
       this.productType = type;
         // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
-      this.products = this.source_products.filter(p=>p.productType==type);
+        if(this.filterMode != '全部商品'){
+          this.products = this.source_products.filter(p=>p.productType==type);
+        }else{
+          this.products = this.source_products
+        }
     },
 
     // 游標進出事件
@@ -134,6 +173,16 @@ export default {
             <!-- <div class="list-product-type"></div> -->
           <li class="nav-item">
             |
+            <button
+              class="btn btn-lg mb-0 border-0 btn-width"
+              :class="{'btn-outline-primary': productType != '全部商品','btn-primary': productType == '全部商品', }"
+              @click="selectedType('全部商品')"
+            >
+              全部商品
+            </button>
+            |
+          </li>
+          <li class="nav-item">
             <button
               class="btn btn-lg mb-0 border-0 btn-width"
               :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
@@ -259,14 +308,18 @@ export default {
 
   <!-- 側邊攔 -->
   <aside class="sideBar">
-    <fieldset>
+    <fieldset style="text-align: center;">
         <legend style="display: inline; text-align: center">價格範圍</legend>
             <div>
                 <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
                 ——
                 <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
+                <div style="height: 1.2em;">
+                <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
+                </div>
             </div>
         <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
+        <button class="btn btn-outline-success price-btn" @click="clearPrice" type="submit">清除</button>
     </fieldset>
   </aside>
 
@@ -276,8 +329,17 @@ export default {
       <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
         <!-- {{p.productId}} -->
         <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
-        <p class="card-title">{{ p.productName }}</p>
-        <span>${{ p.productPrice }}</span>
+        <div class="row">
+          <div class="col-7 ">
+            <p class="card-title">{{ p.productName }}</p>
+            <div >
+              <p>${{ p.productPrice }}</p>
+            </div>
+          </div>
+          <div class="col-5 ">
+              <button class="btn btn-primary mt-3" @click.stop="addItemToShoppingCart(p.productId)" type="submit">加入購物車</button>
+          </div>
+        </div>
       </div>
     </div> 
   </div>
@@ -347,8 +409,9 @@ export default {
   display: inline;
 }
 .price-btn {
-  width: 200px;
-  margin: 20px 30px;
+  width: 80px;
+  margin: 20px 28px;
+  /* padding: 20px; */
 }
 
 /* style for  productType */

@@ -2,13 +2,13 @@
 import EmptyScheduleListItem from './emptyScheduleListItem.vue';
 import scheduleItem from './scheduleListItem.vue'
 var schedules = defineProps(['schedules','discColor','selectDisc'])
-const emits = defineEmits(['refresh-stop-station-display'])
+const emits = defineEmits(['refresh-stop-station-display','goBook'])
 
 </script>
 
 <template>
 <EmptyScheduleListItem v-if="schedules.schedules.length==0"></EmptyScheduleListItem>
-<scheduleItem v-for="sch of schedules.schedules" :key="sch.scheudleId" :info="sch" :useColor="discColor" :selectDisc="selectDisc" @click="$emit('refresh-stop-station-display',sch)"></scheduleItem>
+<scheduleItem v-for="sch of schedules.schedules" :key="sch.scheudleId" :info="sch" :useColor="discColor" :selectDisc="schedules.selectDisc" @click="$emit('refresh-stop-station-display',sch)" @goBook="(schidAndDisc)=>emits('goBook',schidAndDisc)"></scheduleItem>
 </template>
 
 <style>

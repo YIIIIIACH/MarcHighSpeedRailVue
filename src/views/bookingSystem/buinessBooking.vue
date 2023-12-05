@@ -1,13 +1,11 @@
 <script setup>
-import seatColumn from '../../components/Marc/seatColumn.vue';
+import seatColumn from '../../components/Marc/bookBuiness/seatColumn.vue';
 import httpClient from '../../main'
 import { onBeforeMount ,reactive, computed} from 'vue'
-const props = defineProps(['schid','ststid','edstid','departTime'])
+import 'vue-router'
+const props = defineProps(['schid','ststid','edstid','amount'])// remove 'departTime'
 const seats = reactive([])
 const bookeds= reactive([])
-const departTime = reactive(new Date())
-// const railRouteSegment = reactive({})
-// const ticketDiscount = reactive({})
 const info = reactive({})
 const getTotalPrice = computed(()=>{
     let cnt = 0;
@@ -17,11 +15,7 @@ const getTotalPrice = computed(()=>{
     }
     return cnt;
 })
-const getDepartTime = computed(()=>{
-    return departTime.getFullYear() + '/' + departTime.getMonth() + '/' +departTime.getDate();
-})
 const hasSelect = computed(()=>{
-    console.log('ggg')
     let res =seats.filter((st)=> st.selected)
     return res.length>0;
 })
@@ -45,8 +39,6 @@ function goBookBuinessSeats(){
             toBookSeatidList.push(st.seatId);
         }
    }
-//    console.log(toBookSeatidList)
-//    console.log(props['schid'])
     httpClient.post('/bookBuinessSeat',{
         "ticketDiscountName":"商務票",
         "scheduleId":props['schid'],
@@ -60,7 +52,11 @@ function goBookBuinessSeats(){
         },
         "orderSeatIdList":toBookSeatidList
     }).then((res)=>{
-        console.log(res.data)
+        if(res.data== 'book buiness'){
+            this.$router.push('/bookSuccess/buinessBook')
+        }else{
+            this.$router.push('/bookFail');
+        }
     })
 }
 
@@ -106,17 +102,17 @@ onBeforeMount(() => {
     })
     //build up departTime;
     // console.log( props.departTime)
-    let ymd = props.departTime.toString().split(' ')[0]
-    console.log(ymd)
-    ymd = ymd.split('-')
-    let hm = props.departTime.toString().split(' ')[1]
-    console.log(hm)
-    hm = hm.split(':')
-    departTime.setFullYear( ymd[0] )
-    departTime.setMonth(ymd[1]-1)
-    departTime.setDate(ymd[2])
-    departTime.setHours( hm[0])
-    departTime.setMinutes(hm[1])
+    // let ymd = props.departTime.toString().split(' ')[0]
+    // console.log(ymd)
+    // ymd = ymd.split('-')
+    // let hm = props.departTime.toString().split(' ')[1]
+    // console.log(hm)
+    // hm = hm.split(':')
+    // departTime.setFullYear( ymd[0] )
+    // departTime.setMonth(ymd[1]-1)
+    // departTime.setDate(ymd[2])
+    // departTime.setHours( hm[0])
+    // departTime.setMinutes(hm[1])
 })
 
 </script>
@@ -169,7 +165,6 @@ onBeforeMount(() => {
                     </div>
                     <div>
                         <span>總計：{{ getTotalPrice }}元</span>
-                        <br><span>注意將在{{ getDepartTime }}發車</span>
                     </div>
                 </div>
                 <div v-else>
@@ -178,7 +173,7 @@ onBeforeMount(() => {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" @click="goBookBuinessSeats" class="btn btn-primary">前往付費訂票</button>
+                <button type="button" @click="goBookBuinessSeats" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
             </div>
             </div>
         </div>

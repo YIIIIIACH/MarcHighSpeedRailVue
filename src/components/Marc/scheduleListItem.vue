@@ -18,9 +18,10 @@ const wealthShowDisc = computed(()=>{
     return props.info.containTicketDiscountName;
 })
 const getLink = ()=>{
-    console.log('getlink')
-    console.log('here'+props.info.getOnTime)
-    return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId+"/"+props.info.getOnTime
+    if( props.selectDisc == '商務票'){
+        return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId+"/"+props.info.getOnTime
+    }
+
 }
 </script>
 <template>
@@ -28,9 +29,9 @@ const getLink = ()=>{
         <div class="card-header" :style="{ 'background-color': useColor}">
             班次 {{ info.scheduleId }}<label style="text-align: right;margin-left: 60%;">花費時間 {{ info.durationMinute }}分鐘</label>
         </div>
-        <div style="height:10px;display:flex;justify-content: flex-end;align-items:flex-start;margin:0px 20%;padding:0px 0px;padding:0px 0px">
-            <a href="#" v-for="discName of wealthShowDisc" class="discounticon" :style="{ 'background-color': (discName==selectDisc)?useColor:'white'}">
-                <span class="glyphicon glyphicon-asterisk"></span>{{ discName }}
+        <div class="disc-icon">
+            <a href="#" v-for="discName of wealthShowDisc" class="discounticon" :style="{ 'background-color': (discName==selectDisc)?useColor:'white'}" style="margin-top: 20px;">
+                <span class="glyphicon glyphicon-asterisk">{{ discName }}</span>
             </a>
         </div>
         <div class="card-body scheduleinfobox">
@@ -49,27 +50,38 @@ const getLink = ()=>{
             <div>
 
             </div>
-            <div  style="padding:7%">
-                <a href="#" @click.stop="this.$router.push(getLink())" :style="{ 'background-color': useColor}" class="btn">  前往訂票</a>
+            <div  style="padding:7%"> <!--@click.stop="this.$router.push(getLink())"-->
+                <a href="#"  data-bs-toggle="modal" data-bs-target="#howManyTicket" :style="{ 'background-color': useColor}" class="btn">  前往訂票</a>
             </div>
         </div>
     </div>
 </template>
 <style>
 .timestationbox{
-    margin: 20px 20px;
+    margin: 10px 20px;
 }
 .scheduleinfobox{
     display:flex;
     justify-content: flex-end;
+    height: 200px;
+}
+.disc-icon{
+    
+    height:10px;
+    display:flex;
+    justify-content: flex-end;
+    align-items:flex-start;
+    margin:0px 20%;
+    padding:0px 0px
+    ;padding:0px 0px;
 }
 .discounticon{
-    height: 35px;
+    height: 30px;
+    justify-items: center;
     margin:0px 0px;
-    padding: 3px;
+    padding: 9px 15px 0px;
     border-radius: 5px;
     text-decoration: none;
-    
 }
 .schedulecardbox{
     margin:20px 20px;

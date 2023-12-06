@@ -95,6 +95,13 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
             }
         },
         methods:{
+            checkLoginToken:function(){
+                let cookieArr = document.cookie.split('login-token=')
+                if( cookieArr.length==1){
+                    return false;
+                }
+                return true;
+            },
             updatePrice: function(){
                 let cnt = 0;
                 for(let key  in this.toBookTickets){
@@ -118,25 +125,46 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                     this.$router.push({path:'/booking/buinessSeat/'+this.selectSchedule+'/'+this.selectStartStation+'/'+this.selectEndStation+'/'+this.getToBookTicketInDiscList().length})
                     return;
                 }
-
-                // console.log( this.getToBookTicketInDiscList());
-                httpClient.post('/booking'
-                ,{
-                    "scheduleId": this.selectSchedule,
-                    "ticketDiscountId": this.toBookDisc.ticketDiscountId,
-                    "startStationId": this.selectStartStation,
-                    "endStationId":this.selectEndStation,
-                    "chooseDiscounts": this.getToBookTicketInDiscList()
-                }).then((res)=>{
-                    console.log(res)
-                    if( res.status== 200){
-                        let ticketOrderId = res.data.split(':')[1];
-                        // console.log( ticketOrderId);
-                        this.$router.push('/bookSuccess/'+ticketOrderId)
-                    }else{
-                        this.$router.push('/bookFail');
-                    }
-                })
+                if(!this.checkLoginToken() ){
+                    httpClient.get('/addMemberTokenCookie').then(()=>{
+                        httpClient.post('/booking'
+                        ,{
+                            "scheduleId": this.selectSchedule,
+                            "ticketDiscountId": this.toBookDisc.ticketDiscountId,
+                            "startStationId": this.selectStartStation,
+                            "endStationId":this.selectEndStation,
+                            "chooseDiscounts": this.getToBookTicketInDiscList()
+                        }).then((res)=>{
+                            console.log(res)
+                            if( res.status== 200){
+                                let ticketOrderId = res.data.split(':')[1];
+                                // console.log( ticketOrderId);
+                                this.$router.push('/bookSuccess/'+ticketOrderId)
+                            }else{
+                                this.$router.push('/bookFail');
+                            }
+                        })
+                    })
+                }else{
+                    httpClient.post('/booking'
+                    ,{
+                        "scheduleId": this.selectSchedule,
+                        "ticketDiscountId": this.toBookDisc.ticketDiscountId,
+                        "startStationId": this.selectStartStation,
+                        "endStationId":this.selectEndStation,
+                        "chooseDiscounts": this.getToBookTicketInDiscList()
+                    }).then((res)=>{
+                        console.log(res)
+                        if( res.status== 200){
+                            let ticketOrderId = res.data.split(':')[1];
+                            // console.log( ticketOrderId);
+                            this.$router.push('/bookSuccess/'+ticketOrderId)
+                        }else{
+                            this.$router.push('/bookFail');
+                        }
+                    })
+                }
+                
             },
             dateToStr:function(dt){
                 console.log( dt)

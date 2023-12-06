@@ -15,22 +15,57 @@ const resInfo = reactive({
     "duration":'',
     "ticketStatusList":[]
 })
+function checkLoginToken(){
+    let cookieArr = document.cookie.split('login-token=')
+    if( cookieArr.length==1){
+        return false;
+    }
+    return true;
+}
 function goCheckOut(){
-    httpClient.post('/createTicketOrder?ticketOrderId='+props.tckodid)
-    .then((res)=>{
-        let str = res.data.toString();
- 
-        let json = JSON.parse(str.slice(8))
-        // console.log(json['links'])
-        for( let linkObj of json['links']){
-            if( linkObj['rel'] == 'approve'){
-                // find the approve link
-                //window.open('http://facebook.com','subwindow','width=320,height=200')
-                //window.open(linkObj['href'],'win3','width=700,height=1400')
-                window.location= linkObj['href']
+    if(!checkLoginToken()){
+        httpClient.get('/addMemberTokenCookie').then(()=>{
+            httpClient.post('/createTicketOrder?ticketOrderId='+props.tckodid)
+            .then((res)=>{
+                if( res.status==200){
+                    let json = res.data;
+                    // let str = res.data;
+                    // console.log( str)
+                    // let json = JSON.parse(str)
+                    // console.log(json['links'])
+                    for( let linkObj of json['links']){
+                        if( linkObj['rel'] == 'approve'){
+                            // find the approve link
+                            window.location= linkObj['href']
+                        }
+                    }
+                }
+            })
+            .catch(err=>{
+                alert('建立paypal付費訂單失敗')
+                console.log(err)
+            })
+        })
+    }else{
+        httpClient.post('/createTicketOrder?ticketOrderId='+props.tckodid)
+        .then((res)=>{
+            if( res.status==200){
+                let str = res.data.toString();
+                let json = JSON.parse(str)
+                // console.log(json['links'])
+                for( let linkObj of json['links']){
+                    if( linkObj['rel'] == 'approve'){
+                        // find the approve link
+                        window.location= linkObj['href']
+                    }
+                }
             }
-        }
-    })
+        })
+        .catch(err=>{
+            alert('建立paypal付費訂單失敗')
+            console.log(err)
+        })
+    }
 }
 const wasAllocate= computed(()=>{
     for( let stat of resInfo.ticketStatusList){
@@ -49,20 +84,41 @@ const getTotalPrice = computed(()=>{
     return sum;
  })
 onBeforeMount(()=>{
-    httpClient.get('/getBookingByTicketOrder/'+memberToken+'/'+props.tckodid)
-    .then((res)=>{
-        console.log(res.data);
-        // ticketOrderInfo = res.data
-        resInfo.scheduleInfo = res.data.ticketSchedule;
-        resInfo.ticketPrice = res.data.ticketPriceList;
-        resInfo.ticketDiscountList= res.data.ticketDiscountList
-        resInfo.trainDesp = res.data.ticketSchedule.train.trainDescription
-        // resInfo.railRouteSegment= res.data.ticketRailRouteSegment
-        resInfo.startStationName= res.data.ticketRailRouteSegment.startStation.stationName
-        resInfo.endStationName= res.data.ticketRailRouteSegment.endStation.stationName
-        resInfo.duration= res.data.ticketRailRouteSegment.railRouteSegmentDurationMinute
-        resInfo.ticketStatusList= res.data.ticketStatusList
-    }).catch(err=>console.log(err))
+    if(!checkLoginToken()){
+        httpClient.get('/addMemberTokenCookie').then(()=>{
+            httpClient.get('/getBookingByTicketOrder/'+props.tckodid)
+            .then((res)=>{
+                console.log(res.data);
+                // ticketOrderInfo = res.data
+                resInfo.scheduleInfo = res.data.ticketSchedule;
+                resInfo.ticketPrice = res.data.ticketPriceList;
+                resInfo.ticketDiscountList= res.data.ticketDiscountList
+                resInfo.trainDesp = res.data.ticketSchedule.train.trainDescription
+                // resInfo.railRouteSegment= res.data.ticketRailRouteSegment
+                resInfo.startStationName= res.data.ticketRailRouteSegment.startStation.stationName
+                resInfo.endStationName= res.data.ticketRailRouteSegment.endStation.stationName
+                resInfo.duration= res.data.ticketRailRouteSegment.railRouteSegmentDurationMinute
+                resInfo.ticketStatusList= res.data.ticketStatusList
+            }).catch(err=>console.log(err))
+        })
+    }else{
+        httpClient.get('/addMemberTokenCookie').then(()=>{
+            httpClient.get('/getBookingByTicketOrder/'+props.tckodid)
+            .then((res)=>{
+                console.log(res.data);
+                // ticketOrderInfo = res.data
+                resInfo.scheduleInfo = res.data.ticketSchedule;
+                resInfo.ticketPrice = res.data.ticketPriceList;
+                resInfo.ticketDiscountList= res.data.ticketDiscountList
+                resInfo.trainDesp = res.data.ticketSchedule.train.trainDescription
+                // resInfo.railRouteSegment= res.data.ticketRailRouteSegment
+                resInfo.startStationName= res.data.ticketRailRouteSegment.startStation.stationName
+                resInfo.endStationName= res.data.ticketRailRouteSegment.endStation.stationName
+                resInfo.duration= res.data.ticketRailRouteSegment.railRouteSegmentDurationMinute
+                resInfo.ticketStatusList= res.data.ticketStatusList
+            }).catch(err=>console.log(err))
+        })
+    }
 })
 </script>
 <template>

@@ -31,53 +31,53 @@ const columns = reactive({
     "D":[],
     "E":[]
 })
+function checkLoginToken(){
+    let cookieArr = document.cookie.split('login-token=')
+    if( cookieArr.length==1){
+        return false;
+    }
+    return true;
+}
 function newGoBuinessBook(){
     let selectedList = seats.filter((st)=>st.selected).map(st=>st.seatId);
-    httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
+    if(!checkLoginToken()){
+        httpClient.get('/addMemberTokenCookie').then(()=>{
+            httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
+                "seatList": selectedList
+            })
+            .then((res)=>{
+                console.log(res.data)
+                let str = res.data.toString();
+                let json = JSON.parse(str)
+                console.log(json['links'])
+                for( let linkObj of json['links']){
+                    if( linkObj['rel'] == 'approve'){
+                        window.location= linkObj['href']
+                    }
+                }
+            }).catch((err)=>{
+                console.log(err)
+            })
+        })
+    }else{
+        httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
         "seatList": selectedList
-    }
-    )
-    .then((res)=>{
-        console.log(res.data)
-        let str = res.data.toString();
-        let json = JSON.parse(str.slice(8))
-        console.log(json['links'])
-        for( let linkObj of json['links']){
-            if( linkObj['rel'] == 'approve'){
-                window.location= linkObj['href']
+        })
+        .then((res)=>{
+            console.log(res.data)
+            let str = res.data.toString();
+            let json = JSON.parse(str)
+            console.log(json['links'])
+            for( let linkObj of json['links']){
+                if( linkObj['rel'] == 'approve'){
+                    window.location= linkObj['href']
+                }
             }
-        }
-    }).catch((err)=>{
-        console.log(err)
-    })
-}
-function goBookBuinessSeats(){
-   //get all select seat's scheduleSeatStatus
-   let toBookSeatidList = []
-   for( let st of seats){
-        if(st.selected){
-            toBookSeatidList.push(st.seatId);
-        }
-   }
-    httpClient.post('/bookBuinessSeat',{
-        "ticketDiscountName":"商務票",
-        "scheduleId":props['schid'],
-        "startStation":{
-            "stationId": props['ststid'],
-            "stationName":null
-        },
-        "endStation":{
-            "stationId": props['edstid'],
-            "stationName":null
-        },
-        "orderSeatIdList":toBookSeatidList
-    }).then((res)=>{
-        if(res.data== 'book buiness'){
-            this.$router.push('/bookSuccess/buinessBook')
-        }else{
-            this.$router.push('/bookFail');
-        }
-    })
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
+    
 }
 
 onBeforeMount(() => {
@@ -120,19 +120,6 @@ onBeforeMount(() => {
             info.ticketDiscount=res.data[0]
         }
     })
-    //build up departTime;
-    // console.log( props.departTime)
-    // let ymd = props.departTime.toString().split(' ')[0]
-    // console.log(ymd)
-    // ymd = ymd.split('-')
-    // let hm = props.departTime.toString().split(' ')[1]
-    // console.log(hm)
-    // hm = hm.split(':')
-    // departTime.setFullYear( ymd[0] )
-    // departTime.setMonth(ymd[1]-1)
-    // departTime.setDate(ymd[2])
-    // departTime.setHours( hm[0])
-    // departTime.setMinutes(hm[1])
 })
 
 </script>

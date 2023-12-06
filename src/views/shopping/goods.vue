@@ -41,7 +41,7 @@ export default {
   methods: {
     // 導向商品詳細頁
     goToGoodsDetail(productId) {
-      this.$router.push({ name: 'goods-detail', params: { id: productId } });
+      this.$router.push({ name: 'goods-detail', params: { Id: productId } });
     },
     // 加入購物車
     addItemToShoppingCart(productId){
@@ -49,8 +49,11 @@ export default {
       httpClient.post('/ShoppinCart/addProductToCart?productId=' + productId + '&' + 'memberId=' + memberId)
       .then((res) =>{
         alert(res.data)
-      }
-    )},
+      })
+      .catch((err)=>{
+        console.log(err.data)
+      })
+      },
 
     //設定分頁
     setPage(page) {
@@ -62,7 +65,6 @@ export default {
 
     //關鍵字搜尋 
     searchByKeyword: function () {
-      // fetch product by keyword
       this.products = [];
       httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
         .then((res) => {
@@ -77,7 +79,6 @@ export default {
     },
     //價格區間搜尋
     searchByPrice: function () {
-      // fetch product by price
       this.priceErrorMessage = ''
       if(this.minPrice == ''){
         this.priceErrorMessage = '請輸入最小值'
@@ -85,14 +86,14 @@ export default {
         this.priceErrorMessage = '請輸入最大值'
       }
       //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
-      //   alert('不合法數值')
+      //   this.priceErrorMessage = '請輸入合法數值'
       // }
       else{
         this.products = [];
         httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
         .then((res) => {
           let pps = res.data;
-          console.log(pps)
+          // console.log(pps)
           if(this.filterMode != '全部商品'){
             pps = pps.filter(p => p.productType == this.filterMode);
           }

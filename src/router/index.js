@@ -39,24 +39,18 @@ const router = createRouter({
       component: goods
     },
     {
-      path: '/goods/goodsDetail/:id',
+      path: '/goods/goodsDetail/:Id',
       component: goodsDetail,
       name: 'goods-detail',
       props: true
     },
     {
-      path: '/shoppingCart/:productId/:memberId',
+      path: '/shoppingCart/:memberId',
+      // path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',
       props: true
     },
-    // {
-    //   path: '/shoppingCart/:id', //id指的是memberId
-    //   component: shoppingCart,
-    //   name: 'shoppingCart',
-    //   props: true
-    // },
-
     {
       path: '/emp/login',
       component: employeeLogin

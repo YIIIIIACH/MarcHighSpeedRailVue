@@ -4,6 +4,7 @@
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import Navbar from './components/navbar.vue';
+import { ref, onMounted } from 'vue'
 
 const path = useRoute().path;
 
@@ -11,6 +12,7 @@ const path = useRoute().path;
 
 console.log(!path.includes('emp'))
 
+const memberId = ref('123abc')
 
 </script>
 
@@ -44,8 +46,9 @@ console.log(!path.includes('emp'))
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item">購物中心</router-link>
-              <router-link to="/shoppingCart" class="dropdown-item">我的購物車</router-link>
-              <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link>
+              <router-link :to="{ name: 'shoppingCart', params: {memberId: memberId} }" class="dropdown-item">我的購物車</router-link>
+              <!-- <router-link to="/shoppingCart" class="dropdown-item">我的購物車</router-link> -->
+              <!-- <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link> -->
             </div>
           </li>
           <li class="nav-item">

@@ -15,32 +15,11 @@ const getLink = ()=>{
 const getDiscountPrice = computed(()=>{
     for( let d of props.info.containTicketDiscount){
         if( d.ticketDiscountType == props.currDisc){
-            return Math.ceil((props.info.originTicketPrice* d.ticketDiscountPercentage) / 100 -d.ticketDiscountAmount)
+            return Math.ceil((props.info.originTicketPrice* d.ticketDiscountPercentage) / 100 -d.ticketDiscountAmount)+'元'
         }
     }
-    return props.info.originTicketPrice
+    return props.info.originTicketPrice+'元'
 })
-// const currColor = computed(function(){
-//     // console.log( 'currdisc' + props.currDisc);
-//     for( let i=0; i< props.allDisc.length ; i++){
-//         if( props.allDisc[i]== props.currDisc){
-//             return props.colorList[i]
-//         }
-//     }
-//     return '#ffffff'
-// })
-// const discColorMap = reactive({})
-// function currColor(discName){
-//     if( discName != props.currDisc){
-//         return '#ffffff'
-//     }
-//     for( let i=0; i< props.allDisc.length ; i++){
-//         if( props.allDisc[i]== props.currDisc){
-//             return props.colorList[i]
-//         }
-//     }
-//     return '#ffffff'
-// }
 </script>
 <template>
     <div class="card schedulecardbox" style="display:flex">
@@ -48,17 +27,19 @@ const getDiscountPrice = computed(()=>{
             班次 {{ info.scheduleId }}<label style="text-align: right;margin-left: 60%;">花費時間 {{ info.durationMinute }}分鐘</label>
         </div>
         <div class="card-body scheduleinfobox" style="display:flex;justify-content: space-between;">
-            <div class="timestationbox">
-                <div style="padding:15% 0px"><label class="timeText">{{ info.getOnTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOnStation.stationName+'站' }}</label></div>
-            </div>
-            <div style="padding:7% 15px">
-                <label><hr></label>
-            </div>
-            <div class="timestationbox">
-                <div style="padding:15% 0px"><label class="timeText">{{ info.getOffTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOffStation.stationName+'站' }}</label></div>
-            </div>
-            <div class="timestationbox" style="padding: 7% 0px;margin-right:20%">
-                <div ><label class="price-tag">{{ getDiscountPrice +'元' }}</label></div>
+            <div style="width:55%;display:flex;justify-items:center;">
+                <div class="timestationbox" >
+                    <div style="padding:15% 0px"><label class="timeText">{{ info.getOnTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOnStation.stationName+'站' }}</label></div>
+                </div>
+                <div style="padding:7% 0px;width:20px;margin: 0px 40px;">
+                    <label><hr></label>
+                </div>
+                <div class="timestationbox">
+                    <div style="padding:15% 0px"><label class="timeText">{{ info.getOffTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOffStation.stationName+'站' }}</label></div>
+                </div>
+                <div class="timestationbox" style="padding: 7% 0px;margin-right:0%">
+                    <div ><label class="price-tag">{{ (info.containTicketDiscountName.includes(currDisc))? getDiscountPrice:'無該優惠'}}</label></div>
+                </div>
             </div>
             <div>
 

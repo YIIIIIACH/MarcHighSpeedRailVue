@@ -2,6 +2,7 @@
 import { computed, } from 'vue'
 import 'vue-router'
 const props = defineProps(['info','useColor','selectDisc'])
+const emits = defineEmits(['goBook'])
 function getPrice(origin){
     // find the discount;
     for( let disc of props.info.containTicketDiscount){
@@ -17,6 +18,14 @@ const wealthShowDisc = computed(()=>{
     // })
     return props.info.containTicketDiscountName;
 })
+const getDiscByDiscType= function(){
+    for( let d of props.info.containTicketDiscount){
+        if( d.ticketDiscountType== props.selectDisc){
+            return d
+        }
+    }
+    console.log('not found [getDiscByDisctype]')
+}
 const getLink = ()=>{
     if( props.selectDisc == '商務票'){
         return "/booking/buinessSeat/"+props.info.scheduleId+"/"+props.info.getOnStation.stationId+"/"+props.info.getOffStation.stationId+"/"+props.info.getOnTime
@@ -30,7 +39,7 @@ const getLink = ()=>{
             班次 {{ info.scheduleId }}<label style="text-align: right;margin-left: 60%;">花費時間 {{ info.durationMinute }}分鐘</label>
         </div>
         <div class="disc-icon">
-            <a href="#" v-for="discName of wealthShowDisc" class="discounticon" :style="{ 'background-color': (discName==selectDisc)?useColor:'white'}" style="margin-top: 20px;">
+            <a href="#" v-for="discName of wealthShowDisc" class="discounticon" :style="{ 'background-color': (discName==props.selectDisc)?useColor:'white'}" style="margin-top: 20px;">
                 <span class="glyphicon glyphicon-asterisk">{{ discName }}</span>
             </a>
         </div>
@@ -45,13 +54,13 @@ const getLink = ()=>{
                 <div style="padding:15% 0px" class="timeText"><label >{{ info.getOffTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOffStation.stationName+'站' }}</label></div>
             </div>
             <div class="timestationbox" style="padding: 7% 0px;margin-right: 30%">
-                <div ><label class="price-tag" v-if="selectDisc=='一般票'">{{ info.originTicketPrice +'元' }}</label><label class="price-tag" v-else >{{ getPrice(info.originTicketPrice) }}</label></div>
+                <div ><label class="price-tag" v-if="props.selectDisc=='一般票'">{{ info.originTicketPrice +'元' }}</label><label class="price-tag" v-else >{{ getPrice(info.originTicketPrice) }}</label></div>
             </div>
             <div>
 
             </div>
             <div  style="padding:7%"> <!--@click.stop="this.$router.push(getLink())"-->
-                <a href="#"  data-bs-toggle="modal" data-bs-target="#howManyTicket" :style="{ 'background-color': useColor}" class="btn">  前往訂票</a>
+                <a href="#"  data-bs-toggle="modal" data-bs-target="#howManyTicket" :style="{ 'background-color': useColor}" @click="emits('goBook',[info.scheduleId,getDiscByDiscType(),getDiscByDiscType(),info])" class="btn">前往訂票</a>
             </div>
         </div>
     </div>

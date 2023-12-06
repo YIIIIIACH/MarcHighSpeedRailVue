@@ -1,10 +1,10 @@
 <script>
 import {ref, reactive} from 'vue'
 import httpClient from '../../main'
-import  scheduleList from  '../../components/Marc/searchSchedule/searchScheduleList.vue'
-import scheduleSearchCondition from '../../components/Marc/searchSchedule/searchScheduleSearchCondition.vue'
-import timeShiftButton from '../../components/Marc/timeShiftButton.vue'
-import displayScheduleStopStation from '../../components/Marc/displayScheduleStopStation.vue'
+import  scheduleList from  '../../components/Marc/schedule/searchSchedule/searchScheduleList.vue'
+import scheduleSearchCondition from '../../components/Marc/schedule/searchSchedule/searchScheduleSearchCondition.vue'
+import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
+import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
 import backendURL from '@/main'
 import { onMounted} from 'vue'
     export default{

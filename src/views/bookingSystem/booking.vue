@@ -1,21 +1,22 @@
 <script>
 import {ref, reactive} from 'vue'
+import 'vue-router'
 import httpClient from '../../main'
-import  scheduleList from  '../../components/Marc/scheduleList.vue'
-import scheduleSearchCondition from '../../components/Marc/scheduleSearchCondition.vue'
-import timeShiftButton from '../../components/Marc/timeShiftButton.vue'
-import displayScheduleStopStation from '../../components/Marc/displayScheduleStopStation.vue'
-import backendURL from '@/main'
-import { onMounted} from 'vue'
+import  scheduleList from  '../../components/Marc/schedule/scheduleList.vue'
+import scheduleSearchCondition from '../../components/Marc/schedule/scheduleSearchCondition.vue'
+import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
+import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
     export default{
         setup(){
             return {
+                selectSchedule: ref(null),
                 selectStartStation: ref(14),
                 selectEndStation: ref(25),
                 departTime: reactive({'time':new Date()}),
                 allStation: reactive([]),
                 allDiscount: ref([]),
                 //'一般票','早鳥票','學生票','商務票'
+                allDiscountDetail: ref([]),
                 selectDiscount: ref('一般票'),
                 scheduleSearchResult: reactive([]),
                 scheduleStopStations: ref([]),
@@ -24,10 +25,65 @@ import { onMounted} from 'vue'
                 pbStart:ref('0%'),
                 pbEnd:ref('100%'),
                 //分別代表 一般票 商務票 學生票 早鳥票的優惠 以及額外兩種多餘顏色
-                discColorList:ref(['#ff7f7f','#cfb558','#97e422','#55e9ff','#c385ff','#e8e6c0'])
+                discColorList:ref(['#ff7f7f','#cfb558','#97e422','#55e9ff','#c385ff','#e8e6c0']),
+                toBookDisc : ref({}),
+                toBookTickets : reactive({}),
+                selectInfo : reactive({}),
+                computedPrice: ref(0)
             }
         },
         computed:{
+            // getCurrentTotalPrice(){
+            //     let cnt = 0;
+            //     for(let key  of Object.keys(this.toBookTickets)){
+            //         // get disc Price of key
+            //         let price =0;
+            //         for( let discDt of this.allDiscountDetail){
+            //             if (key == discDt.ticketDiscountId){
+            //                 console.log(this.selectInfo.originTicketPrice)
+            //                 console.log( discDt)
+            //                 price += Math.ceil(((this.selectInfo.originTicketPrice * discDt.ticketDiscountPercentage)/100.0)-discDt.ticketDiscountAmount)* this.toBookTickets[key]
+            //             }
+            //         } 
+            //         cnt+= price;
+            //     }
+            //     return cnt;
+            // },
+            getStartStationName(){
+                for( let st of this.allStation){
+                    if( this.selectStartStation == st.stationId){
+                        return st.stationName;
+                    }
+                }
+                return '沒找到';
+            },
+            getEndStationName(){
+                for( let st of this.allStation){
+                    if( this.selectEndStation == st.stationId){
+                        return st.stationName;
+                    }
+                }
+                return '沒找到';
+            },
+            getDiscByDiscType(){
+                this.toBookTickets={}
+                let res = []
+                if(this.toBookDisc=={}){
+                    return []
+                }
+                if(this.toBookDisc.ticketDiscountType=='一般票'){
+                    //get all ticket discount of discountType is '一般票'
+                    for(let d of this.allDiscountDetail){
+                        if( d.ticketDiscountType=='一般票'){
+                            res.push( d)
+                        }
+                    }
+                    // and return
+                    return res;
+                }
+                // return this.allDiscountDetail;
+                return [ this.toBookDisc ]
+            },
             discColor(){
                 //get index of selectDiscount in allDiscount
                 for( let idx = 0; idx<this.allDiscount.length;idx++){
@@ -39,6 +95,94 @@ import { onMounted} from 'vue'
             }
         },
         methods:{
+            checkLoginToken:function(){
+                let cookieArr = document.cookie.split('login-token=')
+                if( cookieArr.length==1){
+                    return false;
+                }
+                return true;
+            },
+            updatePrice: function(){
+                let cnt = 0;
+                for(let key  in this.toBookTickets){
+                    // get disc Price of key
+                    let price =0;
+                    for( let discDt of this.allDiscountDetail){
+                        if (key == discDt.ticketDiscountId){
+                            console.log( discDt)
+                            price += Math.ceil(((this.selectInfo.originTicketPrice * discDt.ticketDiscountPercentage)/100.0)-discDt.ticketDiscountAmount)* this.toBookTickets[key]
+                        }
+                    } 
+                    cnt+= price;
+                }
+                console.log( cnt)
+                // return cnt;
+                this.computedPrice=cnt;
+            },
+            bookTicket:function(){
+                if( this.toBookDisc.ticketDiscountName=='商務票'){
+                    //'/booking/buinessSeat/:schid/:ststid/:edstid/:departTime/:amount'
+                    this.$router.push({path:'/booking/buinessSeat/'+this.selectSchedule+'/'+this.selectStartStation+'/'+this.selectEndStation+'/'+this.getToBookTicketInDiscList().length})
+                    return;
+                }
+                if(!this.checkLoginToken() ){
+                    httpClient.get('/addMemberTokenCookie').then(()=>{
+                        httpClient.post('/booking'
+                        ,{
+                            "scheduleId": this.selectSchedule,
+                            "ticketDiscountId": this.toBookDisc.ticketDiscountId,
+                            "startStationId": this.selectStartStation,
+                            "endStationId":this.selectEndStation,
+                            "chooseDiscounts": this.getToBookTicketInDiscList()
+                        }).then((res)=>{
+                            console.log(res)
+                            if( res.status== 200){
+                                let ticketOrderId = res.data.split(':')[1];
+                                // console.log( ticketOrderId);
+                                this.$router.push('/bookSuccess/'+ticketOrderId)
+                            }else{
+                                this.$router.push('/bookFail');
+                            }
+                        })
+                    })
+                }else{
+                    httpClient.post('/booking'
+                    ,{
+                        "scheduleId": this.selectSchedule,
+                        "ticketDiscountId": this.toBookDisc.ticketDiscountId,
+                        "startStationId": this.selectStartStation,
+                        "endStationId":this.selectEndStation,
+                        "chooseDiscounts": this.getToBookTicketInDiscList()
+                    }).then((res)=>{
+                        console.log(res)
+                        if( res.status== 200){
+                            let ticketOrderId = res.data.split(':')[1];
+                            // console.log( ticketOrderId);
+                            this.$router.push('/bookSuccess/'+ticketOrderId)
+                        }else{
+                            this.$router.push('/bookFail');
+                        }
+                    })
+                }
+                
+            },
+            dateToStr:function(dt){
+                console.log( dt)
+                console.log( dt.getYear())
+                return dt.getYear()+'-'+dt.getMonth()+'-'+dt.getDate()+'%'+dt.getHours()+':'+dt.getMinutes()+':'+dt.getSeconds();
+            },
+            getToBookTicketInDiscList:function(){
+                if( this.toBookTickets=={}){
+                    return []
+                }
+                let res = [];
+                for( let key in this.toBookTickets){
+                    for( let cnt=0; cnt<this.toBookTickets[key]; cnt++){
+                        res.push( key )
+                    }
+                }
+                return res;
+            },
             stChange:function(newst){
                 this.selectStartStation = newst;
                 this.pbEnd='0%' 
@@ -84,10 +228,11 @@ import { onMounted} from 'vue'
                 this.search();
             },
             goSearch:function(){
-                console.log('go search')
                 this.search();
             },
             search:function(){
+                this.computedPrice=0
+                this.toBookTickets={}
                 this.showProgressBar=false
                 setTimeout(() => {
                     this.showProgressBar=true;
@@ -115,7 +260,6 @@ import { onMounted} from 'vue'
                     res.data.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
                     })
-                    console.log( res.data)
                     //clear old schedule search result
                     while( this.scheduleSearchResult.length>0){
                         this.scheduleSearchResult.pop();
@@ -187,12 +331,16 @@ import { onMounted} from 'vue'
                 for( let ds of a){
                     this.allDiscount.push(ds)
                 }
+                console.log( 'before mount show '+ this.allDiscount.length)
             }).then(()=>{
                 this.selectDiscount= this.allDiscount[0]
             })
-            // httpClient.get('/getAllDiscount').then((res)=>{
-            //     console.log( res.data)
-            // })
+            httpClient.get('/getAllDiscount').then((res)=>{
+                // console.log( res.data)
+                for( let d of res.data){
+                    this.allDiscountDetail.push( d );
+                }
+            })
         }
     }
 </script>
@@ -213,27 +361,27 @@ import { onMounted} from 'vue'
         <div class="displaySchedule">
             <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>{discChange(newDisc);goSearch()}"></scheduleSearchCondition>
             <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
-            <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :selectDisc="selectDiscount"></scheduleList>
+            <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :selectDisc="selectDiscount" @goBook="(schidAndDisc)=>{toBookDisc=schidAndDisc[1];selectSchedule=schidAndDisc[0];selectInfo=schidAndDisc[3]}"></scheduleList>
         </div>
     </div>
-    <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#howManyTicket">
-    Launch static backdrop modal
-    </button> -->
     
     <div class="container">
         <div class="modal" tabindex="-1" id="howManyTicket">
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Modal title</h5>
+                    <h5 class="modal-title">{{ getStartStationName}}站-{{ getEndStationName }}站</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Modal body text goes here.</p>
+                    <label style="margin-bottom: 20px;"> 總價格：{{ computedPrice }}元</label>
+                    <div v-for="d of getDiscByDiscType" :key="d.ticketDiscountId">
+                        <label>{{ d.ticketDiscountName }}</label><input type="number" @change="updatePrice()" min="0" v-model="toBookTickets[d.ticketDiscountId]" class="form-control"/>
+                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">取消</button>
+                    <button type="button"  data-bs-dismiss="modal" @click="bookTicket()" class="btn btn-primary">前往訂票</button>
                 </div>
                 </div>
             </div>

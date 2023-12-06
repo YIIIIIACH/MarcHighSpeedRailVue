@@ -1,6 +1,21 @@
 <script setup>
-const props = defineProps(['seats','bookedSeats','colCode'])
+const props = defineProps(['seats','bookedSeats','colCode','maxLimit','selectCnt'])
 const emits = defineEmits(['select'])
+const clickSelect= function( seat){
+    if( isBooked(seat)){
+        return
+    }
+    if( !seat.selected){
+        if( props.selectCnt.cnt < parseInt(props.maxLimit)){
+            props.selectCnt.cnt++;
+            seat.selected= true;
+        }
+        return
+    }else{
+        props.selectCnt.cnt -= (props.selectCnt.cnt>0)?1: 0;
+        seat.selected= false;
+    }
+}
 const isBooked= function(st){
     if(props.bookedSeats.includes( st.seatId)){
         return true;
@@ -11,7 +26,7 @@ const isBooked= function(st){
 </script>
 <template>
 <div class="column">{{ props.colCode }}
-<div v-for="seat of seats" :key="seat.seatId" :class="{'seat':true,'booked':isBooked(seat),'seat-selected':seat.selected}" @click="seat.selected=(isBooked(seat))?false:(seat.selected)?false:true"></div>
+<div v-for="seat of seats" :key="seat.seatId" :class="{'seat':true,'booked':isBooked(seat),'seat-selected':seat.selected}" @click="clickSelect(seat)"></div>
 </div>
 </template>
 <style>

@@ -1,14 +1,13 @@
 <script setup>
-import seatColumn from '../../components/Marc/seatColumn.vue';
+import seatColumn from '../../components/Marc/bookBuiness/seatColumn.vue';
 import httpClient from '../../main'
-import { onBeforeMount ,reactive, computed} from 'vue'
-const props = defineProps(['schid','ststid','edstid','departTime'])
+import { onBeforeMount ,reactive, computed,ref} from 'vue'
+import 'vue-router'
+const props = defineProps(['schid','ststid','edstid','amount'])// remove 'departTime'
 const seats = reactive([])
 const bookeds= reactive([])
-const departTime = reactive(new Date())
-// const railRouteSegment = reactive({})
-// const ticketDiscount = reactive({})
 const info = reactive({})
+const selectCnt= ref({"cnt":0})
 const getTotalPrice = computed(()=>{
     let cnt = 0;
     let selecteds = seats.filter((st)=> st.selected)
@@ -17,11 +16,7 @@ const getTotalPrice = computed(()=>{
     }
     return cnt;
 })
-const getDepartTime = computed(()=>{
-    return departTime.getFullYear() + '/' + departTime.getMonth() + '/' +departTime.getDate();
-})
 const hasSelect = computed(()=>{
-    console.log('ggg')
     let res =seats.filter((st)=> st.selected)
     return res.length>0;
 })
@@ -37,31 +32,51 @@ const columns = reactive({
     "D":[],
     "E":[]
 })
-function goBookBuinessSeats(){
-   //get all select seat's scheduleSeatStatus
-   let toBookSeatidList = []
-   for( let st of seats){
-        if(st.selected){
-            toBookSeatidList.push(st.seatId);
-        }
-   }
-//    console.log(toBookSeatidList)
-//    console.log(props['schid'])
-    httpClient.post('/bookBuinessSeat',{
-        "ticketDiscountName":"商務票",
-        "scheduleId":props['schid'],
-        "startStation":{
-            "stationId": props['ststid'],
-            "stationName":null
-        },
-        "endStation":{
-            "stationId": props['edstid'],
-            "stationName":null
-        },
-        "orderSeatIdList":toBookSeatidList
-    }).then((res)=>{
-        console.log(res.data)
-    })
+function checkLoginToken(){
+    let cookieArr = document.cookie.split('login-token=')
+    if( cookieArr.length==1){
+        return false;
+    }
+    return true;
+}
+function newGoBuinessBook(){
+    let selectedList = seats.filter((st)=>st.selected).map(st=>st.seatId);
+    if(!checkLoginToken()){
+        httpClient.get('/addMemberTokenCookie').then(()=>{
+            httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
+                "seatList": selectedList
+            })
+            .then((res)=>{
+                console.log(res.data)
+                let json = res.data;
+                console.log(json['links'])
+                for( let linkObj of json['links']){
+                    if( linkObj['rel'] == 'approve'){
+                        window.location= linkObj['href']
+                    }
+                }
+            }).catch((err)=>{
+                console.log(err)
+            })
+        })
+    }else{
+        httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
+        "seatList": selectedList
+        })
+        .then((res)=>{
+            console.log(res.data)
+            let json = res.data;
+            console.log(json['links'])
+            for( let linkObj of json['links']){
+                if( linkObj['rel'] == 'approve'){
+                    window.location= linkObj['href']
+                }
+            }
+        }).catch((err)=>{
+            console.log(err)
+        })
+    }
+    
 }
 
 onBeforeMount(() => {
@@ -104,19 +119,6 @@ onBeforeMount(() => {
             info.ticketDiscount=res.data[0]
         }
     })
-    //build up departTime;
-    // console.log( props.departTime)
-    let ymd = props.departTime.toString().split(' ')[0]
-    console.log(ymd)
-    ymd = ymd.split('-')
-    let hm = props.departTime.toString().split(' ')[1]
-    console.log(hm)
-    hm = hm.split(':')
-    departTime.setFullYear( ymd[0] )
-    departTime.setMonth(ymd[1]-1)
-    departTime.setDate(ymd[2])
-    departTime.setHours( hm[0])
-    departTime.setMinutes(hm[1])
 })
 
 </script>
@@ -125,7 +127,7 @@ onBeforeMount(() => {
         <h1>MarcHighSpeedRail 商務艙訂位</h1>
         <div class=" carriage" >
             <div >
-                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
+                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :max-limit="amount" :select-cnt="selectCnt" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
             </div>
         </div>
     </div>
@@ -169,7 +171,6 @@ onBeforeMount(() => {
                     </div>
                     <div>
                         <span>總計：{{ getTotalPrice }}元</span>
-                        <br><span>注意將在{{ getDepartTime }}發車</span>
                     </div>
                 </div>
                 <div v-else>
@@ -178,7 +179,7 @@ onBeforeMount(() => {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" @click="goBookBuinessSeats" class="btn btn-primary">前往付費訂票</button>
+                <button type="button" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
             </div>
             </div>
         </div>

@@ -1,12 +1,13 @@
 <script setup>
 import seatColumn from '../../components/Marc/bookBuiness/seatColumn.vue';
 import httpClient from '../../main'
-import { onBeforeMount ,reactive, computed} from 'vue'
+import { onBeforeMount ,reactive, computed,ref} from 'vue'
 import 'vue-router'
 const props = defineProps(['schid','ststid','edstid','amount'])// remove 'departTime'
 const seats = reactive([])
 const bookeds= reactive([])
 const info = reactive({})
+const selectCnt= ref({"cnt":0})
 const getTotalPrice = computed(()=>{
     let cnt = 0;
     let selecteds = seats.filter((st)=> st.selected)
@@ -47,8 +48,7 @@ function newGoBuinessBook(){
             })
             .then((res)=>{
                 console.log(res.data)
-                let str = res.data.toString();
-                let json = JSON.parse(str)
+                let json = res.data;
                 console.log(json['links'])
                 for( let linkObj of json['links']){
                     if( linkObj['rel'] == 'approve'){
@@ -65,8 +65,7 @@ function newGoBuinessBook(){
         })
         .then((res)=>{
             console.log(res.data)
-            let str = res.data.toString();
-            let json = JSON.parse(str)
+            let json = res.data;
             console.log(json['links'])
             for( let linkObj of json['links']){
                 if( linkObj['rel'] == 'approve'){
@@ -128,7 +127,7 @@ onBeforeMount(() => {
         <h1>MarcHighSpeedRail 商務艙訂位</h1>
         <div class=" carriage" >
             <div >
-                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
+                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :max-limit="amount" :select-cnt="selectCnt" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
             </div>
         </div>
     </div>

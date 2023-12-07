@@ -14,7 +14,7 @@ export default {
         methods:{
             // 加入購物車
             addItemToShoppingCart(productId){
-            const memberId = 'E28B7835-B93D-4560-AD49-8E1D77F3C0F0'
+            const memberId = '123abc'
             httpClient.post('/ShoppinCart/addProductToCart?productId=' + productId + '&' + 'memberId=' + memberId)
             .then((res) =>{
                 alert(res.data)
@@ -52,11 +52,14 @@ export default {
                             this.recommendProducts.push(p)
                         }
                     })
+                    .catch((err)=>{
+                        console.log(err)
+                    })
+            })
+            .catch((err)=>{
+                console.log(err)
             })
         },
-        onMounted() {
-            
-        }
 }
 </script>
 
@@ -78,7 +81,7 @@ export default {
         <h4 class="mb-5">{{this.product.value.productDescription}}</h4>
         <h5 class="mb-5 mt-5">數量  
             <span class="quantity-controls">
-                <button @click="decrementQuantity">–</button>
+                <button @click="decrementQuantity">－</button>
                 <input v-model="quantity" type="text" @input="handleNumberInput" style="width:50px; text-align: center;"/>
                 <button @click="incrementQuantity">＋</button>
              </span>
@@ -87,7 +90,7 @@ export default {
     </div>
 
     <div class="mt-5">
-        <button type="button" class="btn btn-primary mx-5" @click="addItemToShoppingCart(this.id)">加入購物車</button>
+        <button type="button" class="btn btn-primary mx-5" @click="addItemToShoppingCart(this.Id)">加入購物車</button>
         <button type="button" class="btn btn-primary mx-5" data-bs-toggle="button" autocomplete="off">直接購買</button>
         <button type="button" class="btn btn-primary mx-5" data-bs-toggle="button" autocomplete="off">加入追蹤</button>
     </div>
@@ -95,6 +98,8 @@ export default {
     <br>
     <hr style="width: 90%; margin: 20px auto;">
     <br>
+    
+    <!-- 推薦商品 -->
     <!-- <div style="display: flex; flex-direction: column;justify-content:center; align-items: center;text-align: center;">
         <h2 style="margin-bottom: 10px;">推薦商品</h2>
         <div style="display: flex; justify-content: space-around;">

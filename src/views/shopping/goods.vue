@@ -325,26 +325,27 @@ export default {
   </aside>
 
   <!-- 產品 -->
-  <div class="each-product">
-    <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
-      <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
-        <!-- {{p.productId}} -->
-        <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
-        <div class="row">
-          <div class="col-7 ">
-            <p class="card-title">{{ p.productName }}</p>
-            <div >
-              <p>${{ p.productPrice }}</p>
+  <article> 
+    <div class="each-product">
+      <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
+        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
+          <!-- {{p.productId}} -->
+          <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
+          <div class="row">
+            <div class="col-7 ">
+              <p class="card-title">{{ p.productName }}</p>
+              <div >
+                <p>${{ p.productPrice }}</p>
+              </div>
+            </div>
+            <div class="col-5 ">
+                <button class="btn btn-primary mt-3" @click.stop="addItemToShoppingCart(p.productId)" type="submit">加入購物車</button>
             </div>
           </div>
-          <div class="col-5 ">
-              <button class="btn btn-primary mt-3" @click.stop="addItemToShoppingCart(p.productId)" type="submit">加入購物車</button>
-          </div>
         </div>
-      </div>
-    </div> 
-  </div>
-
+      </div> 
+    </div>
+  </article>
   <!-- 分頁 -->
   <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center">

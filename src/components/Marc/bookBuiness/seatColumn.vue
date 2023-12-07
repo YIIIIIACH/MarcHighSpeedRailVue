@@ -25,23 +25,24 @@ const isBooked= function(st){
 ///bookBuinessSeat to book buiness seat
 </script>
 <template>
-<div class="column">{{ props.colCode }}
-<div v-for="seat of seats" :key="seat.seatId" :class="{'seat':true,'booked':isBooked(seat),'seat-selected':seat.selected}" @click="clickSelect(seat)"></div>
+<div v-if="seats.length==0" class="column" style="height:40px"></div>
+<div v-else class="column">{{ props.colCode }}
+    <img  src="../../../assets/seat.png"  v-for="seat of seats" :key="seat.seatId" :class="{'seat':true,'booked':isBooked(seat),'seat-selected':seat.selected}" @click="{clickSelect(seat);emits('select')}" />
 </div>
 </template>
 <style>
 .column{
     display:flex;
-    
 }
 .seat{
     justify-content: center;
     width: 30px;
     height: 30px;
-    border: 4px black solid;
+    /* border: 4px black solid; */
     border-radius: 7px;
-    padding: 4px;
+    padding: 0px;/*4px;*/
     margin: 8px;
+    
 }
 .booked{
     background-color: aqua;
@@ -50,7 +51,7 @@ const isBooked= function(st){
     background-color:orangered;
     width:34px;
     height:34px;
-    border: 4px orange solid;
+    /* border: 4px orange solid; */
     margin: 6px;
 }
 </style>

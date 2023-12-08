@@ -139,12 +139,18 @@ onBeforeMount(() => {
         }
     })
 })
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+console.log( tooltipList)
+console.log( tooltipTriggerList)
 </script>
 <template>
     <div class="container">
         <h1>MarcHighSpeedRail 商務艙訂位</h1>
         <div class="card">
-            <div class="card-body ticket-cnt"><labe>已選取車票數{{ selectCnt.cnt }}張</labe><label>訂位數量{{ props.amount }}</label></div>
+            <div class="card-body ticket-cnt"><label>已選取車票數{{ selectCnt.cnt }}張</label><label>訂位數量{{ props.amount }}</label></div>
         </div>
         <div class=" carriage" >
             <img src="../../assets/exit.png" width="100" height="120">

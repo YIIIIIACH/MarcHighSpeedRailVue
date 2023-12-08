@@ -1,5 +1,4 @@
 <script setup>
-import {ref ,onMounted,onUpdated} from 'vue'
 const props = defineProps(['stations','pickedStart','pickedEnd','willStop'])
 const emits= defineEmits(['changeStop'])
 </script>
@@ -12,12 +11,13 @@ const emits= defineEmits(['changeStop'])
 
 .circle{
     border:8px rgb(188, 188, 188) solid;
-    border-radius: 15px;
+    border-radius: 18px;
     width: 50px;
     height:50px;
     background-color: white;
     align-self: center;
     z-index: 100;
+    margin-right:17px;
 }
 .will-stop{
     border:8px orange solid;

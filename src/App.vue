@@ -5,15 +5,9 @@
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import Navbar from './components/navbar.vue';
 import { ref, onMounted } from 'vue'
-
 const path = useRoute().path;
-
-// watch(path,)
-
 console.log(!path.includes('emp'))
-
 const memberId = ref('123abc')
-
 </script>
 
 <template>
@@ -64,12 +58,30 @@ const memberId = ref('123abc')
   </nav>
 
   <section>
-    <router-view />
+    <router-view v-slot="{ Component }">
+      <transition name="fade">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+    <!-- <router-view /> -->
   </section>
 </template>
 
 <style>
 .nav-link{
   color: white;
+  
+}
+.fade-enter-active,
+.face-leave-active{
+  transition: opacity 1s;
+}
+.fade-enter-from,
+.fade-leave-to{
+  opacity: 0
+}
+.fade-enter-to,
+.fade-leave-from{
+  opacity: 1
 }
 </style>

@@ -8,8 +8,28 @@ const emits = defineEmits(['refresh-stop-station-display','goBook'])
 
 <template>
 <EmptyScheduleListItem v-if="schedules.schedules.length==0"></EmptyScheduleListItem>
-<scheduleItem v-for="sch of schedules.schedules" :key="sch.scheudleId" :info="sch" :useColor="discColor" :selectDisc="schedules.selectDisc" @click="$emit('refresh-stop-station-display',sch)" @goBook="(schidAndDisc)=>emits('goBook',schidAndDisc)"></scheduleItem>
+<TransitionGroup name="list" tag="ul" style="padding: 0px;">
+    <li v-for="sch of schedules.schedules" :key="sch" style="list-style-type: none;list-style-position: unset">
+        <scheduleItem v-for="sch of schedules.schedules" :key="sch.scheudleId" :info="sch" :useColor="discColor" :selectDisc="schedules.selectDisc" @click="$emit('refresh-stop-station-display',sch)" @goBook="(schidAndDisc)=>emits('goBook',schidAndDisc)"></scheduleItem>
+    </li>
+</TransitionGroup>
 </template>
 
 <style>
+list-enter-from{
+    opacity: 0;
+    transform: translateX(100%);
+}
+.list-leave-to{
+    opacity: 0;
+    transform: translateX(100%);
+}
+.list-enter-to{
+    opacity: 1;
+
+}
+.list-enter-active,
+.list-leave-active{
+    transition: all 1s
+}
 </style>

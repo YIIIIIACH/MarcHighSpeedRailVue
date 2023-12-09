@@ -22,6 +22,9 @@ export default {
       perpage: ref(8), //一頁的商品資料數
 
       priceErrorMessage: ref(''),
+
+      notification: ref(''),
+      showNotification: false,
     };
   },
   computed: {
@@ -38,6 +41,7 @@ export default {
       //取得該頁最後一個值的index
     }
   },
+  
   methods: {
     // 導向商品詳細頁
     goToGoodsDetail(productId) {
@@ -46,9 +50,21 @@ export default {
     // 加入購物車
     addItemToShoppingCart(productId){
       const memberId = '123abc'
-      httpClient.post('/ShoppinCart/addProductToCart?productId=' + productId + '&' + 'memberId=' + memberId)
+      httpClient.post('/ShoppingCart/addProduct?productId=' + productId + '&' + 'memberId=' + memberId)
       .then((res) =>{
-        alert(res.data)
+        if(res.data == '商品已在購物車中。'){
+          this.notification = res.data
+          this.showNotification = true;
+          setTimeout(()=>{
+            this.showNotification = false;
+          }, 2000)
+        }else{
+          this.notification = res.data
+          this.showNotification = true;
+          setTimeout(()=>{
+            this.showNotification = false;
+          }, 2000)
+        }
       })
       .catch((err)=>{
         console.log(err.data)
@@ -169,7 +185,7 @@ export default {
   </div>
 
   <!-- 分類 -->
-  <nav class="navbar navbar-expand-lg bg-light justify-content-center ">
+  <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
         <ul class="navbar-nav center">
             <!-- <div class="list-product-type"></div> -->
           <li class="nav-item">
@@ -335,7 +351,7 @@ export default {
             <div class="col-7 ">
               <p class="card-title">{{ p.productName }}</p>
               <div >
-                <p>${{ p.productPrice }}</p>
+                <p style="color:#EA7500;">${{ p.productPrice }}</p>
               </div>
             </div>
             <div class="col-5 ">
@@ -374,6 +390,8 @@ export default {
     </ul>
 
   </nav>
+
+  <div v-if="showNotification" class="notification">{{this.notification}}</div>
 </template>
 
 <style>
@@ -418,15 +436,26 @@ export default {
 
 /* style for  productType */
 .list-product-type {
-    /* border: 1px solid; */
-    margin: 10px 400px;
+  /* border: 1px solid; */
+  margin: 10px 400px;
 }
 .btn-width{
-    width: 200px;
-    color: aquamarine;
+  width: 150px;
+  color: aquamarine;
 }
 .showcase-productName{
   color: rgb(47, 35, 11);
+}
+.notification {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(57, 53, 46, 0.6);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 1000;
 }
 
 </style>

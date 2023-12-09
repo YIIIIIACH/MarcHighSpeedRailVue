@@ -4,7 +4,7 @@ import 'vue-router'
 import httpClient from '../../main'
 import  scheduleList from  '../../components/Marc/schedule/scheduleList.vue'
 import scheduleSearchCondition from '../../components/Marc/schedule/scheduleSearchCondition.vue'
-import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
+// import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
 import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
     export default{
         setup(){
@@ -236,19 +236,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                 this.showProgressBar=false
                 setTimeout(() => {
                     this.showProgressBar=true;
-                }, 700);
-                while(this.allStation.length>0){
-                    this.allStation.pop();
-                }
-                httpClient.get('/getAllStation')
-                .then((res)=>{
-                    let a = res.data;
-                    for( let st of a){
-                        this.allStation.push(st)
-                    }
-                }).catch((err)=>{
-                    console.log(err)
-                })
+                }, 400);
                 // this.showScheduleStopStation=false
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
@@ -302,7 +290,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
         components:{
             scheduleList,
             scheduleSearchCondition,
-            timeShiftButton,
+            // timeShiftButton,
             displayScheduleStopStation
         },
         beforeMount(){
@@ -347,20 +335,10 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
 
 <template >
     <div class="bookingSystem">
-        <transition name="fade" mode="in-out">
-            <!-- <div class="progress progress-bar-vertical" v-show="showProgressBar">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 77%;"></div>
-            </div> -->
-            <div class="progress progress-bar-vertical" v-show="showProgressBar">
-            <div class="progress-bar" role="progressbar" :style="{'height':pbStart}"></div>
-            <div class="progress-bar" role="progressbar"  style="background-color: rgb(255, 195, 14);" :style="{'height':pbEnd}">
-            </div>
-        </div>
-        </transition>
-        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
+        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :pbStart="pbStart" :pbEd="pbEnd"      :showSideBar="showProgressBar" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
         <div class="displaySchedule">
-            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>{discChange(newDisc);goSearch()}"></scheduleSearchCondition>
-            <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
+            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>{discChange(newDisc);goSearch()}" @timeShift="(hr)=>searchTimeShift(hr)"></scheduleSearchCondition>
+            <!-- <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton> -->
             <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :selectDisc="selectDiscount" @goBook="(schidAndDisc)=>{toBookDisc=schidAndDisc[1];selectSchedule=schidAndDisc[0];selectInfo=schidAndDisc[3]}"></scheduleList>
         </div>
     </div>
@@ -405,6 +383,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
     .displaySchedule{
         width:80%;
         margin: 0px;
+        padding: 0px;
     }
     .progress-bar-vertical {
         position:absolute;
@@ -426,7 +405,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
         background-color: rgb(255, 255, 255);
         z-index: 10;
     }
-    
+    /*
     .fade-enter-active{
         transition: opacity .5s
     }
@@ -437,5 +416,39 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
     .fade-enter-from,
     .fade-leave-to {
     opacity: 0;
+    }*/
+    /*
+    .slide-left-enter-active,
+    .slide-left-leave-active,
+    .slide-right-enter-active,
+    .slide-right-leave-active {
+    
+    
+    transition: all 0.8s ease;
+    position: absolute;
     }
+    .slide-left-enter {
+    
+    
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+    }
+    .slide-left-leave-to {
+    
+    
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+    }
+    .slide-right-enter {
+    
+    
+    opacity: 0;
+    transform: translate3d(100%, 0, 0);
+    }
+    .slide-right-leave-to {
+    
+    
+    opacity: 0;
+    transform: translate3d(-100%, 0, 0);
+    }*/
 </style>

@@ -8,6 +8,13 @@ const seats = reactive([])
 const bookeds= reactive([])
 const info = reactive({})
 const selectCnt= ref({"cnt":0})
+const selected= reactive([])
+const colHeader= computed(()=>{
+    return seats.filter((a)=>{
+        let tmp = a.seatCode.split('-')
+        return tmp[1]=='A'
+    })
+})
 const getTotalPrice = computed(()=>{
     let cnt = 0;
     let selecteds = seats.filter((st)=> st.selected)
@@ -20,15 +27,28 @@ const hasSelect = computed(()=>{
     let res =seats.filter((st)=> st.selected)
     return res.length>0;
 })
-const getSelected= computed(()=>{
+const getSelected=function(){
     let res =seats.filter((st)=> st.selected)
-    if(res.length==0)return [{'emptyMsg':'你沒有選取座位'}];
-    return res;
-})
+    // if(res.length==0)
+    //remove which selected are not in res now
+    for(let i=0; i<selected.length ;i++){
+        if( !res.includes( selected[i]) ){
+            selected.splice(i,1)
+            continue;
+        }
+    }
+    for( let i=0; i<res.length; i++){
+        if( !selected.includes( res[i])){
+            selected.push(res[i])
+        }
+    }
+    // return res;
+}
 const columns = reactive({
     "A":[],
     "B":[],
     "C":[],
+    "alley":[],
     "D":[],
     "E":[]
 })
@@ -78,7 +98,6 @@ function newGoBuinessBook(){
     }
     
 }
-
 onBeforeMount(() => {
     httpClient.post('/requestDiscountTypeBook',{
         "ticketDiscountName":"商務票",
@@ -120,38 +139,54 @@ onBeforeMount(() => {
         }
     })
 })
-
+var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+  return new bootstrap.Tooltip(tooltipTriggerEl)
+})
+console.log( tooltipList)
+console.log( tooltipTriggerList)
 </script>
 <template>
     <div class="container">
         <h1>MarcHighSpeedRail 商務艙訂位</h1>
+        <div class="card">
+            <div class="card-body ticket-cnt"><label>已選取車票數{{ selectCnt.cnt }}張</label><label>訂位數量{{ props.amount }}</label></div>
+        </div>
         <div class=" carriage" >
+            <img src="../../assets/exit.png" width="100" height="120">
             <div >
-                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :max-limit="amount" :select-cnt="selectCnt" :bookedSeats="bookeds" :colCode="idx" ></seatColumn>
+                <div style="display:flex;justify-content: center">
+                    <div v-for="(col,idx) in colHeader" :key="idx"  class="col-head">{{ col.seatCode.split('-')[0] }}排</div>
+                </div>
+                <seatColumn v-for="(column ,idx) in columns" :key="idx" :seats="column" :max-limit="amount" :select-cnt="selectCnt" :bookedSeats="bookeds" :colCode="idx" @select="getSelected"></seatColumn>
             </div>
+            <img class="exit" src="../../assets/exit.png" width="100" height="120">
         </div>
     </div>
     <div class="container">
+        <button type="button"  class="btn btn-primary" @click="this.$router.push('/booking')">
+            返回班次搜尋頁面
+        </button>
+        <button type="button"  class="btn btn-primary" style="float:right" data-bs-toggle="modal" :data-bs-target="'#exampleModal'">
+            前往訂票
+        </button>
         <div class="card">
         <a class="card-header" style="text-decoration: none;" data-bs-toggle="collapse" href="#buinessBookDetail" role="button" aria-expanded="false" aria-controls="buinessBookDetail">
             查看已選取座位
         </a>
         </div>
-        <div class="collapse" id="buinessBookDetail">
-        <div class="card card-body" v-for="selectedSeat of getSelected">
-            <div >
-                {{ selectedSeat.seatId }}{{ selectedSeat.seatCode }}{{ selectedSeat.seatDescirption }}{{ selectedSeat.emptyMsg }}
-                    <span v-if="selectedSeat.seatId!=undefined">
-                    {{info.ticketDiscount.ticketDiscountName}}:{{ info.rrseg.railRouteSegmentTicketPrice *(info.ticketDiscount.ticketDiscountPercentage/100)-info.ticketDiscount.ticketDiscountAmount+'元' }}
-                    </span>
-            </div>
-        </div>
-        </div>
-        <!-- Button trigger modal -->
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-            前往訂票
-        </button>
     
+        <div class="collapse.show" id="buinessBookDetail">
+            <div class="card card-body item" v-if="selected.length==0">你沒有選擇座位</div>
+            <TransitionGroup name="list" class="selected-list" tag="ul">
+                <li class="card card-body item" v-for="(selectedSeat,idx) in selected" :key="selectedSeat.seatId"><!--class="card card-body item"-->
+                    {{ selectedSeat.seatId }}{{ selectedSeat.seatCode }}{{ selectedSeat.seatDescirption }}
+                        <span v-if="selectedSeat.seatId!=undefined">
+                        {{info.ticketDiscount.ticketDiscountName}}:{{ info.rrseg.railRouteSegmentTicketPrice *(info.ticketDiscount.ticketDiscountPercentage/100)-info.ticketDiscount.ticketDiscountAmount+'元' }}
+                        </span>
+                </li>
+            </TransitionGroup>
+        </div>
         <!-- Modal -->
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -161,7 +196,10 @@ onBeforeMount(() => {
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div v-if="hasSelect">
+                <div v-if="!hasSelect">
+                    <span>你沒有選取座位</span>
+                </div>
+                <div v-else-if="selectCnt.cnt>=props.amount">
                     <span>確定要訂位</span>
                     <div v-for="selectedSeat of getSelected">
                         <span>{{ selectedSeat.seatCode }}</span>{{ selectedSeat.seatDescirption }}
@@ -174,12 +212,13 @@ onBeforeMount(() => {
                     </div>
                 </div>
                 <div v-else>
-                    <span>你沒有選取座位</span>
+                    <span>你沒有選取足夠座位</span>
                 </div>
+               
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
+                <button type="button" :disabled="selectCnt.cnt<props.amount" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
             </div>
             </div>
         </div>
@@ -187,10 +226,48 @@ onBeforeMount(() => {
     </div>
 </template>
 <style>
+.ticket-cnt{
+    display:flex;
+    justify-content: space-around;
+}
 .carriage{
     border: 4px grey solid;
     border-radius: 8px;
     display:flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.list-enter-active,
+.list-leave-active,
+.list-move{
+    transition:opacity 0.7s , transform 0.7s;
+}
+.list-leave-active{
+    position: absolute;
+}
+.list-enter-from{
+    opacity:0;
+    transform: translateX(-40px)
+}
+.list-leave-to{
+    opacity: 0;
+    transform: translateX(-40px)
+}
+.selected-list{
+    padding-left: 0px;
+}
+.item{
+    display:inline-block;
+    list-style-type:none
+}
+.col-head{
     justify-content: center;
+    width: 30px;
+    height: 60px;
+    /* border: 4px black solid; */
+    border-radius: 7px;
+    padding: 0px;/*4px;*/
+    margin: 8px;
+    
 }
 </style>

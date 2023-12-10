@@ -3,6 +3,7 @@ import seatColumn from '../../components/Marc/bookBuiness/seatColumn.vue';
 import httpClient from '../../main'
 import { onBeforeMount ,reactive, computed,ref} from 'vue'
 import 'vue-router'
+import router from '../../router';
 const props = defineProps(['schid','ststid','edstid','amount'])// remove 'departTime'
 const seats = reactive([])
 const bookeds= reactive([])
@@ -61,28 +62,9 @@ function checkLoginToken(){
 }
 function newGoBuinessBook(){
     let selectedList = seats.filter((st)=>st.selected).map(st=>st.seatId);
-    if(!checkLoginToken()){
-        httpClient.get('/addMemberTokenCookie').then(()=>{
-            httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
-                "seatList": selectedList
-            })
-            .then((res)=>{
-                console.log(res.data)
-                let json = res.data;
-                console.log(json['links'])
-                for( let linkObj of json['links']){
-                    if( linkObj['rel'] == 'approve'){
-                        window.location= linkObj['href']
-                    }
-                }
-            }).catch((err)=>{
-                console.log(err)
-            })
-        })
-    }else{
         httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
-        "seatList": selectedList
-        })
+            "seatList": selectedList
+        },{withCredentials:true})
         .then((res)=>{
             console.log(res.data)
             let json = res.data;
@@ -93,9 +75,10 @@ function newGoBuinessBook(){
                 }
             }
         }).catch((err)=>{
+            router.push('/booking')
+            alert('訂位失敗')
             console.log(err)
         })
-    }
     
 }
 onBeforeMount(() => {

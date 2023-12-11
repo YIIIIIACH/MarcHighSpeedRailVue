@@ -18,6 +18,12 @@ const wealthShowDisc = computed(()=>{
     // })
     return props.info.containTicketDiscountName;
 })
+const getFormatStartTime= computed(()=>{
+    return props.info.getOnTime.split(' ')[1].split(':')[0]+'點'+props.info.getOnTime.split(' ')[1].split(':')[1]+'分'
+})
+const getFormatEndTime= computed(()=>{
+    return props.info.getOffTime.split(' ')[1].split(':')[0]+'點'+props.info.getOffTime.split(' ')[1].split(':')[1]+'分'
+})
 const getDiscByDiscType= function(){
     for( let d of props.info.containTicketDiscount){
         if( d.ticketDiscountType== props.selectDisc){
@@ -34,8 +40,8 @@ const getLink = ()=>{
 }
 </script>
 <template>
-    <div class="card schedulecardbox" style="display:flex">
-        <div class="card-header" :style="{ 'background-color': useColor}">
+    <div class="card schedulecardbox" style="margin:20px 0px;">
+        <div class="card-header" :style="{ 'background-color': useColor,'width':'100%'}">
             班次 {{ info.scheduleId }}<label style="text-align: right;margin-left: 60%;">花費時間 {{ info.durationMinute }}分鐘</label>
         </div>
         <div class="disc-icon">
@@ -44,23 +50,24 @@ const getLink = ()=>{
             </a>
         </div>
         <div class="card-body scheduleinfobox">
-            <div class="timestationbox">
-                <div style="padding:15% 0px" class="timeText"><label>{{ info.getOnTime.split(' ')[1] }}</label><hr><label class="stationText" >{{ info.getOnStation.stationName+'站' }}</label></div>
+            <div style="width:70%;display:flex;margin-left: 0px;justify-content: space-around">
+                <div class="timestationbox" >
+                    <div style="padding:15% 0px"><label class="timeText">{{ getFormatStartTime }}</label><hr><label class="stationText">{{ info.getOnStation.stationName+'站' }}</label></div>
+                </div>
+                <div style="padding:7% 0px;width:20px">
+                    <label><hr></label>
+                </div>
+                <div class="timestationbox">
+                    <div style="padding:15% 0px"><label class="timeText">{{ getFormatEndTime }}</label><hr><label class="stationText">{{ info.getOffStation.stationName+'站' }}</label></div>
+                </div>
+                <div class="timestationbox" style="padding-top:70px">
+                    <div ><label class="price-tag">{{ getPrice(info.originTicketPrice) }}</label></div><!--{{ (info.containTicketDiscountName.includes(currDisc))? getDiscountPrice:'無該優惠'}}-->
+                </div>
             </div>
-            <div style="padding:7% 15px">
-                <label><hr></label>
-            </div>
-            <div class="timestationbox">
-                <div style="padding:15% 0px" class="timeText"><label >{{ info.getOffTime.split(' ')[1] }}</label><hr><label class="stationText">{{ info.getOffStation.stationName+'站' }}</label></div>
-            </div>
-            <div class="timestationbox" style="padding: 7% 0px;margin-right: 30%">
-                <div ><label class="price-tag" v-if="props.selectDisc=='一般票'">{{ info.originTicketPrice +'元' }}</label><label class="price-tag" v-else >{{ getPrice(info.originTicketPrice) }}</label></div>
-            </div>
-            <div>
-
-            </div>
-            <div  style="padding:7%"> <!--@click.stop="this.$router.push(getLink())"-->
-                <a href="#"  data-bs-toggle="modal" data-bs-target="#howManyTicket" :style="{ 'background-color': useColor}" @click="emits('goBook',[info.scheduleId,getDiscByDiscType(),getDiscByDiscType(),info])" class="btn">前往訂票</a>
+            <div style="width: 30%;padding-left: 10%;">
+                <div  style="padding:7%"> <!--@click.stop="this.$router.push(getLink())"-->
+                    <a href="#"  data-bs-toggle="modal" data-bs-target="#howManyTicket" :style="{ 'background-color': useColor}" @click="emits('goBook',[info.scheduleId,getDiscByDiscType(),getDiscByDiscType(),info])" class="btn">前往訂票</a>
+                </div>
             </div>
         </div>
     </div>
@@ -70,30 +77,29 @@ const getLink = ()=>{
     margin: 10px 20px;
 }
 .scheduleinfobox{
+    width: 100%;
     display:flex;
-    justify-content: flex-end;
+    justify-content: space-around;
     height: 200px;
+    padding-left: 40px;
 }
 .disc-icon{
-    
+    width: 100%;
     height:10px;
     display:flex;
     justify-content: flex-end;
-    align-items:flex-start;
-    margin:0px 20%;
-    padding:0px 0px
-    ;padding:0px 0px;
+    padding-right: 140px;
 }
 .discounticon{
     height: 30px;
     justify-items: center;
-    margin:0px 0px;
     padding: 9px 15px 0px;
     border-radius: 5px;
     text-decoration: none;
 }
 .schedulecardbox{
-    margin:20px 20px;
+    display:flex;
+    flex-wrap: wrap;
 }
 a:visited{
     text-decoration: none;

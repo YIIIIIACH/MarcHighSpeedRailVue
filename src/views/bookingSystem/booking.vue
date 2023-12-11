@@ -1,11 +1,13 @@
 <script>
 import {ref, reactive} from 'vue'
+import axios from 'axios';
 import 'vue-router'
 import httpClient from '../../main'
 import  scheduleList from  '../../components/Marc/schedule/scheduleList.vue'
 import scheduleSearchCondition from '../../components/Marc/schedule/scheduleSearchCondition.vue'
-import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
 import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
+const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
+
     export default{
         setup(){
             return {
@@ -29,26 +31,21 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                 toBookDisc : ref({}),
                 toBookTickets : reactive({}),
                 selectInfo : reactive({}),
-                computedPrice: ref(0)
+                computedPrice: ref(0),
+                passwordVisible:ref(false),
+                userName : ref(''),
+                msg : ref(''),
+                account : ref(''),
+                password : ref(''),
+                isToBooking: ref(false),
+                emptySelectMsg: ref('')
             }
         },
         computed:{
-            // getCurrentTotalPrice(){
-            //     let cnt = 0;
-            //     for(let key  of Object.keys(this.toBookTickets)){
-            //         // get disc Price of key
-            //         let price =0;
-            //         for( let discDt of this.allDiscountDetail){
-            //             if (key == discDt.ticketDiscountId){
-            //                 console.log(this.selectInfo.originTicketPrice)
-            //                 console.log( discDt)
-            //                 price += Math.ceil(((this.selectInfo.originTicketPrice * discDt.ticketDiscountPercentage)/100.0)-discDt.ticketDiscountAmount)* this.toBookTickets[key]
-            //             }
-            //         } 
-            //         cnt+= price;
-            //     }
-            //     return cnt;
-            // },
+            
+            getCurrentPwdInputType(){
+                return (this.passwordVisible==true)?'text':'password'
+            },
             getStartStationName(){
                 for( let st of this.allStation){
                     if( this.selectStartStation == st.stationId){
@@ -92,15 +89,71 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                     }
                 }
                 return '#ffffff'
+            },
+            isLogined(){
+                if(document.cookie=='') return false
+                let ckArr = document.cookie.split('login-token=');
+                console.log( document.cookie)
+                if(ckArr.length==1){
+                    return false
+                }
+                return true;
             }
         },
         methods:{
+            goLogin:function(){
+            httpClient.post('requestMemberLogin',{
+                    "email": this.account,
+                    "password": this.password
+                },{withCredentials:true})
+                .then((res)=>{
+                    console.log( res)
+                    if(res.status==200){
+                        this.userName = res.data.member_name;
+                        console.log(document.cookie)
+                        //click the  cancel btn to close the modal
+                        document.getElementById('cancelBtn').click();
+                        this.msg='';
+                        if(this.isToBooking){
+                            document.getElementById('ticket-amt-select-modal-open-btn').click();
+                        }
+                    }
+                }).catch((err)=>{
+                    this.msg='帳號或密碼有誤'
+                })
+            },
             checkLoginToken:function(){
-                let cookieArr = document.cookie.split('login-token=')
-                if( cookieArr.length==1){
-                    return false;
+                if(this.userName!='')
+                    return true;
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let name= "login-token="    
+                let ca = decodedCookie.split(';');
+                console.log( ca)
+                for(let i = 0; i <ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return true;
+                    }
                 }
-                return true;
+                return false;
+            },
+            getCookie:function(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i <ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
             },
             updatePrice: function(){
                 let cnt = 0;
@@ -109,43 +162,36 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                     let price =0;
                     for( let discDt of this.allDiscountDetail){
                         if (key == discDt.ticketDiscountId){
-                            console.log( discDt)
+                            // console.log( discDt)
                             price += Math.ceil(((this.selectInfo.originTicketPrice * discDt.ticketDiscountPercentage)/100.0)-discDt.ticketDiscountAmount)* this.toBookTickets[key]
                         }
                     } 
                     cnt+= price;
                 }
-                console.log( cnt)
                 // return cnt;
                 this.computedPrice=cnt;
             },
             bookTicket:function(){
+                // check login first,
+                //ticket-amt-select-modal-btn
+                if( this.isEmptySelect() ){
+                    this.emptySelectMsg = '請至少選取一張車票';
+                    return;
+                }else{
+                    this.emptySelectMsg= '';
+                }
+                if( this.checkLoginToken()==false){
+                    this.isToBooking=true;
+                    document.getElementById('login-modal-open-btn').click();
+                    return;
+                }
                 if( this.toBookDisc.ticketDiscountName=='商務票'){
                     //'/booking/buinessSeat/:schid/:ststid/:edstid/:departTime/:amount'
+                    document.getElementById('ticket-amt-select-modal-btn').click();
                     this.$router.push({path:'/booking/buinessSeat/'+this.selectSchedule+'/'+this.selectStartStation+'/'+this.selectEndStation+'/'+this.getToBookTicketInDiscList().length})
                     return;
                 }
-                if(!this.checkLoginToken() ){
-                    httpClient.get('/addMemberTokenCookie').then(()=>{
-                        httpClient.post('/booking'
-                        ,{
-                            "scheduleId": this.selectSchedule,
-                            "ticketDiscountId": this.toBookDisc.ticketDiscountId,
-                            "startStationId": this.selectStartStation,
-                            "endStationId":this.selectEndStation,
-                            "chooseDiscounts": this.getToBookTicketInDiscList()
-                        }).then((res)=>{
-                            console.log(res)
-                            if( res.status== 200){
-                                let ticketOrderId = res.data.split(':')[1];
-                                // console.log( ticketOrderId);
-                                this.$router.push('/bookSuccess/'+ticketOrderId)
-                            }else{
-                                this.$router.push('/bookFail');
-                            }
-                        })
-                    })
-                }else{
+                if(this.checkLoginToken() ){
                     httpClient.post('/booking'
                     ,{
                         "scheduleId": this.selectSchedule,
@@ -153,18 +199,26 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                         "startStationId": this.selectStartStation,
                         "endStationId":this.selectEndStation,
                         "chooseDiscounts": this.getToBookTicketInDiscList()
+                    },{
+                        withCredentials:true
                     }).then((res)=>{
                         console.log(res)
                         if( res.status== 200){
                             let ticketOrderId = res.data.split(':')[1];
+                            document.getElementById('ticket-amt-select-modal-btn').click();
                             // console.log( ticketOrderId);
                             this.$router.push('/bookSuccess/'+ticketOrderId)
                         }else{
-                            this.$router.push('/bookFail');
+                            console.log(res.data);
+                            
                         }
+                    }).catch(err=>{
+                        document.getElementById('ticket-amt-select-modal-btn').click();
+                        alert('訂位失敗 剩餘座位不足')
+                        console.log( err)
                     })
-                }
-                
+                }  
+                this.isToBooking=false
             },
             dateToStr:function(dt){
                 console.log( dt)
@@ -236,34 +290,23 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                 this.showProgressBar=false
                 setTimeout(() => {
                     this.showProgressBar=true;
-                }, 700);
-                while(this.allStation.length>0){
-                    this.allStation.pop();
-                }
-                httpClient.get('/getAllStation')
-                .then((res)=>{
-                    let a = res.data;
-                    for( let st of a){
-                        this.allStation.push(st)
-                    }
-                }).catch((err)=>{
-                    console.log(err)
-                })
-                // this.showScheduleStopStation=false
-                ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
-                //proximateTime  yyyy-MM-dd-HH-mm
-                ///searchBookableScheduleByTimeGetOnOffStation
+                }, 400);
+                this.showScheduleStopStation=false
+                // /searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
+                // proximateTime  yyyy-MM-dd-HH-mm
+                // /searchBookableScheduleByTimeGetOnOffStation
                 httpClient.get('/searchBookableScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes()+'/'+this.selectDiscount)
                 .then(res=>{
                     
+                    while( this.scheduleSearchResult.length>0){
+                        this.scheduleSearchResult.pop();
+                    }
                     // try to sort array of schedule in here 
                     res.data.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
                     })
                     //clear old schedule search result
-                    while( this.scheduleSearchResult.length>0){
-                        this.scheduleSearchResult.pop();
-                    }
+                    
                     for( let tmp of res.data){
                         this.scheduleSearchResult.push( tmp)
                     }
@@ -297,15 +340,34 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                         this.scheduleStopStations.push(schspst);
                     }
                 })
+            },
+            clearCookie(){
+                // console.log('cleearcookie')
+                // document.cookie=''
+                this.userName=''
+            },
+            loginBtnClick(){
+                document.getElementById('login-modal-open-btn').click()
+            },
+            isEmptySelect(){
+                if( Object.keys(this.toBookTickets).length==0){
+                    return true;
+                }
+                for( let k in this.toBookTickets){
+                    if( this.toBookTickets[k] >0){
+                        return false;
+                    }
+                }
+                return true;
             }
         },
         components:{
             scheduleList,
             scheduleSearchCondition,
-            timeShiftButton,
             displayScheduleStopStation
         },
         beforeMount(){
+            this.userName=this.getCookie('member-name');
             setTimeout(()=>this.showProgressBar=true,700)
             // fetch all station 
             this.departTime.time.setMinutes(0);
@@ -331,7 +393,6 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                 for( let ds of a){
                     this.allDiscount.push(ds)
                 }
-                console.log( 'before mount show '+ this.allDiscount.length)
             }).then(()=>{
                 this.selectDiscount= this.allDiscount[0]
             })
@@ -341,30 +402,34 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                     this.allDiscountDetail.push( d );
                 }
             })
+            httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+            .then(res=>{
+                if(res.data!= 'failed'){
+                    this.userName=res.data
+                    console.log('verify login token success')
+                }else{
+                    console.log( 'verify failed')
+                }
+            }).catch(err=>{
+                console.log( 'verify failed')
+                console.log( err)
+            })
         }
     }
 </script>
 
 <template >
+    <div class="member-info-bar">
+        <span v-if="userName!='' ||getCookie('member-name')!=''">歡迎會員{{ userName }}  <span @click="{clearCookie();userName=''}">登出</span></span><span @click="loginBtnClick" v-else>登入</span>
+    </div>
     <div class="bookingSystem">
-        <transition name="fade" mode="in-out">
-            <!-- <div class="progress progress-bar-vertical" v-show="showProgressBar">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 77%;"></div>
-            </div> -->
-            <div class="progress progress-bar-vertical" v-show="showProgressBar">
-            <div class="progress-bar" role="progressbar" :style="{'height':pbStart}"></div>
-            <div class="progress-bar" role="progressbar"  style="background-color: rgb(255, 195, 14);" :style="{'height':pbEnd}">
-            </div>
-        </div>
-        </transition>
-        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
+        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :pbStart="pbStart" :pbEd="pbEnd"      :showSideBar="showProgressBar" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
         <div class="displaySchedule">
-            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>{discChange(newDisc);goSearch()}"></scheduleSearchCondition>
-            <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
+            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>{discChange(newDisc);goSearch()}" @timeShift="(hr)=>searchTimeShift(hr)"></scheduleSearchCondition>
+            <!-- <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton> -->
             <scheduleList :schedules="scheduleSearchResult" :discColor="discColor" @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :selectDisc="selectDiscount" @goBook="(schidAndDisc)=>{toBookDisc=schidAndDisc[1];selectSchedule=schidAndDisc[0];selectInfo=schidAndDisc[3]}"></scheduleList>
         </div>
     </div>
-    
     <div class="container">
         <div class="modal" tabindex="-1" id="howManyTicket">
             <div class="modal-dialog">
@@ -374,24 +439,54 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <label>{{emptySelectMsg}}</label><br>
                     <label style="margin-bottom: 20px;"> 總價格：{{ computedPrice }}元</label>
                     <div v-for="d of getDiscByDiscType" :key="d.ticketDiscountId">
                         <label>{{ d.ticketDiscountName }}</label><input type="number" @change="updatePrice()" min="0" v-model="toBookTickets[d.ticketDiscountId]" class="form-control"/>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary"  data-bs-dismiss="modal">取消</button>
-                    <button type="button"  data-bs-dismiss="modal" @click="bookTicket()" class="btn btn-primary">前往訂票</button>
+                    <button type="button" id="ticket-amt-select-modal-btn" class="btn btn-secondary"  data-bs-dismiss="modal">取消</button>
+                    <button type="button" @click="bookTicket()" class="btn btn-primary">前往訂票</button>
                 </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="container">
+        <div class="modal" tabindex="-1" id="login-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5>登入</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">帳號：</span>
+                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">密碼：</span>
+                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+                    </div>
+                    <span>{{ msg }}</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="{msg='';isToBooking=false}" id="cancelBtn" data-bs-dismiss="modal">取消</button>
+                    <button type="button"  @click="goLogin"  class="btn btn-primary">登入</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="login-modal-open-btn" hidden data-bs-toggle="modal" data-bs-target="#login-modal"></button>
+    <button id="ticket-amt-select-modal-open-btn" hidden data-bs-toggle="modal" data-bs-target="#howManyTicket"></button>
 </template>
 <style>
-    /* .display-stop-station{
-        width:160px
-    } */
+    .member-info-bar{
+        display: flex;
+        flex-direction: row-reverse;
+    }
     .bookingSystem{
         position:relative;
         padding: 0px;
@@ -405,6 +500,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
     .displaySchedule{
         width:80%;
         margin: 0px;
+        padding: 0px;
     }
     .progress-bar-vertical {
         position:absolute;
@@ -426,14 +522,12 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
         background-color: rgb(255, 255, 255);
         z-index: 10;
     }
-    
     .fade-enter-active{
         transition: opacity .5s
     }
     .fade-leave-active {
         transition: opacity .07s;
     }
-
     .fade-enter-from,
     .fade-leave-to {
     opacity: 0;

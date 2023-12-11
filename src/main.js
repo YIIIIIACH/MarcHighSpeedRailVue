@@ -11,14 +11,13 @@ import App from './App.vue'
 const app = createApp(App)
 
 const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
-
+// axios.defaults.withCredentials=true;
 const httpClient = axios.create({
-    withCredentials: false,
+    withCredentials: true,
     baseURL: backendURL
 });
 
 app.use(createPinia())
 app.use(router)
 app.mount('#app')
-
 export default httpClient;

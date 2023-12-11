@@ -3,10 +3,8 @@ import {ref, reactive} from 'vue'
 import httpClient from '../../main'
 import  scheduleList from  '../../components/Marc/schedule/searchSchedule/searchScheduleList.vue'
 import scheduleSearchCondition from '../../components/Marc/schedule/searchSchedule/searchScheduleSearchCondition.vue'
-import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
+// import timeShiftButton from '../../components/Marc/schedule/timeShiftButton.vue'
 import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
-import backendURL from '@/main'
-import { onMounted} from 'vue'
     export default{
         setup(){
             return {
@@ -44,6 +42,7 @@ import { onMounted} from 'vue'
                 this.pbEnd='0%' 
             },
             edChange:function(newst){
+                this.showProgressBar=false
                 this.selectEndStation = newst;
                 // determine is forward seqence 
                 if(newst > this.selectStartStation){
@@ -91,40 +90,22 @@ import { onMounted} from 'vue'
                 this.showProgressBar=false
                 setTimeout(() => {
                     this.showProgressBar=true;
-                }, 700);
-                while(this.allStation.length>0){
-                    this.allStation.pop();
-                }
-                httpClient.get('/getAllStation')
-                .then((res)=>{
-                    let a = res.data;
-                    for( let st of a){
-                        this.allStation.push(st)
-                    }
-                }).catch((err)=>{
-                    console.log(err)
-                })
+                }, 400);
                 // this.showScheduleStopStation=false
                 ///searchScheduleByTimeGetOnOffStation/{onStationId}/{offStationId}/{proximateTime}
                 //proximateTime  yyyy-MM-dd-HH-mm
                 httpClient.get('searchScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes())
                 .then(res=>{
-                    
+                    let newSchs = res.data;
                     // try to sort array of schedule in here 
-                    res.data.sort( function(a,b){
+                    newSchs.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
                     })
-                    //clear old schedule search result
                     while( this.scheduleSearchResult.length>0){
                         this.scheduleSearchResult.pop();
                     }
-                    for( let tmp of res.data){
-                        this.scheduleSearchResult.push( tmp)
-                    }
-                    if(this.scheduleSearchResult.length==0){
-                        while(this.scheduleStopStations.length>0){
-                            this.scheduleStopStations.pop();
-                        }
+                    for( let i=0; i<newSchs.length; i++){
+                        this.scheduleSearchResult.push( newSchs[i])
                     }
                     
                 }).then(()=>{
@@ -156,7 +137,7 @@ import { onMounted} from 'vue'
         components:{
             scheduleList,
             scheduleSearchCondition,
-            timeShiftButton,
+            // timeShiftButton,
             displayScheduleStopStation
         },
         beforeMount(){
@@ -194,20 +175,10 @@ import { onMounted} from 'vue'
 
 <template >
     <div class="bookingSystem">
-        <transition name="fade" mode="in-out">
-            <!-- <div class="progress progress-bar-vertical" v-show="showProgressBar">
-                <div class="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style="height: 77%;"></div>
-            </div> -->
-            <div class="progress progress-bar-vertical" v-show="showProgressBar">
-            <div class="progress-bar" role="progressbar" :style="{'height':pbStart}"></div>
-            <div class="progress-bar" role="progressbar"  style="background-color: rgb(255, 195, 14);" :style="{'height':pbEnd}">
-            </div>
-        </div>
-        </transition>
-        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
+        <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :pbStart="pbStart" :pbEd="pbEnd" :showSideBar="showProgressBar" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>
         <div class="displaySchedule">
-            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)"></scheduleSearchCondition>
-            <timeShiftButton @timeShift="(hr)=>searchTimeShift(hr)"></timeShiftButton>
+            <scheduleSearchCondition :selectdatetime="departTime" :allStation="allStation"  :allDiscount="allDiscount"  :disc="selectDiscount" :stst="selectStartStation" :edst="selectEndStation" @search="goSearch" @ststchange="(newst)=>stChange(newst)" @edstchange="(newst)=>edChange(newst)" @discchange="(newDisc)=>discChange(newDisc)" @timeShift="(hr)=>searchTimeShift(hr)"></scheduleSearchCondition>
+            
             <scheduleList :schedules="scheduleSearchResult"  @refresh-stop-station-display="(sch)=>refreshStopStationDisplay(sch.scheduleId)" :colorList="discColorList" :allDisc="allDiscount"></scheduleList>
         </div>
     </div>
@@ -235,9 +206,9 @@ import { onMounted} from 'vue'
     }
     .progress-bar-vertical {
         position:absolute;
-        left:50px;
+        left:53px;
         top:40px;
-        width: 30px;
+        width: 25px;
         min-height: 780px;
         border-radius: 10px;
         display: flex;
@@ -260,7 +231,6 @@ import { onMounted} from 'vue'
     .fade-leave-active {
         transition: opacity .07s;
     }
-
     .fade-enter-from,
     .fade-leave-to {
     opacity: 0;

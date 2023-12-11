@@ -1,13 +1,17 @@
 <script>
-  import httpClient from "@/main";
-  import { ref, reactive, onMounted } from "vue";
-  export default {
-    setup() {
-      return {
-        // cardText : ref(''),
-        filterMode: ref('全部商品'),
-        products: ref([]), //要渲染的商品資料
-        source_products: ref([]), //原始商品資料，用於暫存所有資料
+import httpClient from "@/main";
+import { ref, reactive, onMounted } from "vue";
+export default {
+  setup() {
+    return {
+      // cardText : ref(''),
+      filterMode: ref('全部商品'),
+      products: ref([]), //要渲染的商品資料
+      // products[ {
+      //   'xx':'xx',
+      //   'showAddInCart': false
+      // }]
+      source_products: ref([]), //原始商品資料，用於暫存所有資料
 
         keyword: ref(""), 
 
@@ -27,50 +31,53 @@
         showNotification: false,
       };
     },
-    computed: {
-      totalPage() {
+ computed: {
+    totalPage() {
         return Math.ceil(this.products.length / this.perpage)
         //Math.ceil()取最小分頁整數
       },
-      pageStart() {
-        return (this.currentPage - 1) * this.perpage
-        //取得該頁第一個值的index
-      },
-      pageEnd() {
-        return this.currentPage * this.perpage
-        //取得該頁最後一個值的index
-      }
+    pageStart() {
+      return (this.currentPage - 1) * this.perpage
+      //取得該頁第一個值的index
     },
-    
-    methods: {
-      // 導向商品詳細頁
-      goToGoodsDetail(productId) {
-        this.$router.push({ name: 'goods-detail', params: { Id: productId } });
+    pageEnd() {
+      return this.currentPage * this.perpage
+      //取得該頁最後一個值的index
+    }
+  },
+  
+  methods: {
+    addInCart(p){// 益齊 修改 add incart 符傀印 function
+      p.showAddInCart=true
+      setTimeout(function(){p.showAddInCart=false},700)
+    },
+    // 導向商品詳細頁
+    goToGoodsDetail(productId) {
+      this.$router.push({ name: 'goods-detail', params: { Id: productId } });
+    },
+    // 加入購物車
+    addItemToShoppingCart(productId){
+      const memberId = '123abc'
+      httpClient.post('/ShoppingCart/addProduct?productId=' + productId + '&' + 'memberId=' + memberId)
+      .then((res) =>{
+        if(res.data == '商品已在購物車中。'){
+          this.notification = res.data
+          this.showNotification = true;
+          setTimeout(()=>{
+            this.showNotification = false;
+          }, 100)
+        }else{
+          this.notification = res.data
+          this.showNotification = true;
+          setTimeout(()=>{
+            this.showNotification = false;
+          }, 100)
+        }
+      })
+      .catch((err)=>{
+        console.log(err.data)
+      })
       },
-      // 加入購物車
-      addItemToShoppingCart(productId){
-        const memberId = '123abc'
-        httpClient.post('/ShoppingCart/addProduct?productId=' + productId + '&' + 'memberId=' + memberId)
-        .then((res) =>{
-          if(res.data == '商品已在購物車中。'){
-            this.notification = res.data
-            this.showNotification = true;
-            setTimeout(()=>{
-              this.showNotification = false;
-            }, 2000)
-          }else{
-            this.notification = res.data
-            this.showNotification = true;
-            setTimeout(()=>{
-              this.showNotification = false;
-            }, 2000)
-          }
-        })
-        .catch((err)=>{
-          console.log(err.data)
-        })
-        },
-
       //設定分頁
       setPage(page) {
           if(page <= 0 || page > this.totalPage) {
@@ -344,9 +351,10 @@
   <article> 
     <div class="each-product">
       <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
-        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
+        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
           <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
+          <div v-show="p.showAddInCart" class="inimg-notification">加入購物車</div>
           <div class="row">
             <div class="col-7 ">
               <p class="card-title">{{ p.productName }}</p>
@@ -355,7 +363,7 @@
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-primary mt-3" @click.stop="addItemToShoppingCart(p.productId)" type="submit">加入購物車</button>
+                <button class="btn btn-primary mt-3" @click.stop="addInCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
             </div>
           </div>
         </div>
@@ -390,8 +398,7 @@
     </ul>
 
   </nav>
-
-  <div v-if="showNotification" class="notification">{{this.notification}}</div>
+  <div v-show="showNotification" class="notification">{{this.notification}}</div>
 </template>
 
 <style>
@@ -457,5 +464,18 @@
   border-radius: 10px;
   z-index: 1000;
 }
-
+.inimg-notification {
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(57, 53, 46, 0.6);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 1000;
+}
+.pos-ab{
+  position: absolute;
+}
 </style>

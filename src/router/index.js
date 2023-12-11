@@ -13,6 +13,8 @@ import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
 import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
 import bookFail from '../views/bookingSystem/bookFail.vue'
+import memberTicketOrder from '../views/bookingSystem/memberTicketOrder.vue'
+import ticketOrderDetail from '../views/bookingSystem/ticketOrderDetail.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -36,6 +38,15 @@ const router = createRouter({
       path: '/booking/buinessSeat/:schid/:ststid/:edstid/:amount',
       component: buinessBooking,
       props:true
+    },
+    {
+      path: '/ticketOrder',
+      component: memberTicketOrder
+    },
+    {
+      path: '/ticketOrderDetail/:tckodid',
+      component: ticketOrderDetail,
+      props: true
     },
     {
       path: '/bookSuccess/:tckodid',

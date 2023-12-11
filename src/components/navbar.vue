@@ -29,6 +29,12 @@
                     <li class="nav-item">
                         <router-link to="/emp/login" class="nav-link">employee</router-link>
                     </li>
+                    <li class="nav-item">
+                        <router-link to="/login" class="nav-link">會員登入</router-link>
+                    </li>
+                    <li class="nav-item">
+                        <router-link to="/register" class="nav-link">會員註冊</router-link>
+                    </li>
                 </ul>
                 <form class="d-flex">
                     <input class="form-control me-2" type="text" placeholder="Search">

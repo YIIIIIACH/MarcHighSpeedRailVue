@@ -12,6 +12,9 @@ import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
 import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
 import bookFail from '../views/bookingSystem/bookFail.vue'
+import userLogin from '../views/UserLoginPage.vue'
+import userProfile from '../views/UserProfilePage.vue'
+import UserRegister from '../views/UserRegisterPage.vue'
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -34,7 +37,7 @@ const router = createRouter({
     {
       path: '/booking/buinessSeat/:schid/:ststid/:edstid/:amount',
       component: buinessBooking,
-      props:true
+      props: true
     },
     {
       path: '/bookSuccess/:tckodid',
@@ -69,6 +72,18 @@ const router = createRouter({
     {
       path: '/emp/index',
       component: employeeIndex
+    },
+    {
+      path: '/login',
+      component: userLogin
+    },
+    {
+      path: '/profile',
+      component: userProfile
+    },
+    {
+      path: '/register',
+      component: UserRegister
     }
   ]
 })

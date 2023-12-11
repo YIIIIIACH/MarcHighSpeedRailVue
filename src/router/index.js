@@ -13,8 +13,14 @@ import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
 import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
 import bookFail from '../views/bookingSystem/bookFail.vue'
+<<<<<<< HEAD
+import userLogin from '../views/UserLoginPage.vue'
+import userProfile from '../views/UserProfilePage.vue'
+import UserRegister from '../views/UserRegisterPage.vue'
+=======
 import memberTicketOrder from '../views/bookingSystem/memberTicketOrder.vue'
 import ticketOrderDetail from '../views/bookingSystem/ticketOrderDetail.vue'
+>>>>>>> 81df770b31fbc0096c89b40e0e703f90e0acf0c8
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -37,7 +43,7 @@ const router = createRouter({
     {
       path: '/booking/buinessSeat/:schid/:ststid/:edstid/:amount',
       component: buinessBooking,
-      props:true
+      props: true
     },
     {
       path: '/ticketOrder',
@@ -93,6 +99,18 @@ const router = createRouter({
     {
       path: '/emp/index',
       component: employeeIndex
+    },
+    {
+      path: '/login',
+      component: userLogin
+    },
+    {
+      path: '/profile',
+      component: userProfile
+    },
+    {
+      path: '/register',
+      component: UserRegister
     }
   ]
 })

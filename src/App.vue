@@ -38,18 +38,32 @@ const memberId = ref('123abc')
           <!-- <li class="nav-item">
             <router-link to="/goods" class="nav-link">shopping</router-link>
           </li> -->
+
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="shoppingDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            shopping
+            <a class="nav-link dropdown-toggle" href="#" id="shoppingDropdown" role="button" data-bs-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              shopping
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item">購物中心</router-link>
+<<<<<<< HEAD
+              <router-link :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
+                class="dropdown-item">我的購物車</router-link>
+              <!-- <router-link to="/shoppingCart" class="dropdown-item">我的購物車</router-link> -->
+=======
               <router-link :to="{ name: 'shoppingCart', params: {memberId: memberId} }" class="dropdown-item">我的購物車</router-link>
+>>>>>>> 81df770b31fbc0096c89b40e0e703f90e0acf0c8
               <!-- <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link> -->
             </div>
           </li>
           <li class="nav-item">
             <router-link to="/emp/login" class="nav-link">employee</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/login" class="nav-link">會員登入</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link to="/register" class="nav-link">會員註冊</router-link>
           </li>
         </ul>
         <form class="d-flex">
@@ -66,20 +80,24 @@ const memberId = ref('123abc')
 </template>
 
 <style>
-.nav-link{
+.nav-link {
   color: white;
-  
+
 }
+
 .fade-enter-active,
-.face-leave-active{
+.face-leave-active {
   transition: opacity 1s;
 }
+
 .fade-enter-from,
-.fade-leave-to{
+.fade-leave-to {
   opacity: 0
 }
+
 .fade-enter-to,
-.fade-leave-from{
+.fade-leave-from {
   opacity: 1
 }
+
 </style>

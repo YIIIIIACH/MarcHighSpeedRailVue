@@ -13,29 +13,29 @@ export default {
       // }]
       source_products: ref([]), //原始商品資料，用於暫存所有資料
 
-      keyword: ref(""), 
+        keyword: ref(""), 
 
-      minPrice: ref(""),
-      maxPrice: ref(""),
+        minPrice: ref(""),
+        maxPrice: ref(""),
 
-      productType: ref("全部商品"),
+        productType: ref("全部商品"),
 
-      highlightId: ref(0),
+        highlightId: ref(0),
 
-      currentPage: ref(1),
-      perpage: ref(8), //一頁的商品資料數
+        currentPage: ref(1),
+        perpage: ref(8), //一頁的商品資料數
 
-      priceErrorMessage: ref(''),
+        priceErrorMessage: ref(''),
 
-      notification: ref(''),
-      showNotification: false,
-    };
-  },
-  computed: {
-    totalPage() {
-      return Math.ceil(this.products.length / this.perpage)
-      //Math.ceil()取最小分頁整數
+        notification: ref(''),
+        showNotification: false,
+      };
     },
+ computed: {
+    totalPage() {
+        return Math.ceil(this.products.length / this.perpage)
+        //Math.ceil()取最小分頁整數
+      },
     pageStart() {
       return (this.currentPage - 1) * this.perpage
       //取得該頁第一個值的index
@@ -78,112 +78,110 @@ export default {
         console.log(err.data)
       })
       },
-
-    //設定分頁
-    setPage(page) {
-        if(page <= 0 || page > this.totalPage) {
-            return //結束方法
-        }
-        this.currentPage = page
-    },
-
-    //關鍵字搜尋 
-    searchByKeyword: function () {
-      this.products = [];
-      httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
-        .then((res) => {
-          let kps = res.data;
-          for (let p of kps) {
-            this.products.push(p);
+      //設定分頁
+      setPage(page) {
+          if(page <= 0 || page > this.totalPage) {
+              return //結束方法
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-    //價格區間搜尋
-    searchByPrice: function () {
-      this.priceErrorMessage = ''
-      if(this.minPrice == ''){
-        this.priceErrorMessage = '請輸入最小值'
-      }else if(this.maxPrice == ''){
-        this.priceErrorMessage = '請輸入最大值'
-      }
-      //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
-      //   this.priceErrorMessage = '請輸入合法數值'
-      // }
-      else{
+          this.currentPage = page
+      },
+
+      //關鍵字搜尋 
+      searchByKeyword: function () {
         this.products = [];
-        httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
-        .then((res) => {
-          let pps = res.data;
-          // console.log(pps)
+        httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
+          .then((res) => {
+            let kps = res.data;
+            for (let p of kps) {
+              this.products.push(p);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      },
+      //價格區間搜尋
+      searchByPrice: function () {
+        this.priceErrorMessage = ''
+        if(this.minPrice == ''){
+          this.priceErrorMessage = '請輸入最小值'
+        }else if(this.maxPrice == ''){
+          this.priceErrorMessage = '請輸入最大值'
+        }
+        //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
+        //   this.priceErrorMessage = '請輸入合法數值'
+        // }
+        else{
+          this.products = [];
+          httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
+          .then((res) => {
+            let pps = res.data;
+            // console.log(pps)
+            if(this.filterMode != '全部商品'){
+              pps = pps.filter(p => p.productType == this.filterMode);
+            }
+            for (let p of pps) {
+              this.products.push(p);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        }
+      },
+      clearPrice: function(){
+        this.priceErrorMessage = '',
+        this.maxPrice = '',
+        this.minPrice = ''
+      },
+      selectedType(type) {
+        this.minPrice = '';
+        this.maxPrice = '';
+        this.priceErrorMessage = '';
+
+        this.filterMode = type;
+        // retunr page number to 1 
+        this.currentPage= 1;
+          // 2. 參數(type) asign 給 productType
+        this.productType = type;
+          // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
           if(this.filterMode != '全部商品'){
-            pps = pps.filter(p => p.productType == this.filterMode);
+            this.products = this.source_products.filter(p=>p.productType==type);
+          }else{
+            this.products = this.source_products
           }
-          for (let p of pps) {
+      },
+
+      // 游標進出事件
+      handleMouseOver: function(productId) {
+        this.highlightId = productId;
+      },
+      handleMouseLeave: function() {
+        this.highlightId = null;
+      },
+    },
+    components: {},
+    beforeMount() {
+      // fetch all product and pages before mount
+      httpClient.get("http://localhost:8080/MarcHighSpeedRail/products")
+        .then((res) => {
+          let ps = res.data;
+          // let page = res.data;
+          // let ps = page.content;
+          // this.totalPages = page.totalPages
+
+          for (let p of ps) { 
+              // 1. 遍歷出來的 product 放到 source_products & products
+            this.source_products.push(p);
             this.products.push(p);
           }
+
         })
         .catch((err) => {
           console.log(err);
         });
-      }
     },
-    clearPrice: function(){
-      this.priceErrorMessage = '',
-      this.maxPrice = '',
-      this.minPrice = ''
-    },
-    selectedType(type) {
-      this.minPrice = '';
-      this.maxPrice = '';
-      this.priceErrorMessage = '';
-
-      this.filterMode = type;
-      // retunr page number to 1 
-      this.currentPage= 1;
-        // 2. 參數(type) asign 給 productType
-      this.productType = type;
-        // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
-        if(this.filterMode != '全部商品'){
-          this.products = this.source_products.filter(p=>p.productType==type);
-        }else{
-          this.products = this.source_products
-        }
-    },
-
-    // 游標進出事件
-    handleMouseOver: function(productId) {
-      this.highlightId = productId;
-    },
-    handleMouseLeave: function() {
-      this.highlightId = null;
-    },
-  },
-  components: {},
-  beforeMount() {
-    // fetch all product and pages before mount
-    httpClient.get("/products")
-      .then((res) => {
-        let ps = res.data;
-        // let page = res.data;
-        // let ps = page.content;
-        // this.totalPages = page.totalPages
-
-        for (let p of ps) { 
-            // 1. 遍歷出來的 product 放到 source_products & products
-            p.showAddInCart=false;
-          this.source_products.push(p);
-          this.products.push(p);
-        }
-
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },
-};
+  };
 </script>
 
 <template>

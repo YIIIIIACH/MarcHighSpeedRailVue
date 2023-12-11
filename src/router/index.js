@@ -5,6 +5,7 @@ import booking from '../views/bookingSystem/booking.vue'
 import goods from '../views/shopping/goods.vue'
 import goodsDetail from '../views/shopping/goodsDetail.vue'
 import shoppingCart from '../views/shopping/shoppingCart.vue'
+import checkoutPage from '../views/shopping/checkoutPage.vue'
 import lostItem from '../components/lostItem.vue'
 import employeeLogin from '../views/EmployeeLoginView.vue'
 import employeeIndex from '../components/backendNavbar.vue'
@@ -72,6 +73,18 @@ const router = createRouter({
       component: shoppingCart,
       name: 'shoppingCart',
       props: true
+    },
+    // {
+    //   path: '/checkout/:memberId/:checkoutPrice/:selectedIds',
+    //   component: checkoutPage,
+    //   name: 'checkoutPage',
+    //   props:true
+    // },
+    {
+      path: '/checkout/:memberId/:checkoutPrice/:selectedItems',
+      component: checkoutPage,
+      name: 'checkoutPage',
+      props:true
     },
     {
       path: '/emp/login',

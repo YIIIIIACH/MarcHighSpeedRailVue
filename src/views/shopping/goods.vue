@@ -7,31 +7,35 @@ export default {
       // cardText : ref(''),
       filterMode: ref('全部商品'),
       products: ref([]), //要渲染的商品資料
+      // products[ {
+      //   'xx':'xx',
+      //   'showAddInCart': false
+      // }]
       source_products: ref([]), //原始商品資料，用於暫存所有資料
 
-      keyword: ref(""), 
+        keyword: ref(""), 
 
-      minPrice: ref(""),
-      maxPrice: ref(""),
+        minPrice: ref(""),
+        maxPrice: ref(""),
 
-      productType: ref("全部商品"),
+        productType: ref("全部商品"),
 
-      highlightId: ref(0),
+        highlightId: ref(0),
 
-      currentPage: ref(1),
-      perpage: ref(8), //一頁的商品資料數
+        currentPage: ref(1),
+        perpage: ref(8), //一頁的商品資料數
 
-      priceErrorMessage: ref(''),
+        priceErrorMessage: ref(''),
 
-      notification: ref(''),
-      showNotification: false,
-    };
-  },
-  computed: {
-    totalPage() {
-      return Math.ceil(this.products.length / this.perpage)
-      //Math.ceil()取最小分頁整數
+        notification: ref(''),
+        showNotification: false,
+      };
     },
+ computed: {
+    totalPage() {
+        return Math.ceil(this.products.length / this.perpage)
+        //Math.ceil()取最小分頁整數
+      },
     pageStart() {
       return (this.currentPage - 1) * this.perpage
       //取得該頁第一個值的index
@@ -43,6 +47,10 @@ export default {
   },
   
   methods: {
+    addInCart(p){// 益齊 修改 add incart 符傀印 function
+      p.showAddInCart=true
+      setTimeout(function(){p.showAddInCart=false},700)
+    },
     // 導向商品詳細頁
     goToGoodsDetail(productId) {
       this.$router.push({ name: 'goods-detail', params: { Id: productId } });
@@ -57,124 +65,123 @@ export default {
           this.showNotification = true;
           setTimeout(()=>{
             this.showNotification = false;
-          }, 2000)
+          }, 100)
         }else{
           this.notification = res.data
           this.showNotification = true;
           setTimeout(()=>{
             this.showNotification = false;
-          }, 2000)
+          }, 100)
         }
       })
       .catch((err)=>{
         console.log(err.data)
       })
       },
-
-    //設定分頁
-    setPage(page) {
-        if(page <= 0 || page > this.totalPage) {
-            return //結束方法
-        }
-        this.currentPage = page
-    },
-
-    //關鍵字搜尋 
-    searchByKeyword: function () {
-      this.products = [];
-      httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
-        .then((res) => {
-          let kps = res.data;
-          for (let p of kps) {
-            this.products.push(p);
+      //設定分頁
+      setPage(page) {
+          if(page <= 0 || page > this.totalPage) {
+              return //結束方法
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    },
-    //價格區間搜尋
-    searchByPrice: function () {
-      this.priceErrorMessage = ''
-      if(this.minPrice == ''){
-        this.priceErrorMessage = '請輸入最小值'
-      }else if(this.maxPrice == ''){
-        this.priceErrorMessage = '請輸入最大值'
-      }
-      //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
-      //   this.priceErrorMessage = '請輸入合法數值'
-      // }
-      else{
+          this.currentPage = page
+      },
+
+      //關鍵字搜尋 
+      searchByKeyword: function () {
         this.products = [];
-        httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
-        .then((res) => {
-          let pps = res.data;
-          // console.log(pps)
+        httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
+          .then((res) => {
+            let kps = res.data;
+            for (let p of kps) {
+              this.products.push(p);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      },
+      //價格區間搜尋
+      searchByPrice: function () {
+        this.priceErrorMessage = ''
+        if(this.minPrice == ''){
+          this.priceErrorMessage = '請輸入最小值'
+        }else if(this.maxPrice == ''){
+          this.priceErrorMessage = '請輸入最大值'
+        }
+        //   else if((this.minPrice >> this.maxPrice) || isNaN(this.minPrice) || isNaN(this.maxPrice)){
+        //   this.priceErrorMessage = '請輸入合法數值'
+        // }
+        else{
+          this.products = [];
+          httpClient.get( "/product/findByPrice?firstPrice=" + this.minPrice + "&" + "secondPrice=" + this.maxPrice)
+          .then((res) => {
+            let pps = res.data;
+            // console.log(pps)
+            if(this.filterMode != '全部商品'){
+              pps = pps.filter(p => p.productType == this.filterMode);
+            }
+            for (let p of pps) {
+              this.products.push(p);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+        }
+      },
+      clearPrice: function(){
+        this.priceErrorMessage = '',
+        this.maxPrice = '',
+        this.minPrice = ''
+      },
+      selectedType(type) {
+        this.minPrice = '';
+        this.maxPrice = '';
+        this.priceErrorMessage = '';
+
+        this.filterMode = type;
+        // retunr page number to 1 
+        this.currentPage= 1;
+          // 2. 參數(type) asign 給 productType
+        this.productType = type;
+          // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
           if(this.filterMode != '全部商品'){
-            pps = pps.filter(p => p.productType == this.filterMode);
+            this.products = this.source_products.filter(p=>p.productType==type);
+          }else{
+            this.products = this.source_products
           }
-          for (let p of pps) {
+      },
+
+      // 游標進出事件
+      handleMouseOver: function(productId) {
+        this.highlightId = productId;
+      },
+      handleMouseLeave: function() {
+        this.highlightId = null;
+      },
+    },
+    components: {},
+    beforeMount() {
+      // fetch all product and pages before mount
+      httpClient.get("http://localhost:8080/MarcHighSpeedRail/products")
+        .then((res) => {
+          let ps = res.data;
+          // let page = res.data;
+          // let ps = page.content;
+          // this.totalPages = page.totalPages
+
+          for (let p of ps) { 
+              // 1. 遍歷出來的 product 放到 source_products & products
+            this.source_products.push(p);
             this.products.push(p);
           }
+
         })
         .catch((err) => {
           console.log(err);
         });
-      }
     },
-    clearPrice: function(){
-      this.priceErrorMessage = '',
-      this.maxPrice = '',
-      this.minPrice = ''
-    },
-    selectedType(type) {
-      this.minPrice = '';
-      this.maxPrice = '';
-      this.priceErrorMessage = '';
-
-      this.filterMode = type;
-      // retunr page number to 1 
-      this.currentPage= 1;
-        // 2. 參數(type) asign 給 productType
-      this.productType = type;
-        // 3. p 代表 source_products 裡所有的 product , 將參數(type) asign 給 p.productType
-        if(this.filterMode != '全部商品'){
-          this.products = this.source_products.filter(p=>p.productType==type);
-        }else{
-          this.products = this.source_products
-        }
-    },
-
-    // 游標進出事件
-    handleMouseOver: function(productId) {
-      this.highlightId = productId;
-    },
-    handleMouseLeave: function() {
-      this.highlightId = null;
-    },
-  },
-  components: {},
-  beforeMount() {
-    // fetch all product and pages before mount
-    httpClient.get("http://localhost:8080/MarcHighSpeedRail/products")
-      .then((res) => {
-        let ps = res.data;
-        // let page = res.data;
-        // let ps = page.content;
-        // this.totalPages = page.totalPages
-
-        for (let p of ps) { 
-            // 1. 遍歷出來的 product 放到 source_products & products
-          this.source_products.push(p);
-          this.products.push(p);
-        }
-
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  },
-};
+  };
 </script>
 
 <template>
@@ -344,9 +351,10 @@ export default {
   <article> 
     <div class="each-product">
       <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
-        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none' }"> 
+        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
           <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
+          <div v-show="p.showAddInCart" class="inimg-notification">加入購物車</div>
           <div class="row">
             <div class="col-7 ">
               <p class="card-title">{{ p.productName }}</p>
@@ -355,7 +363,7 @@ export default {
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-primary mt-3" @click.stop="addItemToShoppingCart(p.productId)" type="submit">加入購物車</button>
+                <button class="btn btn-primary mt-3" @click.stop="addInCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
             </div>
           </div>
         </div>
@@ -390,8 +398,7 @@ export default {
     </ul>
 
   </nav>
-
-  <div v-if="showNotification" class="notification">{{this.notification}}</div>
+  <div v-show="showNotification" class="notification">{{this.notification}}</div>
 </template>
 
 <style>
@@ -457,5 +464,18 @@ export default {
   border-radius: 10px;
   z-index: 1000;
 }
-
+.inimg-notification {
+  position:absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(57, 53, 46, 0.6);
+  color: white;
+  padding: 15px;
+  border-radius: 10px;
+  z-index: 1000;
+}
+.pos-ab{
+  position: absolute;
+}
 </style>

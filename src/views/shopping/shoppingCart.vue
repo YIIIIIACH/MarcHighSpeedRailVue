@@ -1,159 +1,196 @@
 <script>
-import httpClient from "@/main";
-import { ref, reactive } from "vue";
-export default {
-    props:['memberId'],
-    setup(props) {
-      return{
-        shoppingCartItems: reactive([]),
-        quantity: ref(1),
-        selectAll: false,
-        isHovered: false,
-      }
-    },
-    computed:{
-      getSelectedTotalPrice(){
-        let checkoutPrice=0;
-        for( let item of this.shoppingCartItems){
-          if(item.isSelected){
-            checkoutPrice += item.productPrice*item.quantity;
-          }
+  import httpClient from "@/main";
+  import { ref, reactive } from "vue";
+  export default {
+      props:['memberId'],
+      setup(props) {
+        return{
+          shoppingCartItems: reactive([]),
+          // quantity: ref(1),
+          selectAll: false,
+          isHovered: false,
+
+          checkoutPrice:ref(0),
+
+          // forCheckoutItemsId: reactive([]),
         }
-
-        return checkoutPrice;
-      }
-    },
-    mounted() {
-    },
-/// arr [ 1, 2,3,4,?,?]  when i=3 find same 
-// slice( 3,1) => [1,2,3,?] i=3 再檢查一次 continue;
-// 
-    methods: {
-      goToGoodsDetail(productId){
-        this.$router.push({ name: 'goods-detail', params: { Id: productId } });
       },
-      // 處理文字的鼠標進出事件 Style
-      changeStyle(itemId, isHovered) {
-        const removeTextElement = document.querySelector(`#remove-text-${itemId}`);
-        const pNameElement = document.querySelector(`#product-name-${itemId}`);
-
-          if(removeTextElement) {      
-            if (isHovered) {        
-              removeTextElement.style.color = '#FF5151'; 
-              document.body.style.cursor = 'pointer'; 
-            } else {        
-              removeTextElement.style.color = 'black'; 
-              document.body.style.cursor = 'auto'; 
+      computed:{
+        getSelectedTotalPrice(){
+          let total= 0;
+          for( let item of this.shoppingCartItems){
+            if(item.isSelected){
+              total += item.productPrice*item.quantity;
             }
           }
-          if(pNameElement){
-            if (isHovered) {        
-              pNameElement.style.color = '#FF5151'; 
-              document.body.style.cursor = 'pointer'; 
-            } else {        
-              pNameElement.style.color = 'black'; 
-              document.body.style.cursor = 'auto'; 
+          return total;
+        }
+      },
+      watch:{
+        getSelectedTotalPrice(total){
+          this.checkoutPrice = total
+        }
+      },
+      mounted() {
+      },
+      /// arr [ 1, 2,3,4,?,?]  when i=3 find same 
+      // slice( 3,1) => [1,2,3,?] i=3 再檢查一次 continue;
+      // 
+      methods: {
+        goToCheckoutPage(){
+          // 篩選已勾選的品項
+          const selectedItems = this.shoppingCartItems.filter(item => item.isSelected)
+
+          // // 儲存已勾選的品項Id儲存成陣列
+          // const selectedIds = selectedItems.map(item => item.shoppingCartItemId);
+          // // .join(',') -> 將陣列轉換為逗號分隔的字串以傳輸
+          // const selectedIdsString = selectedIds.join(',')
+
+          // 把已勾選的品項物件轉成字串
+          const itemsString = JSON.stringify(selectedItems)
+          // console.log(itemsString)
+          this.$router.push({ name: 'checkoutPage', params:{ memberId: this.memberId, checkoutPrice: this.checkoutPrice, selectedItems: itemsString } })
+        },
+        goToGoodsDetail(productId){
+          this.$router.push({ name: 'goods-detail', params: { Id: productId } });
+        },
+        // 處理文字的鼠標進出事件 Style
+        changeStyle(itemId, isHovered) {
+          const removeTextElement = document.querySelector(`#remove-text-${itemId}`);
+          const pNameElement = document.querySelector(`#product-name-${itemId}`);
+
+            if(removeTextElement) {      
+              if (isHovered) {        
+                removeTextElement.style.color = '#FF5151'; 
+                document.body.style.cursor = 'pointer'; 
+              } else {        
+                removeTextElement.style.color = 'black'; 
+                document.body.style.cursor = 'auto'; 
+              }
+            }
+            if(pNameElement){
+              if (isHovered) {        
+                pNameElement.style.color = 'blue'; 
+                document.body.style.cursor = 'pointer'; 
+              } else {        
+                pNameElement.style.color = 'black'; 
+                document.body.style.cursor = 'auto'; 
+              }
+            }
+        },
+
+        // 移除單一品項
+        removeItem(itId){
+          httpClient.delete('/ShoppingCart/delete?memberId=' + this.memberId + '&itemId=' + itId)
+          .then((res)=>{
+            console.log(res)
+          })
+          .catch((err)=>{
+            console.log(err)
+          })
+
+          for( let i=0; i < this.shoppingCartItems.length;i++){
+            if(this.shoppingCartItems[i].shoppingCartItemId == itId){
+              this.shoppingCartItems.splice(i,1)
+              continue;
             }
           }
-      },
+          console.log( this.shoppingCartItems);
+        },
 
-      // 移除單一品項
-      removeItem(itId){
-        httpClient.delete('/ShoppingCart/delete?memberId=' + this.memberId + '&itemId=' + itId)
-        .then((res)=>{
-          console.log(res)
-        })
-        .catch((err)=>{
-          console.log(err)
-        })
+        // 移除所有品項
+        removeAllItem(){
+          httpClient.delete(`/ShoppingCart/deleteAll?memberId=${this.memberId}`)
+          .then((res)=>{
+            console.log(res)
+            this.shoppingCartItems.splice(0, this.shoppingCartItems.length);
+          })
+          .catch(()=>{
+            console.log(res)
+          })
 
-        for( let i=0; i < this.shoppingCartItems.length;i++){
-          if(this.shoppingCartItems[i].shoppingCartItemId == itId){
-            this.shoppingCartItems.splice(i,1)
-            continue;
+        },
+        // 全選
+        handleSelectAll() {
+          this.shoppingCartItems.forEach(item => {
+            item.isSelected = this.selectAll;
+          });
+        },
+
+        // 限制輸入型態為數字
+        // handleNumberInput(){
+        //   this.quantity = this.quantity.replace(/\D/g, '');
+        // },
+
+        inputQuantity(item){
+          if(item.quantity >= 1){
+            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            .then((res)=>{
+              console.log(res)
+            })
+            this.updateTotalPrice(item);
           }
-        }
-        console.log( this.shoppingCartItems);
-      },
+        },
+        //  品項數量增減
+        decrementQuantity(item,itemPrice){
+          if (item.quantity > 1) {
+            item.quantity -= 1;
+            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            .then((res)=>{
+              console.log(res)
 
-      // 移除所有品項
-      removeAllItem(){
-        httpClient.delete(`/ShoppingCart/deleteAll?memberId=${this.memberId}`)
+            })
+            this.updateTotalPrice(item);
+            //  totalPrice -= itemPrice;
+          }
+        },
+        incrementQuantity(item,itemPrice){
+          item.quantity += 1;
+          httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+          .then((res)=>{
+            console.log(res)
+          })
+          this.updateTotalPrice(item);
+          // totalPrice += itemPrice;
+        },
+
+        // 計算金額
+        updateTotalPrice(item){
+          item.totalPrice = item.productPrice * item.quantity
+        },
+      }, 
+      beforeMount(){
+        const memberId = this.memberId;
+        // console.log(memberId)
+        httpClient.get('/ShoppingCart?memberId=' + memberId)
         .then((res)=>{
-          console.log(res)
-          this.shoppingCartItems.splice(0, this.shoppingCartItems.length);
+          console.log(res.data)
+          let items = res.data
+          for(let item of items){
+            this.shoppingCartItems.push(item)
+            // console.log(item)
+          }
         })
-        .catch(()=>{
-          console.log(res)
-        })
-
-      },
-      // 全選
-      handleSelectAll() {
-        this.shoppingCartItems.forEach(item => {
-          item.isSelected = this.selectAll;
+        .catch((error) => {
+          console.error(error);
         });
       },
-
-      // 限制輸入型態為數字
-      handleNumberInput(){
-        this.quantity = this.quantity.replace(/\D/g, '');
-      },
-      //  品項數量增減
-      decrementQuantity(item,itemPrice){
-        if (item.quantity > 1) {
-          item.quantity -= 1;
-           this.updateCheckoutPrice(item);
-          //  totalPrice -= itemPrice;
-        }
-      },
-      incrementQuantity(item,itemPrice){
-        item.quantity += 1;
-        this.updateCheckoutPrice(item);
-        // totalPrice += itemPrice;
-      },
-
-      // 計算金額
-      updateCheckoutPrice(item){
-        item.totalPrice = item.productPrice * item.quantity
-      },
-    }, 
-    beforeMount(){
-      const memberId = this.memberId;
-      // console.log(memberId)
-      httpClient.get('/ShoppingCart?memberId=' + memberId)
-      .then((res)=>{
-        console.log(res.data)
-        let items = res.data
-        for(let item of items){
-          this.shoppingCartItems.push(item)
-          // console.log(item)
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    },
-      
-}
+        
+  }
 
 </script>
 
 <template>
-  
-  <h1 style="text-align:center; margin:40px" class="cart-items-title">購物車</h1>
+  <h1 style="text-align:center; margin:30px" class="cart-items-title">購物車</h1>
   <span class="cart-items-title-bottomLine"></span>
 
   <!-- 購物車品項 -->
-  <div style="display:flex;justify-content:space-around;padding-left:15%;padding-right:15%;">
-    <table class="table .table-striped" style="margin:auto 0%" ><!--style="width: 1600px; margin:auto;"-->
-      <thead class="">
-        <tr class="cart-items-info-style">
+  <div style="padding:0% 15% 10% 15%">
+    <table class="table " style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
+      <thead>
+        <tr class="cart-items-info-style table-info">
           <th scope="col">
-              <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1.5); border-color:darkgray" v-model="selectAll" @change="handleSelectAll">
-              <label class="form-check-label" for="flexCheckDefault">
-                全選
-              </label>
+              <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray" v-model="selectAll" @change="handleSelectAll"><span>全選</span>
           </th>
           <th scope="col" style="width:280px">商品</th>
           <th scope="col" style="width:130px">單價</th>
@@ -166,14 +203,14 @@ export default {
           </th>
         </tr>
       </thead>
-      <tbody v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
-        <tr class="cart-items-info-style">
+      <tbody>
+        <tr class="cart-items-info-style" v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
           <th scope="row">
             <div class="form-check" >
-              <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1.5); border-color:darkgray">
+              <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
             </div>
           </th>
-          <td style="width:300px;display:flex">
+          <td style="width:300px;">
             <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)"><img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)" ></div>
             <div style="padding-top:20px"><span style="font-size:13px" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span></div>
           </td>
@@ -182,7 +219,8 @@ export default {
             <span class="mb-5 mt-5">
               <span class="quantity-controls">
                   <button @click="decrementQuantity(item)" class="btn btn-outline-secondary btn-sm">－</button>
-                  <input v-model="item.quantity" type="text" @input="handleNumberInput" style="width:50px;  text-align: center;"/>
+                  <!-- <input v-model="item.quantity" type="text" @input="handleNumberInput" style="width:50px;  text-align: center;"/> -->
+                  <input v-model="item.quantity" type="number" style="width:50px;  text-align: center;" @blur="inputQuantity(item)"/>
                   <button @click="incrementQuantity(item)" class="btn btn-outline-secondary btn-sm">＋</button>
               </span>
             </span>
@@ -202,40 +240,24 @@ export default {
 
   <!-- 結帳用懸浮視窗 -->
   <div class="floating-window">
-    <div style="floating-window">
-      <div>
-        <input type="checkbox" id="flexCheckDefault" class="floating-window-checkbox" v-model="selectAll" @change="handleSelectAll">
+    <div>
+      <div class="floating-window-checkbox">
+        <input type="checkbox" id="flexCheckDefault"  v-model="selectAll" @change="handleSelectAll">
         <label class="form-check-label" for="flexCheckDefault">全選</label>
       </div>
-      <div style="font-weight:bolder padding-left:300px;">
+      <div style="font-weight:bolder padding-left:300px;margin-left: 28%;">
         結帳總金額$ 
         <span style="color: red; font-size: 25px; vertical-align: middle">{{getSelectedTotalPrice}}</span>
       </div>
       <div class="d-grid gap-2 col-6 mx-auto" style="margin:30px">
-        <button class="btn btn-primary" type="button">結帳</button>
+        <button class="btn btn-primary" type="button" @click="goToCheckoutPage()">結帳</button>
       </div>
     </div>
   </div>
+  
 </template>
 
 <style>
-  .cart-items-head-style{
-    font-size: 20px;
-    font-style: oblique;
-    line-height: 60px;
-    text-align: center;
-  }
-  .cart-items-info-style {
-    text-align: center;
-    vertical-align: middle;
-    display: flex;
-    justify-content: space-around;
-    align-content: center;
-  }
-  td, th{
-    display: flex;
-    align-items: center;
-  }
   .cart-items-title-bottomLine{
     position: absolute; 
     bottom: 0; 
@@ -268,7 +290,13 @@ export default {
   .floating-window-checkbox{
     transform: scale(1.2); 
     border-color:darkgray ; 
-    padding-left: 100px;
+     margin-left: 40%;
+  }
+  #removeAll {
+    cursor: pointer;
   }
 
+  .cart-items-info-style{
+    vertical-align: middle;
+  }
 </style>

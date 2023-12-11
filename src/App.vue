@@ -25,11 +25,15 @@ const memberId = ref('123abc')
           <li class="nav-item">
             <router-link to="/lostItem" class="nav-link">lost</router-link>
           </li>
-          <li class="nav-item">
-            <router-link to="/searchSchedule" class="nav-link">搜尋班次</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/booking" class="nav-link">高鐵訂票</router-link>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="shoppingDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            訂票系統
+            </a>
+            <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
+              <router-link to="/searchSchedule" class="nav-link">搜尋班次</router-link>
+              <router-link to="/booking" class="nav-link">高鐵訂票</router-link>
+              <router-link to="/ticketOrder" class="nav-link">會員訂票</router-link>
+            </div>
           </li>
           <!-- <li class="nav-item">
             <router-link to="/goods" class="nav-link">shopping</router-link>
@@ -42,9 +46,13 @@ const memberId = ref('123abc')
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item">購物中心</router-link>
+<<<<<<< HEAD
               <router-link :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
                 class="dropdown-item">我的購物車</router-link>
               <!-- <router-link to="/shoppingCart" class="dropdown-item">我的購物車</router-link> -->
+=======
+              <router-link :to="{ name: 'shoppingCart', params: {memberId: memberId} }" class="dropdown-item">我的購物車</router-link>
+>>>>>>> 81df770b31fbc0096c89b40e0e703f90e0acf0c8
               <!-- <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link> -->
             </div>
           </li>

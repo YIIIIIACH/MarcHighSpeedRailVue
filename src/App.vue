@@ -46,13 +46,9 @@ const memberId = ref('123abc')
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item">購物中心</router-link>
-<<<<<<< HEAD
               <router-link :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
                 class="dropdown-item">我的購物車</router-link>
               <!-- <router-link to="/shoppingCart" class="dropdown-item">我的購物車</router-link> -->
-=======
-              <router-link :to="{ name: 'shoppingCart', params: {memberId: memberId} }" class="dropdown-item">我的購物車</router-link>
->>>>>>> 81df770b31fbc0096c89b40e0e703f90e0acf0c8
               <!-- <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link> -->
             </div>
           </li>

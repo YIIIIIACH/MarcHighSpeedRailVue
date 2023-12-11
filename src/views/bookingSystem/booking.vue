@@ -298,14 +298,15 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                 httpClient.get('/searchBookableScheduleByTimeGetOnOffStation/'+this.selectStartStation+'/'+this.selectEndStation+'/'+(this.departTime.time.getYear()+1900)+'-'+(this.departTime.time.getMonth()+1)+'-'+this.departTime.time.getDate()+'-'+this.departTime.time.getHours()+'-'+this.departTime.time.getMinutes()+'/'+this.selectDiscount)
                 .then(res=>{
                     
+                    while( this.scheduleSearchResult.length>0){
+                        this.scheduleSearchResult.pop();
+                    }
                     // try to sort array of schedule in here 
                     res.data.sort( function(a,b){
                         return new Date(a.getOnTime) - new Date(b.getOnTime);
                     })
                     //clear old schedule search result
-                    while( this.scheduleSearchResult.length>0){
-                        this.scheduleSearchResult.pop();
-                    }
+                    
                     for( let tmp of res.data){
                         this.scheduleSearchResult.push( tmp)
                     }

@@ -9,7 +9,7 @@ const path = useRoute().path;
 console.log(!path.includes('emp'))
 const memberId = ref('undefined')
 function updateMemberId(newId){
-  memberId= newId;
+  memberId.value= newId;
 }
 
 </script>
@@ -77,14 +77,12 @@ function updateMemberId(newId){
               shopping
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
-              <router-link to="/goods" class="dropdown-item"
-                >購物中心</router-link
-              >
-              <router-link
-                :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
-                class="dropdown-item"
-                >我的購物車</router-link
-              >
+              <router-link to="/goods" class="dropdown-item">
+                購物中心
+              </router-link>
+              <router-link :to="{ name: 'shoppingCart', params: { memberId: memberId } }" class="dropdown-item">
+                我的購物車
+              </router-link>
             </div>
           </li>
           <li class="nav-item">

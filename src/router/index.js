@@ -85,6 +85,7 @@ const router = createRouter({
     // },
     {
       path: '/checkout/:memberId/:checkoutPrice',
+      path: '/checkout/:checkoutPrice',
       component: checkoutPage,
       name: 'checkoutPage',
       props: true

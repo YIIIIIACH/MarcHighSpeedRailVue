@@ -25,11 +25,11 @@
                         document.getElementById('login-modal-open-btn').click();
                         return ;
                     }
-                httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity)
-                .then((res) =>{
-                    alert(res.data)
-                }
-                )},
+                    httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity)
+                    .then((res) =>{
+                        alert(res.data)
+                    })
+                },
                 decrementQuantity(){
                     if (this.quantity > 1) {
                         this.quantity -= 1;
@@ -49,13 +49,15 @@
                     "email": this.account
                     },{withCredentials:true})
                     .then((res)=>{
-                        if(res.data.member_id==null){
+                        if(res.data.member_id == null){
                             console.log('login failed')
                             return;
                         }
                         console.log(res.data)
                         this.userName= res.data.member_name;
                         this.memberId = res.data.member_id;
+
+                        this.$emit('updateMemberId', res.data.member_id);
                         document.getElementById('login-modal-close-btn').click();
                         httpClient.get(`/api/product/${this.Id}`)
                         .then((res) =>{
@@ -73,11 +75,12 @@
             },
             beforeMount() {
                 const productId = this.Id
-                httpClient.post('/verifyLoginToken')
-                .then(res=>{      
-                    this.userName= res.data;
-                })
-                .then(()=>{
+                // httpClient.post('/verifyLoginToken')
+                // .then(res=>{      
+                //     this.userName = res.data;
+                //     console.log(this.userName)
+                // })
+                // .then(()=>{
                     httpClient.get(`/api/product/${productId}`)
                     .then((res) =>{
                         //物件用.value
@@ -100,10 +103,10 @@
                     .catch((err)=>{
                         console.log(err)
                     })
-                }).catch(err=>{
-                    console.log('login-token verify failed')
-                    document.getElementById('login-modal-open-btn').click();
-                })
+                // }).catch(err=>{
+                //     console.log('login-token verify failed')
+                //     document.getElementById('login-modal-open-btn').click();
+                // })
         
             },
     }
@@ -119,25 +122,25 @@
         </div>
         <div class="row product-desc">
             <h1 class="display-6 mb-1" style="color:darkblue; font-size:25px">{{this.product.value.productName}}</h1><br>
-            <hr style="width: 90%; margin: 0px;">
+            <hr style=" margin: 0px;">
             <h4 class="mb-5 mt-5">
                 <small class="text-muted ">建議售價 </small>
                 <span :style="{ color: 'red' }">${{this.product.value.productPrice}}</span>
-                <hr style="width: 90%; margin: 0px;">
+                <hr style="margin: 0px;">
             </h4>
-            <h4 class="mb-5">{{this.product.value.productDescription}}</h4>
-            <h5 class="mb-5 mt-5">數量  
+            <h4 class="mb-4">{{this.product.value.productDescription}}</h4>
+            <h5 class="mb-5 mt-4">數量  
                 <span class="quantity-controls">
-                    <button @click="decrementQuantity">－</button>
+                    <button @click="decrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">－</button>
                     <input v-model="quantity" type="text" @input="handleNumberInput" style="width:50px; text-align: center;"/>
-                    <button @click="incrementQuantity">＋</button>
+                    <button @click="incrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">＋</button>
                 </span>
             </h5>    
-            <hr style="width: 90%; margin: 0px;">
+            <hr style=" margin: 0px;">
         </div>
 
-        <div class="mt-3 button-container">
-            <button type="button" class="btn btn-primary mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)">加入購物車</button>
+        <div class="button-container" style="width:1200px">
+            <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
             <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
             <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
         </div>
@@ -231,11 +234,14 @@
     }
     .product-desc{
         padding-top: 60px;
+        width: 500px
     }
     .button-container{    
         display: flex;
         justify-content: flex-end; 
         margin-right: 70px
     }
-
+    .custom-button {
+         width: 30px;
+    }
 </style>

@@ -6,8 +6,12 @@ import { RouterLink, RouterView, useRoute } from "vue-router";
 import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
 const path = useRoute().path;
-console.log(!path.includes("emp"));
-const memberId = ref("123abc");
+console.log(!path.includes('emp'))
+const memberId = ref('undefined')
+function updateMemberId(newId){
+  memberId= newId;
+}
+
 </script>
 
 <template>
@@ -100,9 +104,8 @@ const memberId = ref("123abc");
       </div>
     </div>
   </nav>
-
   <section>
-    <router-view />
+    <router-view @updateMemberId="(newId)=>{ updateMemberId(newId)}" :memberId="memberId"></router-view>
   </section>
 </template>
 

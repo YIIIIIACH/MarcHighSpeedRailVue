@@ -3,12 +3,11 @@
     import { ref, reactive } from "vue";
 
     export default {
-        props:['memberId', 'checkoutPrice', 'selectedItems'],
+        props:['memberId', 'checkoutPrice'],
+        emits: ['updateMemberId'],
         setup(props){
             return{
-                // 將字串轉換為 JavaScript 物件
-                selectedItems : ref(JSON.parse(props.selectedItems)), 
-
+                selectedItems: ref([]),
             }
         },
         methods: {
@@ -16,6 +15,16 @@
                 console.log(this.selectedItems)
             }
         },
+        beforeMount(){
+            // 以 key 抓本地儲存庫資料
+            let items = localStorage.getItem('items');
+            // 資料轉 js 陣列
+            let itemsArray = JSON.parse(items);
+
+            for( let i = 0 ; i<itemsArray.length ; i++){
+                this.selectedItems.push( itemsArray[i]);
+            }
+        }
     }
 </script>
 
@@ -88,13 +97,12 @@
 
 <style>
     .buyer-info{
-        width:400px;
+        width:40%;
         text-align: center;
         margin-bottom: 100px;
     }
     button{
-        width:100px
-        text
+        width:100px;
     }
     .table{
         width:80%;

@@ -2,20 +2,30 @@
     import httpClient from "@/main";
     import { ref, reactive} from "vue";
     export default {
-            props:['Id'],
+            props:['Id','memberId'],
+            emits:['updateMemberId'],
             setup(props) {
                 return{
                     product: ref({}),
                     quantity: ref(1),
                     productType: ref(''),
                     recommendProducts: ref([]),
+                    
+                    account: ref(''),
+                    password: ref(''),
+                    userName: ref(''),
+                    memberId: ref(props.memberId),
                 }            
             },
+            
             methods:{
                 // 加入購物車
                 addItemToShoppingCart(productId, quantity){
-                const memberId = '123abc'
-                httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + memberId + '&quantity=' + quantity)
+                    if(this.userNme == ''){
+                        document.getElementById('login-modal-open-btn').click();
+                        return ;
+                    }
+                httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity)
                 .then((res) =>{
                     alert(res.data)
                 }
@@ -32,40 +42,76 @@
                 },
                 handleNumberInput(){
                     this.quantity = this.quantity.replace(/\D/g, '');
+                },
+                login: function(){
+                    httpClient.post( '/requestMemberLogin',{
+                    "password": this.password,
+                    "email": this.account
+                    },{withCredentials:true})
+                    .then((res)=>{
+                        if(res.data.member_id==null){
+                            console.log('login failed')
+                            return;
+                        }
+                        console.log(res.data)
+                        this.userName= res.data.member_name;
+                        this.memberId = res.data.member_id;
+                        document.getElementById('login-modal-close-btn').click();
+                        httpClient.get(`/api/product/${this.Id}`)
+                        .then((res) =>{
+                            //物件用.value
+                            //陣列用.push()
+                            this.product.value = res.data
+                            this.productType = res.data.productType
+                        })
+                    })
+                    .catch((err)=>{
+                        console.log(err)
+                    })
+                    
                 }
             },
             beforeMount() {
                 const productId = this.Id
+                httpClient.post('/verifyLoginToken')
+                .then(res=>{      
+                    this.userName= res.data;
+                })
+                .then(()=>{
+                    httpClient.get(`/api/product/${productId}`)
+                    .then((res) =>{
+                        //物件用.value
+                        //陣列用.push()
+                        this.product.value = res.data
+                        this.productType = res.data.productType
+                    })
+                    .then(() =>{
+                            httpClient.get('/product/findByType?selectType=' + this.productType)
+                            .then((res)=>{
+                                // console.log(res.data)
+                                for(let p of res.data){
+                                    this.recommendProducts.push(p)
+                                }
+                            })
+                            .catch((err)=>{
+                                console.log(err)
+                            })
+                    })
+                    .catch((err)=>{
+                        console.log(err)
+                    })
+                }).catch(err=>{
+                    console.log('login-token verify failed')
+                    document.getElementById('login-modal-open-btn').click();
+                })
         
-                httpClient.get(`/api/product/${productId}`)
-                .then((res) =>{
-                    //物件用.value
-                    //陣列用.push()
-                    this.product.value = res.data
-                    this.productType = res.data.productType
-                })
-                .then(() =>{
-                        httpClient.get('/product/findByType?selectType=' + this.productType)
-                        .then((res)=>{
-                            // console.log(res.data)
-                            for(let p of res.data){
-                                this.recommendProducts.push(p)
-                            }
-                        })
-                        .catch((err)=>{
-                            console.log(err)
-                        })
-                })
-                .catch((err)=>{
-                    console.log(err)
-                })
             },
     }
 </script>
 
 <template>
-    <div class="product-container">  
-        <h1 class="display-7" id="productType-head">{{this.product.value.productType}}
+    <div v-if="product.value!==undefined" class="product-container">  
+        <h1 class="display-7" id="productType-head">{{this.productType}}
             <span class="productType-head-bottomLine"></span>
         </h1>
         <div class="product-section">
@@ -92,8 +138,8 @@
 
         <div class="mt-3 button-container">
             <button type="button" class="btn btn-primary mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)">加入購物車</button>
-            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
-            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button>
+            <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
+            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
         </div>
         <br>
         <br>
@@ -127,6 +173,29 @@
             </div>
         </div>
     </div> -->
+    <button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+    Launch demo modal
+    </button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <label>Login</label><input v-model="account">
+        <label>Pwd</label><input v-model="password">
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" @click="login" class="btn btn-primary">login</button>
+      </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <style>
@@ -168,7 +237,5 @@
         justify-content: flex-end; 
         margin-right: 70px
     }
-    .button-container button {
-    margin-left: 10px; 
-    }
+
 </style>

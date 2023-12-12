@@ -3,6 +3,7 @@
   import { ref, reactive } from "vue";
   export default {
       props:['memberId'],
+      emits: ['updateMemberId'],
       setup(props) {
         return{
           shoppingCartItems: reactive([]),
@@ -48,8 +49,11 @@
 
           // 把已勾選的品項物件轉成字串
           const itemsString = JSON.stringify(selectedItems)
+          // 把字串以 key:value 形式存到本地庫
+          localStorage.setItem('items', itemsString)
+
           // console.log(itemsString)
-          this.$router.push({ name: 'checkoutPage', params:{ memberId: this.memberId, checkoutPrice: this.checkoutPrice, selectedItems: itemsString } })
+          this.$router.push({ name: 'checkoutPage', params:{ memberId: this.memberId, checkoutPrice: this.checkoutPrice} })
         },
         goToGoodsDetail(productId){
           this.$router.push({ name: 'goods-detail', params: { Id: productId } });

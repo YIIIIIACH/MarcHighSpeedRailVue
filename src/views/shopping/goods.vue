@@ -1,17 +1,24 @@
 <script>
-import httpClient from "@/main";
-import { ref, reactive, onMounted } from "vue";
-export default {
-  setup() {
-    return {
-      // cardText : ref(''),
-      filterMode: ref('全部商品'),
-      products: ref([]), //要渲染的商品資料
-      // products[ {
-      //   'xx':'xx',
-      //   'showAddInCart': false
-      // }]
-      source_products: ref([]), //原始商品資料，用於暫存所有資料
+  import httpClient from "@/main";
+  import { ref, reactive, onMounted } from "vue";
+  export default {
+    props:['memberId'],
+    // $emits('updateMemberId', [arg1, arg2])// log out
+    emits:['updateMemberId'],
+    setup(props) {
+      return {
+        account: ref(''),
+        password: ref(''),
+        userName: ref(''),
+        // memberId : ref(''),
+        memberId: ref(props.memberId),
+        filterMode: ref('全部商品'),
+        products: ref([]), //要渲染的商品資料
+        // products[ {
+        //   'xx':'xx',
+        //   'showAddInCart': false
+        // }]
+        source_products: ref([]), //原始商品資料，用於暫存所有資料
 
         keyword: ref(""), 
 
@@ -29,55 +36,76 @@ export default {
 
         notification: ref(''),
         showNotification: false,
+        passwordVisible:ref(false),
       };
     },
- computed: {
-    totalPage() {
-        return Math.ceil(this.products.length / this.perpage)
-        //Math.ceil()取最小分頁整數
+    computed: {
+      getCurrentPwdInputType(){
+                return (this.passwordVisible==true)?'text':'password'
       },
-    pageStart() {
-      return (this.currentPage - 1) * this.perpage
-      //取得該頁第一個值的index
+      totalPage() {
+          return Math.ceil(this.products.length / this.perpage)
+          //Math.ceil()取最小分頁整數
+      },
+      pageStart() {
+        return (this.currentPage - 1) * this.perpage
+        //取得該頁第一個值的index
+      },
+      pageEnd() {
+        return this.currentPage * this.perpage
+        //取得該頁最後一個值的index
+      }
     },
-    pageEnd() {
-      return this.currentPage * this.perpage
-      //取得該頁最後一個值的index
-    }
-  },
-  
-  methods: {
-    addInCart(p){// 益齊 修改 add incart 符傀印 function
-      p.showAddInCart=true
-      setTimeout(function(){p.showAddInCart=false},700)
-    },
-    // 導向商品詳細頁
-    goToGoodsDetail(productId) {
-      this.$router.push({ name: 'goods-detail', params: { Id: productId } });
-    },
-    // 加入購物車
-    addItemToShoppingCart(productId){
-      const memberId = '123abc'
-      httpClient.post('/ShoppingCart/addProduct?productId=' + productId + '&' + 'memberId=' + memberId)
-      .then((res) =>{
-        if(res.data == '商品已在購物車中。'){
-          this.notification = res.data
-          this.showNotification = true;
-          setTimeout(()=>{
-            this.showNotification = false;
-          }, 100)
-        }else{
-          this.notification = res.data
-          this.showNotification = true;
-          setTimeout(()=>{
-            this.showNotification = false;
-          }, 100)
+    methods: {
+      // 加入購物車
+      addItemToShoppingCart(p){
+        // const memberId = '123abc'
+        if( this.userName==''){
+          // not login stat need to login 
+          document.getElementById('login-modal-open-btn').click();
+          return ;
         }
-      })
-      .catch((err)=>{
-        console.log(err.data)
-      })
+        httpClient.post('/ShoppingCart/addProduct?productId=' + p.productId + '&' + 'memberId=' + this.memberId)
+        .then((res)=>{
+          console.log(res)
+        })
+        p.showAddInCart = true
+        setTimeout(function(){p.showAddInCart=false},700)
       },
+      // 導向商品詳細頁
+      goToGoodsDetail(productId) {
+        this.$router.push({ name: 'goods-detail', params: { Id: productId } });
+      },    
+    // addItemToShoppingCart(productId){
+    //   if(this.memberId==''){
+    //     document.getElementById('login-modal-open-btn').click()
+    //   }
+    //   console.log( 'found was in login state')
+      // const memberId = '123abc'
+      // httpClient.post('/ShoppingCart/addProduct?productId=' + productId + '&' + 'memberId=' + this.memberId,{},{
+      //   withCredentials:true
+      // })
+      // .then((res) =>{
+      //   if(res.data == '商品已在購物車中。'){
+      //     this.notification = res.data
+      //     this.showNotification = true;
+      //     setTimeout(()=>{
+      //       this.showNotification = false;
+      //     }, 100)
+      //   }else{
+      //     this.notification = res.data
+      //     this.showNotification = true;
+      //     setTimeout(()=>{
+      //       this.showNotification = false;
+      //     }, 100)
+      //   }
+      // })
+      // .catch((err)=>{
+      //   console.log(err.data)
+      // })
+      // },
+      
+
       //設定分頁
       setPage(page) {
           if(page <= 0 || page > this.totalPage) {
@@ -159,11 +187,27 @@ export default {
       handleMouseLeave: function() {
         this.highlightId = null;
       },
+      login: function() {
+        httpClient.post( '/requestMemberLogin',{
+          "password": this.password,
+          "email": this.account
+        },{withCredentials:true}).then((res) => {
+          if(res.data.member_id == null){
+            console.log('login failed')
+            return; //中斷, 不執行下面的code
+          }
+          // console.log(res.data)
+          this.userName= res.data.member_name;
+          this.memberId = res.data.member_id;
+
+          document.getElementById('login-modal-close-btn').click();
+        })
+      }
     },
     components: {},
     beforeMount() {
       // fetch all product and pages before mount
-      httpClient.get("http://localhost:8080/MarcHighSpeedRail/products")
+      httpClient.get("/products")
         .then((res) => {
           let ps = res.data;
           // let page = res.data;
@@ -351,10 +395,10 @@ export default {
   <article> 
     <div class="each-product">
       <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
-        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '2px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
+        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
           <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
-          <div v-show="p.showAddInCart" class="inimg-notification">加入購物車</div>
+          <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
           <div class="row">
             <div class="col-7 ">
               <p class="card-title">{{ p.productName }}</p>
@@ -363,7 +407,7 @@ export default {
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-primary mt-3" @click.stop="addInCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
+                <button class="btn btn-primary mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
             </div>
           </div>
         </div>
@@ -398,7 +442,38 @@ export default {
     </ul>
 
   </nav>
-  <div v-show="showNotification" class="notification">{{this.notification}}</div>
+  <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
+  <!-- Button trigger modal -->
+<button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+  登入
+</button>
+
+<!-- Modal -->
+<div class="modal fade aa" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" >
+       <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">帳號：</span>
+                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">密碼：</span>
+                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+                    </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" @click="login" class="btn btn-primary" >登入</button>
+        <button type="button" @click="logout" class="btn btn-warning">登出</button>
+        <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>
 </template>
 
 <style>
@@ -453,17 +528,7 @@ export default {
 .showcase-productName{
   color: rgb(47, 35, 11);
 }
-.notification {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background-color: rgba(57, 53, 46, 0.6);
-  color: white;
-  padding: 15px;
-  border-radius: 10px;
-  z-index: 1000;
-}
+
 .inimg-notification {
   position:absolute;
   top: 50%;
@@ -477,5 +542,8 @@ export default {
 }
 .pos-ab{
   position: absolute;
+}
+.add-btn{
+  width:110px;
 }
 </style>

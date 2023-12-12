@@ -16,7 +16,6 @@ const httpClient = axios.create({
     withCredentials: true,
     baseURL: backendURL
 });
-
 app.use(createPinia())
 app.use(router)
 app.mount('#app')

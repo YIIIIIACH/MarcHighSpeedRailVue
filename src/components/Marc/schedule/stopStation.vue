@@ -1,9 +1,9 @@
 <script setup>
-const props = defineProps(['stations','pickedStart','pickedEnd','willStop'])
+const props = defineProps(['stations','pickedStart','pickedEnd','willStop','ticketSystem'])
 const emits= defineEmits(['changeStop'])
 </script>
 <template>
-    <div class="stationDisplayBox" @click="$emit('changeStop',props.stations)"  >
+    <div class="stationDisplayBox" :class="{'ticket-detail-displaybox': ticketSystem }" @click="$emit('changeStop',props.stations)"  >
         <button :class="{ circle:true,'will-stop':willStop, 'selectedStart': pickedStart,'selectedEnd':pickedEnd}"  ></button><label style="font-size: 28px;font-weight:bold;align-self: center;">{{ stations.stationName }}</label>
     </div>
 </template>
@@ -25,6 +25,7 @@ const emits= defineEmits(['changeStop'])
 .stationDisplayBox{
     margin-top: 20px;
     display: flex;
+    
 }
 .selectedEnd{
     background-color: rgb(255, 225, 0);
@@ -35,5 +36,13 @@ const emits= defineEmits(['changeStop'])
     border:10px rgb(138, 77, 28) solid
 }
 
+.ticket-detail-displaybox{
+  width: 100px;
+  height: 100px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+
+}
 
 </style>

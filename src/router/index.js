@@ -7,8 +7,6 @@ import goodsDetail from '../views/shopping/goodsDetail.vue'
 import shoppingCart from '../views/shopping/shoppingCart.vue'
 import checkoutPage from '../views/shopping/checkoutPage.vue'
 import lostItem from '../components/lostItem.vue'
-import employeeLogin from '../views/EmployeeLoginView.vue'
-import employeeIndex from '../components/backendNavbar.vue'
 import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
 import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
@@ -44,7 +42,8 @@ const router = createRouter({
     },
     {
       path: '/ticketOrder',
-      component: memberTicketOrder
+      component: memberTicketOrder,
+      meta:{transition:'slide-right'}
     },
     {
       path: '/ticketOrderDetail/:tckodid',
@@ -54,11 +53,13 @@ const router = createRouter({
     {
       path: '/bookSuccess/:tckodid',
       component: bookSuccess,
-      props: true
+      props: true,
+      meta:{transition:'slide-right'}
     },
     {
       path: '/bookFail',
       component: bookFail,
+      meta:{transition:'slide-right'}
     },
     {
       path: '/goods',
@@ -88,14 +89,6 @@ const router = createRouter({
       component: checkoutPage,
       name: 'checkoutPage',
       props:true
-    },
-    {
-      path: '/emp/login',
-      component: employeeLogin
-    },
-    {
-      path: '/emp/index',
-      component: employeeIndex
     },
     {
       path: '/login',

@@ -3,11 +3,11 @@
 </style>
 <script setup>
 import { RouterLink, RouterView, useRoute } from 'vue-router'
-import Navbar from './components/navbar.vue';
 import { ref, onMounted } from 'vue'
 const path = useRoute().path;
 console.log(!path.includes('emp'))
 const memberId = ref('123abc')
+
 </script>
 
 <template>
@@ -49,9 +49,6 @@ const memberId = ref('123abc')
               <router-link :to="{ name: 'shoppingCart', params: {memberId: memberId} }" class="dropdown-item">我的購物車</router-link>
               <!-- <router-link to="/goods/goodsTracking" class="dropdown-item">我的追蹤清單</router-link> -->
             </div>
-          </li>
-          <li class="nav-item">
-            <router-link to="/emp/login"  class="nav-link" >employee</router-link>
           </li>
           <li class="nav-item">
             <router-link to="/login" class="nav-link">會員登入</router-link>

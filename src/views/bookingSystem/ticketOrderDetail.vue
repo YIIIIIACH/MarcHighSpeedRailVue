@@ -1,6 +1,7 @@
 <script setup>
 import { onBeforeMount,ref, reactive} from 'vue';
 import httpClient from '../../main';
+import ticketStopStation from '../../components/Marc/ticketStopStation.vue'
 const userName = ref('')
 const schInfo = reactive({})
 const railRouteSegmentInfo = reactive({})
@@ -14,17 +15,18 @@ const loadingStopSt = ref(false)
 // const spinCnt = ref(0);
 const props = defineProps(['tckodid'])
 onBeforeMount(()=>{
-    // check is login
-    httpClient.post('/verifyLoginToken',{},{withCredentials:true}).then((res)=>{
+  loadingStopSt.value=true
+  // check is login
+  httpClient.post('/verifyLoginToken',{},{withCredentials:true}).then((res)=>{
         if( res.data=="not cookie found" || res.data=="failed"){
-            console.log('login failed')
-            return 
+          console.log('login failed')
+          return 
         }
         userName.value = res.data
-    }).catch(err=>console.log(err))
-
-    httpClient.get('/getBookingByTicketOrder/'+props.tckodid,{withCredentials:true})
-    .then((res)=>{
+      }).catch(err=>console.log(err))
+      
+      httpClient.get('/getBookingByTicketOrder/'+props.tckodid,{withCredentials:true})
+      .then((res)=>{
         console.log(res.data)
         ststName.value = res.data.ticketRailRouteSegment.startStation.stationName;
         edstName.value = res.data.ticketRailRouteSegment.endStation.stationName
@@ -35,18 +37,18 @@ onBeforeMount(()=>{
         let len = res.data.bookingIdList.length;
         console.log('len:'+len)
         for( let i =0;i<len; i++){
-            let b ={
-                "bookingId": res.data.bookingIdList[i],
-                "seat" : res.data.seatList[i],
-                'ticketDiscount': res.data.ticketDiscountList[i],
-                'ticketStatus': res.data.ticketStatusList[i],
-                'ticketPrice':res.data.ticketPriceList[i],
-                'ticketQRcode':res.data.ticketQRcodeList[i],
-            }
-            bookingInfo.push(b)
+          let b ={
+            "bookingId": res.data.bookingIdList[i],
+            "seat" : res.data.seatList[i],
+            'ticketDiscount': res.data.ticketDiscountList[i],
+            'ticketStatus': res.data.ticketStatusList[i],
+            'ticketPrice':res.data.ticketPriceList[i],
+            'ticketQRcode':res.data.ticketQRcodeList[i],
+          }
+          bookingInfo.push(b)
         }
+        loadRailRouteStopStation()
     })
-    
 })
 function createTicketQR(b){
   httpClient.post("/createTicketQRCode",{
@@ -73,58 +75,64 @@ function checkQrcode(b){
 }
 // load railRouteStopStation
 function loadRailRouteStopStation(){
-  loadingStopSt.value=true
-  console.log( 'load')
+ 
   httpClient.get('/getScheduleStopStationByScheduleId?schid='+schInfo.scheduleId).then((res)=>{
-    console.log('end load')
+    console.log(res.data)
     let i = 0;
-    while( i< res.data.length){
-      railRouteStopStation.stations.push(res.data[i]);
+    for (let stst of res.data){
+      railRouteStopStation.push(res.data[i]);
     }
-    setTimeout(function(){
-      loadingStopSt.value=false
-    },4000)
+    loadingStopSt.value=false
+    // setTimeout(function(){
+    //   loadingStopSt.value=false
+    // },4000)
   }).catch(err=> {
-    setTimeout(function(){
-      loadingStopSt.value=false
-    },4000)
+    // setTimeout(function(){
+    //   loadingStopSt.value=false
+    // },4000)
   })
 }
 
 </script>
 <template>
-    <div class="container">
-        <div class="card">
-        <div class="card-header text-center" @click="loadRailRouteStopStation" data-bs-toggle="collapse" data-bs-target="#rail-route-stop-station" aria-expanded="false" aria-controls="collapseExample">
+<div class="container">
+  <div class="row justify-content-center" >
+    <div class="card" >
+      <div class="card-header text-center"  >
         <div class="card-text">
-            <label>花費時間{{ railRouteSegmentInfo.railRouteSegmentDurationMinute }}分鐘</label>
-            <div class="cart-title"><label>{{stArr.arriveTime}} {{ ststName }}站—————{{ edstName }}站 {{ edArr.arriveTime }}</label></div>
-        </div>
-        </div>
-        <div class="collapse" v-show="loadingStopSt"  id="rail-route-stop-station">
-          <div  class="stop-stations marquee-container"  >
-            <!-- <div class="spinner-grow text-secondary" v-for="i in 7" :style="{'opacity': (5*((spinCnt+i))).toString()+'%'}" role="status"><span class="visually-hidden"></span></div> -->
-            <div class="marquee-content">
-               <div class="spinner-grow text-secondary c" v-for="i in 7" role="status"><span class="visually-hidden"></span></div>
-              <!-- <div class="circle " v-for="i in 7"></div> -->
-            </div>
-          </div>
-        </div>
-        <div v-show="!loadingStopSt" style="background-color: red; width:200px;height: 50px;"></div>
-        <div v-for="b of bookingInfo" class="card-body booking-box">
-            <h5 class="card-title">{{ b.ticketDiscount.ticketDiscountName }}</h5><!--{{ seatList[i].carriage }}-->
-            <p class="card-text">第{{ b.seat.carriage }}車廂 {{ b.seat.seatCode }} {{ b.seat.seatDescirption }} {{ b.ticketDiscount.ticketDiscountName }}{{ railRouteSegmentInfo.railRouteSegmentTicketPrice }}元</p>
-            <a href="#" v-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="btn btn-outline-primary">
-              生成車票QRcode
-            </a>
-            <div v-else>
-              <a href="#" class="btn btn-outline-success">分配車票</a>
-              <a href="#" @click="checkQrcode(b)" class="btn btn-outline-success">查看車票QRcode</a>
-            </div>
-        </div>
-        </div>
+        <label>花費時間{{ railRouteSegmentInfo.railRouteSegmentDurationMinute }}分鐘</label>
+        <div class="cart-title"><label>{{stArr.arriveTime}} {{ ststName }}站—————{{ edstName }}站 {{ edArr.arriveTime }}</label></div>
+      </div>
     </div>
-    <!-- Button trigger modal -->
+    <div  id="rail-route-stop-station" style=" width:100%;height: 200px;">
+      <div  v-show="loadingStopSt" class="stop-stations marquee-container"   >
+        <div class="marquee-content">
+          <div class="spinner-grow text-secondary c" v-for="i in 7" role="status"><span class="visually-hidden"></span></div>
+        </div>
+      </div>
+      <div v-show="!loadingStopSt" style="width:100%;height: 100%;">
+        <ticketStopStation :stop-stations="railRouteStopStation" :pb-ed="railRouteSegmentInfo.endStation" :pb-start="railRouteSegmentInfo.startStation"/>
+      </div>
+    </div>
+  </div>
+  <div class="card w-75"  v-for="b of bookingInfo" style="padding: 0px 0px;border: 0px white solid;">
+    <div class="card-header">
+      <h5 class="card-title">{{ b.ticketDiscount.ticketDiscountName }}</h5><!--{{ seatList[i].carriage }}-->
+    </div>
+    <div class="card-body booking-box">
+      <p class="card-text">第{{ b.seat.carriage }}車廂 {{ b.seat.seatCode }} {{ b.seat.seatDescirption }} {{ b.ticketDiscount.ticketDiscountName }}{{ railRouteSegmentInfo.railRouteSegmentTicketPrice }}元</p>
+      <a href="#" v-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="btn btn-outline-primary">
+        生成車票QRcode
+      </a>
+      <div v-else>
+        <a href="#" class="btn btn-outline-success">分配車票</a>
+        <a href="#" @click="checkQrcode(b)" class="btn btn-outline-success">查看車票QRcode</a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" style="display: none;" id="toggle-qr-modal" data-bs-toggle="modal" data-bs-target="#showQRcodeModal">
   qrcode-display-modal-btn
 </button>
@@ -150,13 +158,14 @@ function loadRailRouteStopStation(){
 </template>
 <style>
 .schedule-box{
-    display:flex;
+  display:flex;
     justify-content: space-around;
-}
-.booking-box{
+  }
+  .booking-box{
     border: 2px rgb(179, 179, 179) solid;
-    display:flex;
-    justify-content: space-around;
+    /* margin: 10px 30px; */
+    /* display:flex; */
+    /* justify-content: space-around; */
 
 }
 .stop-stations{
@@ -181,7 +190,6 @@ function loadRailRouteStopStation(){
   white-space: nowrap;
   animation: marquee 3s linear infinite;
 }
-
 @keyframes marquee {
   0% {
     transform: translateX(0%);
@@ -190,4 +198,5 @@ function loadRailRouteStopStation(){
     transform: translateX(60%);
   }
 }
+
 </style>

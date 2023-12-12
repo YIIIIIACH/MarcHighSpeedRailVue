@@ -72,7 +72,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/shoppingCart/',
+      path: '/shoppingCart/:memberId',
       // path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',

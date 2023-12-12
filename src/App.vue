@@ -8,9 +8,9 @@ import { ref, onMounted } from "vue";
 const path = useRoute().path;
 
 console.log(!path.includes('emp'))
-const memberId = ref('undefined')
-function updateMemberId(newId){
-  memberId.value= newId;
+const mId = ref('undefined')
+function updatemId(newId){
+  mId.value= newId;
 }
 </script>
 <template>
@@ -77,16 +77,14 @@ function updateMemberId(newId){
               aria-haspopup="true"
               aria-expanded="false"
             >
-              shopping
+              禮品商店
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
-              <router-link to="/goods" class="dropdown-item" id="fontcolor"
-                >購物中心</router-link>
-              <router-link
-                :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
-                class="dropdown-item"
-                id="fontcolor"
-                >我的購物車
+              <router-link to="/goods" class="dropdown-item" id="fontcolor">
+                🏬 購物中心
+              </router-link>
+              <router-link :to="{ name: 'shoppingCart', params: { memberId: mId } }" class="dropdown-item" id="fontcolor">
+                🛒 我的購物車
               </router-link >
             </div>
           </li>
@@ -109,8 +107,7 @@ function updateMemberId(newId){
     </div>
   </nav>
   <section>
-    <router-view
-      @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
+    <router-view @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
   </section>
 </template>
 

@@ -4,7 +4,7 @@
     export default {
             props:['Id','memberId'],
             emits:['updateMemberId'],
-            setup() {
+            setup(props) {
                 return{
                     product: ref({}),
                     quantity: ref(1),

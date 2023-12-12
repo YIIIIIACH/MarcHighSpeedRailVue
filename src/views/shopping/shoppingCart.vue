@@ -185,7 +185,7 @@
 </script>
 
 <template>
-  <h1 style="text-align:center; margin:30px" class="cart-items-title">購物車</h1>
+  <h1 style="text-align:center; margin:30px" class="cart-items-title">🛒 購物車</h1>
   <span class="cart-items-title-bottomLine"></span>
 
   <!-- 購物車品項 -->

@@ -5,7 +5,7 @@
     props:['memberId'],
     // $emits('updateMemberId', [arg1, arg2])// log out
     emits:['updateMemberId'],
-    setup() {
+    setup(props) {
       return {
         account: ref(''),
         password: ref(''),

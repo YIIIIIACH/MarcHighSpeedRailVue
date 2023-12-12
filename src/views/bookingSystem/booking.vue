@@ -414,7 +414,9 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                 console.log( 'verify failed')
                 console.log( err)
             })
-        }
+        },
+        props:['memberId'],
+        emits:['updateMemberId']
     }
 </script>
 

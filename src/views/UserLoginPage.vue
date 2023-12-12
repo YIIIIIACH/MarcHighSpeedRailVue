@@ -53,7 +53,9 @@ export default {
       this.username = '';
       this.password = '';
     }
-  }
+  },
+  props:['memberId'],
+  emits: ['updateMemberId'],
 };
 </script>
 

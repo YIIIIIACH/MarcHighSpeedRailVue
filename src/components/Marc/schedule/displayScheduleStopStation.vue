@@ -31,7 +31,7 @@ function changeStopSt(newStop){
       <div v-show="showSideBar">
         <ul class="side-bar">
           <li v-for="(st,idx) of allStations" :key="st.stationId" >
-            <stopStation   @changeStop="(newStop)=>changeStopSt(newStop.stationId)" :stations="st" :pickedStart="st.stationId==stst" :pickedEnd="st.stationId==edst"  :willStop="willStop(st.stationId)"></stopStation>
+            <stopStation   @changeStop="(newStop)=>changeStopSt(newStop.stationId)" :stations="st" :pickedStart="st.stationId==stst" :ticketSystem="false" :pickedEnd="st.stationId==edst"  :willStop="willStop(st.stationId)"></stopStation>
           </li>
         </ul>
         <div class="progress progress-bar-vertical" v-show="showSideBar">
@@ -45,7 +45,10 @@ function changeStopSt(newStop){
 <style>
 .progress,
 .progress-bar-vertical{
-  background-color: white;
+  
+  position: relative;
+  top: -137px;
+
 }
 .side-bar{
     margin: left 5%;

@@ -19,7 +19,6 @@ const httpClient = axios.create({
         'Content-Type':'application/json;charset=UTF-8'
     }
 });
-
 app.use(createPinia())
 app.use(router)
 app.mount('#app')

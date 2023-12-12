@@ -4,7 +4,8 @@ import httpClient from '../../main'
 import { onBeforeMount ,reactive, computed,ref} from 'vue'
 import 'vue-router'
 import router from '../../router';
-const props = defineProps(['schid','ststid','edstid','amount'])// remove 'departTime'
+const props = defineProps(['schid','ststid','edstid','amount','memberId'])// remove 'departTime'
+const emits = defineEmits(['updateMemberId'])
 const seats = reactive([])
 const bookeds= reactive([])
 const info = reactive({})

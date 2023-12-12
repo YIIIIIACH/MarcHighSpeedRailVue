@@ -53,6 +53,10 @@
   </nav>
 </template>
 <style>
+.navbar-nav .nav-link.active,
+.navbar-nav .nav-link.show {
+  color: #00fffb;
+}
 .nav-link {
   color: rgb(8, 201, 130);
 }
@@ -64,6 +68,26 @@ a:visited {
   --bs-nav-link-hover-color: rgb(0, 255, 162);
 }
 .dropdown-menu.show {
-  background-color: black;
+  background-color: rgb(34, 37, 41);
+  color: rgb(123, 123, 123);
+}
+.dropdown-menu {
+  --bs-dropdown-link-hover-color: #ffd500;
+  --bs-dropdown-link-hover-bg: rgb(34, 37, 41);
+}
+
+.fade-enter-active,
+.face-leave-active {
+  transition: opacity 1s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
 }
 </style>

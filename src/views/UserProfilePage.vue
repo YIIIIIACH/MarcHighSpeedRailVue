@@ -47,7 +47,9 @@ export default {
             // 處理特定欄位的修改
             console.log(`Modify ${field}`);
         }
-    }
+    },
+    props:['memberId'],
+    emits: ['updateMemberId'],
 }
 </script>
   

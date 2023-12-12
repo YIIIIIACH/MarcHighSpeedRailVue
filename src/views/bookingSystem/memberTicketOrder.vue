@@ -2,6 +2,8 @@
 import { onBeforeMount,reactive,computed,ref } from 'vue';
 import  router from  '../../router/index'
 import httpClient from '../../main';
+const emits= defineEmits(['updateMemberId'])
+const props = defineProps(['memberId'])
 const currDate = ref(new Date('2023-12-14T00:00:00'));
 const ticketOrderIds = reactive([])
 const orderCreateTimes = reactive([]);

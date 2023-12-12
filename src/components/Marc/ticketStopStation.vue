@@ -1,7 +1,8 @@
 <script setup>
 import stopStation from './schedule/stopStation.vue'
 import {ref,computed} from 'vue'
-const props = defineProps(['stopStations','pbStart','pbEd'])
+const props = defineProps(['stopStations','pbStart','pbEd','memberId'])
+const emits = defineEmits(['updateMemberid'])
 const startOrEnd = ref(false);
 </script>
 <template>

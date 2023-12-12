@@ -3,7 +3,8 @@ import { onBeforeMount, reactive, computed,onMounted } from 'vue';
 import 'vue-router'
 import httpClient from '../../main'
 import router from '../../router';
-const props = defineProps(['tckodid'])
+const props = defineProps(['tckodid','memberId'])
+const emits = defineEmits(['updateMemberId'])
 const memberToken = 'e7039cb4-ee63-47fa-8f79-3585bd4c73a2';
 const resInfo = reactive({
     "scheduleInfo":{},

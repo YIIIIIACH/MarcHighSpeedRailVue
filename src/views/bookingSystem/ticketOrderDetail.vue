@@ -2,6 +2,8 @@
 import { onBeforeMount,ref, reactive} from 'vue';
 import httpClient from '../../main';
 import ticketStopStation from '../../components/Marc/ticketStopStation.vue'
+// import { defineEmits,defineProps } from 'vue';
+import { defineEmits} from 'vue'
 const userName = ref('')
 const schInfo = reactive({})
 const railRouteSegmentInfo = reactive({})
@@ -13,7 +15,10 @@ const bookingInfo = reactive([])
 const railRouteStopStation = reactive([])
 const loadingStopSt = ref(false)
 // const spinCnt = ref(0);
-const props = defineProps(['tckodid'])
+// const emits = defineEmits(['updateMemberId'])
+const emits = defineEmits(['updateMemberId'])
+// this.defineProps([])
+const props = defineProps(['tckodid','memberId'])
 onBeforeMount(()=>{
   loadingStopSt.value=true
   // check is login

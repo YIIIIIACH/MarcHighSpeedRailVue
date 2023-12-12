@@ -7,12 +7,11 @@ import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
 const path = useRoute().path;
 console.log(!path.includes("emp"));
-const memberId = ref("undefined");
-function updateMemberId(newId) {
-  memberId = newId;
+const mId = ref("undefined");
+function updatemId(newId) {
+  mId.value = newId;
 }
 </script>
-
 <template>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
     <div class="container-fluid">
@@ -102,13 +101,7 @@ function updateMemberId(newId) {
   </nav>
   <section>
     <router-view
-      @updateMemberId="
-        (newId) => {
-          updateMemberId(newId);
-        }
-      "
-      :memberId="memberId"
-    ></router-view>
+      @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
   </section>
 </template>
 

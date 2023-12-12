@@ -43,7 +43,9 @@
         form,
         submitForm
       };
-    }
+    },
+    props:['memberId'],
+    emits: ['updateMemberId'],
   };
   </script>
   

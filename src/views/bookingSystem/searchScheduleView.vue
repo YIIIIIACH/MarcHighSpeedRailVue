@@ -169,7 +169,9 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
             }).then(()=>{
                 this.selectDiscount= this.allDiscount[0]
             })
-        }
+        },
+        props:['memberId'],
+        emits:['updateMemberId']
     }
 </script>
 

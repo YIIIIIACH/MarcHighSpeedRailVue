@@ -52,6 +52,7 @@
     </div>
   </nav>
 </template>
+
 <style>
 .navbar-nav .nav-link.active,
 .navbar-nav .nav-link.show {
@@ -75,7 +76,9 @@ a:visited {
   --bs-dropdown-link-hover-color: #ffd500;
   --bs-dropdown-link-hover-bg: rgb(34, 37, 41);
 }
-
+.dropdown-item {
+  color: rgb(8, 201, 130);
+}
 .fade-enter-active,
 .face-leave-active {
   transition: opacity 1s;
@@ -91,3 +94,4 @@ a:visited {
   opacity: 1;
 }
 </style>
+

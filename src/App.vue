@@ -6,12 +6,11 @@ import { RouterLink, RouterView, useRoute } from "vue-router";
 import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
 const path = useRoute().path;
-console.log(!path.includes('emp'))
-const memberId = ref('undefined')
-function updateMemberId(newId){
-  memberId= newId;
+console.log(!path.includes("emp"));
+const memberId = ref("undefined");
+function updateMemberId(newId) {
+  memberId = newId;
 }
-
 </script>
 
 <template>
@@ -105,7 +104,14 @@ function updateMemberId(newId){
     </div>
   </nav>
   <section>
-    <router-view @updateMemberId="(newId)=>{ updateMemberId(newId)}" :memberId="memberId"></router-view>
+    <router-view
+      @updateMemberId="
+        (newId) => {
+          updateMemberId(newId);
+        }
+      "
+      :memberId="memberId"
+    ></router-view>
   </section>
 </template>
 
@@ -132,7 +138,9 @@ a:visited {
   --bs-dropdown-link-hover-color: #ffd500;
   --bs-dropdown-link-hover-bg: rgb(34, 37, 41);
 }
-
+.dropdown-item {
+  color: rgb(8, 201, 130);
+}
 .fade-enter-active,
 .face-leave-active {
   transition: opacity 1s;

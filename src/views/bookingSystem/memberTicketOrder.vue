@@ -1,5 +1,6 @@
 <script setup>
 import { onBeforeMount,reactive,computed,ref } from 'vue';
+import  router from  '../../router/index'
 import httpClient from '../../main';
 const currDate = ref(new Date('2023-12-14T00:00:00'));
 const ticketOrderIds = reactive([])
@@ -118,7 +119,13 @@ function chanageLogin(){
         },1500)
     })
 }
-
+function checkBooking(i){
+    if( isExpired(paymentDealines[i]) || orderStatuses[i]!='已付款'){
+        console.log('not able to ckeck booking')
+        return 
+    }
+    router.push('/ticketOrderDetail/'+ticketOrderIds[i])
+}
 </script>
 <template>
 <div class="member-info-bar">
@@ -164,7 +171,7 @@ function chanageLogin(){
             <h5 class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</h5>
             <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} 訂單價格{{totalPrices[i]}}元</p>
             <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</p>
-            <button href="#" @click="$router.push('/ticketOrderDetail/'+ticketOrderIds[i])" class="btn btn-primary"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+            <button href="#" @click="checkBooking(i)" class="btn btn-primary"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
         </div>
         <div class="card-footer page-code" >
             <nav aria-label="Page navigation example">

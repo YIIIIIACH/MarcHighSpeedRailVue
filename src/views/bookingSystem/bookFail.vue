@@ -1,5 +1,5 @@
 <script setup>
-import { defineEmits,defineProps } from 'vue';
+// import { defineEmits,defineProps } from 'vue';
 const props= defineProps(['memberId'])
 const emits= defineEmits(['updateMemberId'])
 </script>

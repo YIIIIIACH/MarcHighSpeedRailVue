@@ -7,7 +7,7 @@ import  scheduleList from  '../../components/Marc/schedule/scheduleList.vue'
 import scheduleSearchCondition from '../../components/Marc/schedule/scheduleSearchCondition.vue'
 import displayScheduleStopStation from '../../components/Marc/schedule/displayScheduleStopStation.vue'
 const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
-
+var isToBooking = false;
     export default{
         setup(){
             return {
@@ -37,7 +37,7 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                 msg : ref(''),
                 account : ref(''),
                 password : ref(''),
-                isToBooking: ref(false),
+                // isToBooking: ref(false),
                 emptySelectMsg: ref('')
             }
         },
@@ -102,7 +102,7 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
         },
         methods:{
             goLogin:function(){
-            httpClient.post('requestMemberLogin',{
+                httpClient.post('requestMemberLogin',{
                     "email": this.account,
                     "password": this.password
                 },{withCredentials:true})
@@ -110,12 +110,17 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                     console.log( res)
                     if(res.status==200){
                         this.userName = res.data.member_name;
-                        console.log(document.cookie)
                         //click the  cancel btn to close the modal
                         document.getElementById('cancelBtn').click();
                         this.msg='';
-                        if(this.isToBooking){
+                        this.$emit('updateMemberId', res.data.member_id)
+                        console.log( 'login success')
+                        console.log('isTobooking' + isToBooking)
+                        if(isToBooking){
                             document.getElementById('ticket-amt-select-modal-open-btn').click();
+                            console.log('convert to bookin ticket back')
+                            // document.getElementById('cancelBtn').click();
+                            // bookTicket();
                         }
                     }
                 }).catch((err)=>{
@@ -125,20 +130,21 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
             checkLoginToken:function(){
                 if(this.userName!='')
                     return true;
-                let decodedCookie = decodeURIComponent(document.cookie);
-                let name= "login-token="    
-                let ca = decodedCookie.split(';');
-                console.log( ca)
-                for(let i = 0; i <ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                        return true;
-                    }
-                }
-                return false;
+                // let decodedCookie = decodeURIComponent(document.cookie);
+                // let name= "login-token="    
+                // let ca = decodedCookie.split(';');
+                // console.log( ca)
+                // for(let i = 0; i <ca.length; i++) {
+                //     let c = ca[i];
+                //     while (c.charAt(0) == ' ') {
+                //     c = c.substring(1);
+                //     }
+                //     if (c.indexOf(name) == 0) {
+                //         return true;
+                //     }
+                // }
+                if( this.memberId ==='' ) return false;
+                return true;
             },
             getCookie:function(cname) {
                 let name = cname + "=";
@@ -174,6 +180,7 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
             bookTicket:function(){
                 // check login first,
                 //ticket-amt-select-modal-btn
+                console.log('in bookticket function')
                 if( this.isEmptySelect() ){
                     this.emptySelectMsg = '請至少選取一張車票';
                     return;
@@ -181,7 +188,8 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                     this.emptySelectMsg= '';
                 }
                 if( this.checkLoginToken()==false){
-                    this.isToBooking=true;
+                    console.log( 'foucd no login-token toggle login modal')
+                    isToBooking=true;
                     document.getElementById('login-modal-open-btn').click();
                     return;
                 }
@@ -217,8 +225,8 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                         alert('訂位失敗 剩餘座位不足')
                         console.log( err)
                     })
+                    isToBooking=false
                 }  
-                this.isToBooking=false
             },
             dateToStr:function(dt){
                 console.log( dt)
@@ -345,6 +353,7 @@ const backendURL = import.meta.env.VITE_AXIOS_HTTP_BASEURL
                 // console.log('cleearcookie')
                 // document.cookie=''
                 this.userName=''
+                this.$emit('updateMemberId','')
             },
             loginBtnClick(){
                 document.getElementById('login-modal-open-btn').click()

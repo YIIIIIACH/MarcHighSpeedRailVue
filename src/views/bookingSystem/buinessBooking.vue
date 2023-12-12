@@ -148,10 +148,10 @@ console.log( tooltipTriggerList)
         </div>
     </div>
     <div class="container">
-        <button type="button"  class="btn btn-primary" @click="this.$router.push('/booking')">
+        <button type="button"  class="btn btn-primary blue-btn" @click="this.$router.push('/booking')">
             返回班次搜尋頁面
         </button>
-        <button type="button"  class="btn btn-primary" style="float:right" data-bs-toggle="modal" :data-bs-target="'#exampleModal'">
+        <button type="button"  class="btn btn-primary blue-btn" style="float:right" data-bs-toggle="modal" :data-bs-target="'#exampleModal'">
             前往訂票
         </button>
         <div class="card">
@@ -161,9 +161,9 @@ console.log( tooltipTriggerList)
         </div>
     
         <div class="collapse.show" id="buinessBookDetail">
-            <div class="card card-body item" v-if="selected.length==0">你沒有選擇座位</div>
+            <div class="card card-body one-seat" v-if="selected.length==0">你沒有選擇座位</div>
             <TransitionGroup name="list" class="selected-list" tag="ul">
-                <li class="card card-body item" v-for="(selectedSeat,idx) in selected" :key="selectedSeat.seatId"><!--class="card card-body item"-->
+                <li class="card card-body one-seat" v-for="(selectedSeat,idx) in selected" :key="selectedSeat.seatId"><!--class="card card-body item"-->
                     {{ selectedSeat.seatId }}{{ selectedSeat.seatCode }}{{ selectedSeat.seatDescirption }}
                         <span v-if="selectedSeat.seatId!=undefined">
                         {{info.ticketDiscount.ticketDiscountName}}:{{ info.rrseg.railRouteSegmentTicketPrice *(info.ticketDiscount.ticketDiscountPercentage/100)-info.ticketDiscount.ticketDiscountAmount+'元' }}
@@ -201,8 +201,8 @@ console.log( tooltipTriggerList)
                
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                <button type="button" :disabled="selectCnt.cnt<props.amount" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn btn-primary">前往付費訂票</button>
+                <button type="button" class="btn btn-secondary blue-btn" data-bs-dismiss="modal">關閉</button>
+                <button type="button" :disabled="selectCnt.cnt<props.amount" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn  btn-primary ">前往付費訂票</button>
             </div>
             </div>
         </div>
@@ -240,7 +240,7 @@ console.log( tooltipTriggerList)
 .selected-list{
     padding-left: 0px;
 }
-.item{
+.one-seat{
     display:inline-block;
     list-style-type:none
 }
@@ -253,5 +253,9 @@ console.log( tooltipTriggerList)
     padding: 0px;/*4px;*/
     margin: 8px;
     
+}
+.blue-btn{
+    width:170px;
+    height: 70px;
 }
 </style>

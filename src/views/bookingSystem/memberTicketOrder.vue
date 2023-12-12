@@ -4,7 +4,7 @@ import  router from  '../../router/index'
 import httpClient from '../../main';
 const emits= defineEmits(['updateMemberId'])
 const props = defineProps(['memberId'])
-const currDate = ref(new Date('2023-12-14T00:00:00'));
+const currDate = ref(new Date());
 const ticketOrderIds = reactive([])
 const orderCreateTimes = reactive([]);
 const paymentDealines = reactive([])
@@ -23,18 +23,51 @@ const password = ref('')
 const isLoging= ref(false)
 const showSpin = computed (()=> isLoging.value)
 const msg = ref('')
+const filterMode = ref('全部') //到期 全部 未到期
 const orderMethod = ref('訂票時間增') //訂票時間 ｜ 到期時間 
-const displayMode = ref('未付款') // non-payed payed all
+const displayMode = ref('立即') // non-payed payed all
+const isImmediateMode = computed(()=> displayMode.value=='立即')
 const isNonpayedMode = computed(()=>displayMode.value=='未付款')
 const isPayedMode = computed(()=>displayMode.value=='已付款')
 const isAllMode = computed(()=>displayMode.value=='全部')
 const nonPayedFilter = computed(()=>{
+    isLoging.value=true;
+    setTimeout(function(){isLoging.value=false},300)
     let res = []
+    if(displayMode.value=='立即'){
+        let found=false;
+        let tmp = 0;
+        for( let idx in orderStatuses){
+            if(currDate.value-paymentDealines[idx]<0 && orderStatuses[idx]=='未付款'){
+                found=true;
+                tmp = ( paymentDealines[idx]- paymentDealines[tmp] >0)? tmp: idx;
+            }
+        }
+        if(!found){
+            return []
+        }
+        return [tmp];
+    }
     for(let idx in orderStatuses){
-        if( displayMode.value=='全部') 
-            res.push(idx)
-        if( orderStatuses[idx] == displayMode.value){
-            res.push( idx)
+        if(filterMode.value=='到期' && (currDate.value-paymentDealines[idx]>=0)){
+            if( displayMode.value=='全部' ) 
+                res.push(idx)
+            else if( orderStatuses[idx] == displayMode.value){
+                res.push( idx)
+            }
+        }
+        else if( filterMode.value=='未到期' && (currDate.value-paymentDealines[idx]<0)){
+            if( displayMode.value=='全部' ) 
+                res.push(idx)
+            else if( orderStatuses[idx] == displayMode.value){
+                res.push( idx)
+            }
+        }else if( filterMode.value=='全部'){
+            if( displayMode.value=='全部' ) 
+                res.push(idx)
+            else if( orderStatuses[idx] == displayMode.value){
+                res.push( idx)
+            }
         }
     }
     // order 
@@ -58,9 +91,11 @@ const nonPayedFilter = computed(()=>{
     return res;
 })
 function chnageDisplayMode(newDisplayMode){
+    // payImmediately.value=false;
     displayMode.value = newDisplayMode;
 }
 onBeforeMount(()=>{
+    isLoging.value=true;
     httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
     .then((res)=>{
         
@@ -71,7 +106,8 @@ onBeforeMount(()=>{
             totalPrices.push( res.data.totalPrices[i])
             orderStatuses.push(res.data.orderStatuses[i])
         }
-        console.log( res.data);
+        // console.log( res.data);
+        isLoging.value=false
     })
 })
 function goChangeLogin(){
@@ -122,9 +158,13 @@ function chanageLogin(){
     })
 }
 function checkBooking(i){
-    if( isExpired(paymentDealines[i]) || orderStatuses[i]!='已付款'){
+    if( isExpired(paymentDealines[i])){
         console.log('not able to ckeck booking')
         return 
+    }
+    if(orderStatuses[i]=='未付款'){
+        router.push('/bookSuccess/'+ticketOrderIds[i]);
+        return;
     }
     router.push('/ticketOrderDetail/'+ticketOrderIds[i])
 }
@@ -134,9 +174,12 @@ function checkBooking(i){
     <span @click="goChangeLogin">更換帳號登出</span>
 </div>
 <div class="container">
-    <div class="card text-center">
-        <div class="card-header">
+    <div class="card text-center" >
+        <div class="card-header" >
             <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link" @click="chnageDisplayMode('立即')" :class="{'active': isImmediateMode}" aria-current="true" href="#">立即付款</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" @click="chnageDisplayMode('未付款')" :class="{'active':isNonpayedMode}" aria-current="true" href="#">未付款</a>
             </li>
@@ -166,14 +209,30 @@ function checkBooking(i){
                     <li><a @click="orderMethod='付款到期時間遞減'" class="dropdown-item" href="#">遞減</a></li>
                 </ul>
             </li>
-            
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    篩選{{ filterMode }}
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li><a @click="filterMode='到期'" class="dropdown-item" href="#">到期</a></li>
+                    <li><a @click="filterMode='未到期'" class="dropdown-item" href="#">未到期</a></li>
+                    <li><a @click="filterMode='全部'" class="dropdown-item" href="#">全部</a></li>
+                </ul>
+            </li>
             </ul>
         </div>
-        <div v-for="i in nonPayedFilter" class="card-body ticket-order-box">
-            <h5 class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</h5>
-            <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} 訂單價格{{totalPrices[i]}}元</p>
-            <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</p>
-            <button href="#" @click="checkBooking(i)" class="btn btn-primary"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+        <div v-if="!isLoging">
+            <div v-for="i in nonPayedFilter" class="card-body ticket-order-box">
+                <h5 class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</h5>
+                <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} 訂單價格{{totalPrices[i]}}元</p>
+                <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</p>
+                <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+            </div>
+        </div>
+            <div class="container" v-if="isLoging" style="display: flex; justify-content: center;padding-top: 50px;padding-bottom: 50px;">
+            <div class="spin-block">
+                <div v-for="i of 9" class="item"></div>
+            </div>
         </div>
         <div class="card-footer page-code" >
             <nav aria-label="Page navigation example">
@@ -249,4 +308,32 @@ function checkBooking(i){
 .expire-button{
     background-color: lightblue;
 }
+.item {
+    width: 30px;
+    height: 30px;
+    margin: 5px;
+    background-color: green;
+    animation: hideItem .8s infinite;
+}
+.spin-block{
+    width: 120px;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.item:nth-child(1) { animation-delay: 0s; }
+.item:nth-child(2) { animation-delay: 0.1s; }
+.item:nth-child(3) { animation-delay: 0.2s; }
+.item:nth-child(6) { animation-delay: 0.3s; }
+.item:nth-child(9) { animation-delay: 0.4s; }
+.item:nth-child(8) { animation-delay: 0.5s; }
+.item:nth-child(7) { animation-delay: 0.6s; }
+.item:nth-child(4) { animation-delay: 0.7s; }
+.item:nth-child(5) { opacity: 0; }
+
+@keyframes hideItem {
+100% { opacity: 0; }
+}
+
 </style>

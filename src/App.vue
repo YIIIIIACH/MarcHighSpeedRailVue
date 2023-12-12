@@ -7,7 +7,7 @@ import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
 const path = useRoute().path;
 console.log(!path.includes("emp"));
-const mId = ref("undefined");
+const mId = ref("");
 function updatemId(newId) {
   mId.value = newId;
 }

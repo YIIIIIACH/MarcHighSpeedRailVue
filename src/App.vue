@@ -6,10 +6,11 @@ import { RouterLink, RouterView, useRoute } from "vue-router";
 import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
 const path = useRoute().path;
-console.log(!path.includes("emp"));
-const mId = ref("");
-function updatemId(newId) {
-  mId.value = newId;
+
+console.log(!path.includes('emp'))
+const mId = ref('undefined')
+function updatemId(newId){
+  mId.value= newId;
 }
 </script>
 <template>
@@ -29,10 +30,12 @@ function updatemId(newId) {
       <div class="collapse navbar-collapse" id="mynavbar">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <router-link class="nav-link" to="/">home</router-link>
+            <router-link class="nav-link" id="fontcolor" to="/"
+              >home</router-link
+            >
           </li>
           <li class="nav-item">
-            <router-link to="/lostItem" class="nav-link"
+            <router-link to="/lostItem" class="nav-link" id="fontcolor"
               >遺失物搜尋</router-link
             >
           </li>
@@ -49,11 +52,13 @@ function updatemId(newId) {
               訂票系統
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
-              <router-link to="/searchSchedule" class="nav-link"
+              <router-link to="/searchSchedule" class="nav-link" id="fontcolor"
                 >搜尋班次</router-link
               >
-              <router-link to="/booking" class="nav-link">高鐵訂票</router-link>
-              <router-link to="/ticketOrder" class="nav-link"
+              <router-link to="/booking" class="nav-link" id="fontcolor"
+                >高鐵訂票</router-link
+              >
+              <router-link to="/ticketOrder" class="nav-link" id="fontcolor"
                 >會員訂票</router-link
               >
             </div>
@@ -72,24 +77,26 @@ function updatemId(newId) {
               aria-haspopup="true"
               aria-expanded="false"
             >
-              shopping
+              禮品商店
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
-              <router-link to="/goods" class="dropdown-item"
-                >購物中心</router-link
-              >
-              <router-link
-                :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
-                class="dropdown-item"
-                >我的購物車</router-link
-              >
+              <router-link to="/goods" class="dropdown-item" id="fontcolor">
+                🏬 購物中心
+              </router-link>
+              <router-link :to="{ name: 'shoppingCart', params: { memberId: mId } }" class="dropdown-item" id="fontcolor">
+                🛒 我的購物車
+              </router-link >
             </div>
           </li>
           <li class="nav-item">
-            <router-link to="/login" class="nav-link">會員登入</router-link>
+            <router-link to="/login" class="nav-link" id="fontcolor"
+              >會員登入</router-link
+            >
           </li>
           <li class="nav-item">
-            <router-link to="/register" class="nav-link">會員註冊</router-link>
+            <router-link to="/register" class="nav-link" id="fontcolor"
+              >會員註冊</router-link
+            >
           </li>
         </ul>
         <form class="d-flex">
@@ -100,8 +107,7 @@ function updatemId(newId) {
     </div>
   </nav>
   <section>
-    <router-view
-      @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
+    <router-view @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
   </section>
 </template>
 
@@ -113,12 +119,18 @@ function updatemId(newId) {
 .nav-link {
   color: rgb(8, 201, 130);
 }
-a:visited {
-  text-decoration: none;
+#fontcolor {
   color: rgb(8, 201, 130);
 }
+#fontcolor:hover {
+  color: rgb(0, 255, 195);
+}
+a:visited {
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+}
 .navbar-nav {
-  --bs-nav-link-hover-color: rgb(0, 255, 162);
+  --bs-nav-link-hover-color: rgb(0, 255, 195);
 }
 .dropdown-menu.show {
   background-color: rgb(34, 37, 41);

@@ -5,7 +5,7 @@
     props:['memberId'],
     // $emits('updateMemberId', [arg1, arg2])// log out
     emits:['updateMemberId'],
-    setup() {
+    setup(props) {
       return {
         account: ref(''),
         password: ref(''),
@@ -191,7 +191,8 @@
         httpClient.post( '/requestMemberLogin',{
           "password": this.password,
           "email": this.account
-        },{withCredentials:true}).then((res) => {
+        },{withCredentials:true})
+        .then((res) => {
           if(res.data.member_id == null){
             console.log('login failed')
             return; //中斷, 不執行下面的code
@@ -200,6 +201,7 @@
           this.userName= res.data.member_name;
           this.memberId = res.data.member_id;
 
+          this.$emit('updateMemberId', res.data.member_id);
           document.getElementById('login-modal-close-btn').click();
         })
       }
@@ -246,7 +248,7 @@
               :class="{'btn-outline-primary': productType != '全部商品','btn-primary': productType == '全部商品', }"
               @click="selectedType('全部商品')"
             >
-              全部商品
+              <span class="icon">🌟</span> 全部商品
             </button>
             |
           </li>
@@ -256,7 +258,7 @@
               :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
               @click="selectedType('精選食品')"
             >
-              精選食品
+              <span class="icon">🍔</span>精選食品
             </button>
             |
           </li>
@@ -266,7 +268,7 @@
               :class="{'btn-outline-primary': productType != '日用生活','btn-primary': productType == '日用生活', }"
               @click="selectedType('日用生活')"
             >
-              日用生活
+              <span class="icon">🏠</span> 日用生活
             </button>
             |
           </li>
@@ -277,7 +279,7 @@
               :class="{'btn-outline-primary': productType != '旅行戶外','btn-primary': productType == '旅行戶外', }"
               @click="selectedType('旅行戶外')"
             >
-              旅行戶外
+              <span class="icon">🌴</span> 旅行戶外
             </button>
             |
           </li>
@@ -287,7 +289,7 @@
               :class="{'btn-outline-primary': productType != '休閒用品','btn-primary': productType == '休閒用品', }"
               @click="selectedType('休閒用品')"
             >
-              休閒用品
+              <span class="icon">⛱️</span> 休閒用品
             </button>
             |
           </li>
@@ -297,7 +299,7 @@
               :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
               @click="selectedType('數位產品')"
             >
-              數位產品
+              <span class="icon">🎮</span> 數位產品
             </button>
             |
           </li>
@@ -307,7 +309,7 @@
               :class="{'btn-outline-primary': productType != '紀念商品','btn-primary': productType == '紀念商品', }"
               @click="selectedType('紀念商品')"
             >
-              紀念商品
+              <span class="icon">🎁</span> 紀念商品
             </button>
             |
           </li>
@@ -317,7 +319,7 @@
               :class="{'btn-outline-primary': productType != '經典模型','btn-primary': productType == '經典模型', }"
               @click="selectedType('經典模型')"
             >
-              經典模型
+              <span class="icon">🎨</span> 經典模型
             </button>
             |
           </li>
@@ -327,7 +329,7 @@
               :class="{'btn-outline-primary': productType != '實用文具','btn-primary': productType == '實用文具', }"
               @click="selectedType('實用文具')"
             >
-              實用文具
+              <span class="icon">✏️</span> 實用文具
             </button>
             |
           </li>
@@ -407,7 +409,7 @@
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-primary mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
+                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
             </div>
           </div>
         </div>
@@ -454,17 +456,16 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body" >
-       <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">帳號：</span>
-                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
-                    </div>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon1">密碼：</span>
-                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
-                    </div>
+      <div class="modal-body">
+       <div class="input-group mb-3 ">
+          <span class="input-group-text" id="basic-addon1">帳號：</span>
+          <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+      <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1">密碼：</span>
+          <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+      </div>
       </div>
       <div class="modal-footer">
         <button type="button" @click="login" class="btn btn-primary" >登入</button>

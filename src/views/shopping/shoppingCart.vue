@@ -185,12 +185,12 @@
 </script>
 
 <template>
-  <h1 style="text-align:center; margin:30px" class="cart-items-title">購物車</h1>
+  <h1 style="text-align:center; margin:30px" class="cart-items-title">🛒 購物車</h1>
   <span class="cart-items-title-bottomLine"></span>
 
   <!-- 購物車品項 -->
   <div style="padding:0% 15% 10% 15%">
-    <table class="table " style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
+    <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
       <thead>
         <tr class="cart-items-info-style table-info">
           <th scope="col">
@@ -215,18 +215,22 @@
             </div>
           </th>
           <td style="width:300px;">
-            <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)"><img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)" ></div>
-            <div style="padding-top:20px"><span style="font-size:13px" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span></div>
+            <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)">
+              <img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)">
+            </div>
+            <div style="padding-top:20px">
+              <span style="font-size:13px" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
+            </div>
           </td>
           <td><h6>$ {{item.productPrice}}</h6></td>
           <td>
             <span class="mb-5 mt-5">
-              <span class="quantity-controls">
-                  <button @click="decrementQuantity(item)" class="btn btn-outline-secondary btn-sm">－</button>
+              <div class="d-flex justify-content-between">
+                  <button @click="decrementQuantity(item)" class="btn btn-outline-secondary btn-sm custom-button">－</button>
                   <!-- <input v-model="item.quantity" type="text" @input="handleNumberInput" style="width:50px;  text-align: center;"/> -->
                   <input v-model="item.quantity" type="number" style="width:50px;  text-align: center;" @blur="inputQuantity(item)"/>
-                  <button @click="incrementQuantity(item)" class="btn btn-outline-secondary btn-sm">＋</button>
-              </span>
+                  <button @click="incrementQuantity(item)" class="btn btn-outline-secondary btn-sm custom-button">＋</button>
+              </div>
             </span>
           </td>
           <td style="color:darkorange; font-weight:bolder"><h5>$ {{item.totalPrice}}</h5></td>
@@ -294,7 +298,7 @@
   .floating-window-checkbox{
     transform: scale(1.2); 
     border-color:darkgray ; 
-     margin-left: 40%;
+    margin-left: 40%;
   }
   #removeAll {
     cursor: pointer;

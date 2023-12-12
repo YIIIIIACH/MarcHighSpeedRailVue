@@ -18,30 +18,76 @@
       <div class="collapse navbar-collapse" id="mynavbar">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <router-link class="nav-link" to="/">home</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/lostItem" class="nav-link">lost</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/searchSchedule" class="nav-link"
-              >搜尋高鐵班次</router-link
+            <router-link class="nav-link" id="fontcolor" to="/"
+              >home</router-link
             >
           </li>
           <li class="nav-item">
-            <router-link to="/booking" class="nav-link">高鐵訂票</router-link>
+            <router-link to="/lostItem" class="nav-link" id="fontcolor"
+              >遺失物搜尋</router-link
+            >
           </li>
-          <li class="nav-item">
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="shoppingDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              訂票系統
+            </a>
+            <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
+              <router-link to="/searchSchedule" class="nav-link" id="fontcolor"
+                >搜尋班次</router-link
+              >
+              <router-link to="/booking" class="nav-link" id="fontcolor"
+                >高鐵訂票</router-link
+              >
+              <router-link to="/ticketOrder" class="nav-link" id="fontcolor"
+                >會員訂票</router-link
+              >
+            </div>
+          </li>
+          <!-- <li class="nav-item">
             <router-link to="/goods" class="nav-link">shopping</router-link>
+          </li> -->
+
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="shoppingDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              shopping
+            </a>
+            <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
+              <router-link to="/goods" class="dropdown-item" id="fontcolor"
+                >購物中心</router-link
+              >
+              <router-link
+                :to="{ name: 'shoppingCart', params: { memberId: memberId } }"
+                class="dropdown-item"
+                id="fontcolor"
+                >我的購物車</router-link
+              >
+            </div>
           </li>
           <li class="nav-item">
-            <router-link to="/emp/login" class="nav-link">employee</router-link>
+            <router-link to="/login" class="nav-link" id="fontcolor"
+              >會員登入</router-link
+            >
           </li>
           <li class="nav-item">
-            <router-link to="/login" class="nav-link">會員登入</router-link>
-          </li>
-          <li class="nav-item">
-            <router-link to="/register" class="nav-link">會員註冊</router-link>
+            <router-link to="/register" class="nav-link" id="fontcolor"
+              >會員註冊</router-link
+            >
           </li>
         </ul>
         <form class="d-flex">
@@ -51,6 +97,16 @@
       </div>
     </div>
   </nav>
+  <section>
+    <router-view
+      @updateMemberId="
+        (newId) => {
+          updateMemberId(newId);
+        }
+      "
+      :memberId="memberId"
+    ></router-view>
+  </section>
 </template>
 
 <style>
@@ -61,12 +117,18 @@
 .nav-link {
   color: rgb(8, 201, 130);
 }
-a:visited {
-  text-decoration: none;
+#fontcolor {
   color: rgb(8, 201, 130);
 }
+#fontcolor:hover {
+  color: rgb(0, 255, 195);
+}
+a:visited {
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+}
 .navbar-nav {
-  --bs-nav-link-hover-color: rgb(0, 255, 162);
+  --bs-nav-link-hover-color: rgb(0, 255, 195);
 }
 .dropdown-menu.show {
   background-color: rgb(34, 37, 41);
@@ -94,4 +156,3 @@ a:visited {
   opacity: 1;
 }
 </style>
-

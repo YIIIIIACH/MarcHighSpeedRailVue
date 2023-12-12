@@ -72,7 +72,7 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/shoppingCart/',
+      path: '/shoppingCart/:memberId',
       // path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',
@@ -86,6 +86,7 @@ const router = createRouter({
     // },
     {
       path: '/checkout/:memberId/:checkoutPrice',
+      path: '/checkout/:checkoutPrice',
       component: checkoutPage,
       name: 'checkoutPage',
       props: true

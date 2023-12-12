@@ -17,7 +17,7 @@
       </button>
       <div class="collapse navbar-collapse" id="mynavbar">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item">
+          <li class="nav-item nav-alist">
             <router-link class="nav-link" to="/">home</router-link>
           </li>
           <li class="nav-item">
@@ -59,7 +59,10 @@
   color: #00fffb;
 }
 .nav-link {
-  color: rgb(8, 201, 130);
+  color: rgb(201, 8, 8);
+}
+.nav-alist:hover {
+  color: #ffd500;
 }
 a:visited {
   text-decoration: none;

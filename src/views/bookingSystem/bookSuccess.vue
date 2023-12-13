@@ -5,7 +5,6 @@ import httpClient from '../../main'
 import router from '../../router';
 const props = defineProps(['tckodid','memberId'])
 const emits = defineEmits(['updateMemberId'])
-const memberToken = 'e7039cb4-ee63-47fa-8f79-3585bd4c73a2';
 const spining = ref(false);
 const loading = ref(false);
 const resInfo = reactive({
@@ -19,16 +18,9 @@ const resInfo = reactive({
     "duration":'',
     "ticketStatusList":[]
 })
-function checkLoginToken(){
-    let cookieArr = document.cookie.split('login-token=')
-    if( cookieArr.length==1){
-        return false;
-    }
-    return true;
-}
+
 function goCheckOut(){
     spining.value= true;
-    
     httpClient.post('/createTicketOrder?ticketOrderId='+props.tckodid,{},{withCredentials:true})
     .then((res)=>{
         if( res.status==200){
@@ -58,7 +50,6 @@ const wasAllocate= computed(()=>{
         }
     }
     return false
-    // return !resInfo.ticketStatusList.includes('未分配')
 })
 const getTotalPrice = computed(()=>{ 
     let sum =0;
@@ -69,6 +60,12 @@ const getTotalPrice = computed(()=>{
  })
 onBeforeMount(()=>{
     loading.value=true;
+    // check is login or not 
+    if( props.memberId=='undefined'){
+        alert('你沒有登入')
+        router.push('/')
+        return;
+    }
     httpClient.get('/getBookingByTicketOrder/'+props.tckodid,{withCredentials:true})
     .then((res)=>{
         // console.log(res.data);
@@ -91,12 +88,6 @@ onBeforeMount(()=>{
         loading.value= false
     })
 })
-// onMounted(()=>{
-//     if(resInfo.scheduleInfo==null){
-//         console.log('haha')
-//     }
-// //    $routerrouter.push('/booking')
-// })
 </script>
 <template>
     <div class="card  order-detail-box">

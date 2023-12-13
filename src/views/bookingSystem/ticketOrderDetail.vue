@@ -96,12 +96,10 @@ function checkQrcode(b){
 }
 // load railRouteStopStation
 function loadRailRouteStopStation(){
- 
   httpClient.get('/getScheduleStopStationByScheduleId?schid='+schInfo.scheduleId).then((res)=>{
-    // console.log(res.data)
     let i = 0;
     for (let stst of res.data){
-      railRouteStopStation.push(res.data[i]);
+      railRouteStopStation.push(stst);
     }
     loadingStopSt.value=false
   }).catch(err=> {
@@ -109,7 +107,8 @@ function loadRailRouteStopStation(){
 }
 </script>
 <template>
-<div class="container">
+<div >
+<div class="container" style="padding-bottom: 20%;">
   <div class="row justify-content-center" style="z-index: 1000;" >
     <div class="card" style="padding: 10px 0px;padding-bottom: 30px;margin-top: 5%;border: 0px rgb(255, 255, 255) solid;" >
       <div class="card-header text-center"  style="display: flex;justify-content: space-between;padding: 50px 50px;border-radius: 15px;" >
@@ -177,6 +176,7 @@ function loadRailRouteStopStation(){
       </div>
     </div>
   </div>
+</div>
 </div>
 </template>
 <style>

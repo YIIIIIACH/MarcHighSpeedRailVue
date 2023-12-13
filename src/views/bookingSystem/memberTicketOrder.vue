@@ -20,6 +20,7 @@ const passwordVisible = ref(false);
 const loginMsg = ref('')
 const account = ref('')
 const password = ref('')
+const isShowingToLoginModal = computed(()=> props.memberId=='undefined' && (!isLoging.value))
 const isLoging= ref(false)
 const showSpin = computed (()=> isLoging.value)
 const msg = ref('')
@@ -96,21 +97,44 @@ function chnageDisplayMode(newDisplayMode){
 }
 onBeforeMount(()=>{
     isLoging.value=true;
-    httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
+    // verfy login first . if verified then req member's ticket order
+    httpClient.post('requestMemberLogin',{
+        "email": account,
+        "password": password
+    },{withCredentials:true})
     .then((res)=>{
-        
-        for( let i=0; i<res.data.ticketOrderIds.length; i++){
+        console.log( res)
+        if(res.status==200){
+            //click the  cancel btn to close the modal
+            document.getElementById('cancelBtn').click();
+            msg.value='';
+            account.value=''
+            password.value=''
+            emits('updateMemberId', res.data.member_id)
+        }
+        httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
+        .then((res)=>{
+            for( let i=0; i<res.data.ticketOrderIds.length; i++){
             ticketOrderIds.push( res.data.ticketOrderIds[i]);
             orderCreateTimes.push(new Date(res.data.orderCreateTimes[i]))
             paymentDealines.push(new Date( res.data.paymentDeadlines[i]))
             totalPrices.push( res.data.totalPrices[i])
             orderStatuses.push(res.data.orderStatuses[i])
-        }
+            }
         // console.log( res.data);
         isLoging.value=false
+        }).catch((err)=>{ 
+            console.log( 'fail to get member ticket order')
+            return 
+        })
+    }).catch((err)=>{
+        msg.value='帳號或密碼有誤'
+        isLoging.value= false;
+        return;
     })
 })
 function goChangeLogin(){
+    logout();
     document.getElementById('login-modal-open-btn').click();
 }
 function chanageLogin(){
@@ -134,6 +158,7 @@ function chanageLogin(){
         if(res.status==200){
             //click the  cancel btn to close the modal
             document.getElementById('cancelBtn').click();
+            emits('updateMemberId', res.data);
             msg.value='';
         }
     }).catch((err)=>{
@@ -168,10 +193,24 @@ function checkBooking(i){
     }
     router.push('/ticketOrderDetail/'+ticketOrderIds[i])
 }
+function logout(){
+    let popcnt= 0;
+    emits('updateMemberId', 'undefined');
+    let len = Object.keys(ticketOrderIds).length;
+    while( popcnt < len){
+        console.log('pop')
+        ticketOrderIds.pop()
+        orderCreateTimes.pop()
+        paymentDealines.pop()
+        totalPrices.pop()
+        orderStatuses.pop()
+        popcnt++;
+    }
+}
 </script>
 <template>
 <div class="member-info-bar">
-    <span @click="goChangeLogin">更換帳號登出</span>
+    <span @click="goChangeLogin">更換帳號</span>
 </div>
 <div class="container">
     <div class="card text-center" >
@@ -229,13 +268,17 @@ function checkBooking(i){
                 <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
             </div>
         </div>
-            <div class="container" v-if="isLoging" style="display: flex; justify-content: center;padding-top: 50px;padding-bottom: 50px;">
-            <div class="spin-block">
-                <div v-for="i of 9" class="item"></div>
+            <div class="container" v-if="isLoging" style="display: flex; justify-content: center;padding-top: 50px;padding-bottom: 50px;"><div class="spin-block"><div v-for="i of 9" class="item"></div></div>
+        </div>
+        <div class="container" v-if="isShowingToLoginModal">
+            <div class="card-body">
+                <h4 class="card-title">沒有登入將無法看到訂票紀錄</h4>
+                <p class="cart-text">請點選更換帳號進行登入</p>
+                <button type="button" hidden data-bs-toggle="modal" data-bs-target="#login-modal" class="btn btn-primary" >前往登入</button>
             </div>
         </div>
         <div class="card-footer page-code" >
-            <nav aria-label="Page navigation example">
+            <!-- <nav aria-label="Page navigation example">
             <ul class="pagination">
                 <li class="page-item">
                 <a class="page-link" href="#" aria-label="Previous">
@@ -251,7 +294,7 @@ function checkBooking(i){
                 </a>
                 </li>
             </ul>
-            </nav>
+            </nav> -->
         </div>
     </div>
 </div>

@@ -113,14 +113,11 @@ var isToBooking = false;
                         //click the  cancel btn to close the modal
                         document.getElementById('cancelBtn').click();
                         this.msg='';
+                        this.account=''
+                        this.password=''
                         this.$emit('updateMemberId', res.data.member_id)
-                        console.log( 'login success')
-                        console.log('isTobooking' + isToBooking)
                         if(isToBooking){
                             document.getElementById('ticket-amt-select-modal-open-btn').click();
-                            console.log('convert to bookin ticket back')
-                            // document.getElementById('cancelBtn').click();
-                            // bookTicket();
                         }
                     }
                 }).catch((err)=>{
@@ -128,38 +125,8 @@ var isToBooking = false;
                 })
             },
             checkLoginToken:function(){
-                if(this.userName!='')
-                    return true;
-                // let decodedCookie = decodeURIComponent(document.cookie);
-                // let name= "login-token="    
-                // let ca = decodedCookie.split(';');
-                // console.log( ca)
-                // for(let i = 0; i <ca.length; i++) {
-                //     let c = ca[i];
-                //     while (c.charAt(0) == ' ') {
-                //     c = c.substring(1);
-                //     }
-                //     if (c.indexOf(name) == 0) {
-                //         return true;
-                //     }
-                // }
-                if( this.memberId ==='' ) return false;
+                if( this.memberId ==='undefined' ) return false;
                 return true;
-            },
-            getCookie:function(cname) {
-                let name = cname + "=";
-                let decodedCookie = decodeURIComponent(document.cookie);
-                let ca = decodedCookie.split(';');
-                for(let i = 0; i <ca.length; i++) {
-                    let c = ca[i];
-                    while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                    }
-                    if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                    }
-                }
-                return "";
             },
             updatePrice: function(){
                 let cnt = 0;
@@ -353,7 +320,7 @@ var isToBooking = false;
                 // console.log('cleearcookie')
                 // document.cookie=''
                 this.userName=''
-                this.$emit('updateMemberId','')
+                this.$emit('updateMemberId','undefined')
             },
             loginBtnClick(){
                 document.getElementById('login-modal-open-btn').click()
@@ -376,7 +343,8 @@ var isToBooking = false;
             displayScheduleStopStation
         },
         beforeMount(){
-            this.userName=this.getCookie('member-name');
+            this.userName= '會員'
+            // this.userName=this.getCookie('member-name');
             setTimeout(()=>this.showProgressBar=true,700)
             // fetch all station 
             this.departTime.time.setMinutes(0);
@@ -431,7 +399,7 @@ var isToBooking = false;
 
 <template >
     <div class="member-info-bar">
-        <span v-if="userName!='' ||getCookie('member-name')!=''">歡迎會員{{ userName }}  <span @click="{clearCookie();userName=''}">登出</span></span><span @click="loginBtnClick" v-else>登入</span>
+        <span v-if="memberId!='undefined'">歡迎會員{{ userName }}  <span @click="{clearCookie();userName='會員'}">登出</span></span><span @click="loginBtnClick" v-else>登入</span>
     </div>
     <div class="bookingSystem">
         <displayScheduleStopStation @changeStSt="(newSt)=>stChange(newSt)" @changeEdSt="(newSt)=>{edChange(newSt);goSearch()}" :pbStart="pbStart" :pbEd="pbEnd"      :showSideBar="showProgressBar" :stop-stations="scheduleStopStations" :all-stations="allStation" :display="showScheduleStopStation" :stst="selectStartStation" :edst="selectEndStation" ></displayScheduleStopStation>

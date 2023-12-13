@@ -4,6 +4,11 @@ import httpClient from '../../main'
 import { onBeforeMount ,reactive, computed,ref} from 'vue'
 import 'vue-router'
 import router from '../../router';
+const passwordVisible= ref(false);
+const userName= ref('')
+const msg = ref('')
+const account = ref('')
+const password = ref('')
 const props = defineProps(['schid','ststid','edstid','amount','memberId'])// remove 'departTime'
 const emits = defineEmits(['updateMemberId'])
 const seats = reactive([])
@@ -11,6 +16,7 @@ const bookeds= reactive([])
 const info = reactive({})
 const selectCnt= ref({"cnt":0})
 const selected= reactive([])
+const makeTicketOrderLoading = ref(false)
 const colHeader= computed(()=>{
     return seats.filter((a)=>{
         let tmp = a.seatCode.split('-')
@@ -54,14 +60,42 @@ const columns = reactive({
     "D":[],
     "E":[]
 })
+const getCurrentPwdInputType = computed(()=>(passwordVisible.value==true)?'text':'password')
+function goLogin(){
+    httpClient.post('requestMemberLogin',{
+        "email": account.value,
+        "password": password.value
+    },{withCredentials:true})
+    .then((res)=>{
+        console.log( res)
+        if(res.status==200){
+            //click the  cancel btn to close the modal
+            document.getElementById('cancelBtn').click();
+            msg.value='';
+            account.value=''
+            password.value=''
+            emits('updateMemberId', res.data.member_id)
+        }
+    }).catch((err)=>{
+        this.msg='帳號或密碼有誤'
+    })
+}
 function checkLoginToken(){
-    let cookieArr = document.cookie.split('login-token=')
-    if( cookieArr.length==1){
-        return false;
-    }
-    return true;
+    return (props.memberId=='undefined')? false: true;
+}
+function clearCookie(){
+    emits('updateMemberId','undefined')
+}
+function loginBtnClick(){
+    document.getElementById('login-modal-open-btn').click()
 }
 function newGoBuinessBook(){
+    makeTicketOrderLoading.value= true
+    if( checkLoginToken()==false){
+        makeTicketOrderLoading.value = false
+        document.getElementById('login-modal-open-btn').click();
+        return;
+    }
     let selectedList = seats.filter((st)=>st.selected).map(st=>st.seatId);
         httpClient.post('/createBuinessTicketOrder/'+props.ststid+'/'+props.edstid+'/'+props.amount+'/'+props.schid,{
             "seatList": selectedList
@@ -75,10 +109,12 @@ function newGoBuinessBook(){
                     window.location= linkObj['href']
                 }
             }
+            makeTicketOrderLoading.value = false
         }).catch((err)=>{
             router.push('/booking')
             alert('訂位失敗')
             console.log(err)
+            makeTicketOrderLoading.value = false
         })
     
 }
@@ -123,14 +159,11 @@ onBeforeMount(() => {
         }
     })
 })
-var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-  return new bootstrap.Tooltip(tooltipTriggerEl)
-})
-console.log( tooltipList)
-console.log( tooltipTriggerList)
 </script>
 <template>
+    <div class="member-info-bar">
+        <span v-if="memberId!='undefined'">歡迎會員{{ userName }}  <span @click="{clearCookie();userName='會員'}">登出</span></span><span @click="loginBtnClick" v-else>登入</span>
+    </div>
     <div class="container">
         <h1>MarcHighSpeedRail 商務艙訂位</h1>
         <div class="card">
@@ -202,14 +235,48 @@ console.log( tooltipTriggerList)
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary blue-btn" data-bs-dismiss="modal">關閉</button>
-                <button type="button" :disabled="selectCnt.cnt<props.amount" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn  btn-primary ">前往付費訂票</button>
+                <button type="button" :disabled="selectCnt.cnt<props.amount" @click="newGoBuinessBook" data-bs-dismiss="modal" class="btn  btn-primary blue-btn">
+                    <span v-if="makeTicketOrderLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <span >前往付費訂票</span>
+                </button>
             </div>
             </div>
         </div>
         </div>
     </div>
+    <div class="container">
+        <div class="modal" tabindex="-1" id="login-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h5>登入</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">帳號：</span>
+                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">密碼：</span>
+                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+                    </div>
+                    <span>{{ msg }}</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="{msg='';isToBooking=false}" id="cancelBtn" data-bs-dismiss="modal">取消</button>
+                    <button type="button"  @click="goLogin"  class="btn btn-primary">登入</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="login-modal-open-btn" hidden data-bs-toggle="modal" data-bs-target="#login-modal"></button>
 </template>
 <style>
+.member-info-bar{
+    display: flex;
+    flex-direction: row-reverse;
+}
 .ticket-cnt{
     display:flex;
     justify-content: space-around;

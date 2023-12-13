@@ -21,7 +21,7 @@ export default defineConfig({
     https:false,
     proxy:{
       "/tovite":{
-        target: "http://114.32.211.158:5173/api",
+        target: "http://114.32.211.158:5173/api", //when you deploy your develop setup in localhost , it will connect to home base proxy server ,which will redirect to real backend server.  
         changeOrigin:true,
         followRedirects:true,
         secure:false,
@@ -31,7 +31,19 @@ export default defineConfig({
           proxy.on('proxyReq',(proxyReq,req,_res)=> console.log('send request to target',req.method, req.url));
           proxy.on('proxyRes',(proxyRes,req, _res)=> console.log('Received res from target ',proxyRes.statusCode,req.url));
         }
-      }
+      },
+      "/api":{
+        target: "http://localhost:8080/MarcHigiSpeedRail", // will make request from front server proxy request to backend server .
+        changeOrigin:true,
+        followRedirects:true,
+        secure:false,
+        rewrite:(path)=>path.replace(/^\/api/,''),
+        configure:(proxy, _options)=>{
+          proxy.on('error', (err, _req, _res)=> console.log('proxy err',err));
+          proxy.on('proxyReq',(proxyReq,req,_res)=> console.log('send request to target',req.method, req.url));
+          proxy.on('proxyRes',(proxyRes,req, _res)=> console.log('Received res from target ',proxyRes.statusCode,req.url));
+        }
+      },
     }
   }
 })

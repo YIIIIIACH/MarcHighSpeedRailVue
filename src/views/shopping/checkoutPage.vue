@@ -20,7 +20,9 @@
                 console.log(this.selectedItems)
             },
             createOrder(){
+
                 const selectedItemsId = this.selectedItems.map(item => item.shoppingCartItemId);
+
                 console.log(selectedItemsId)
 
                 httpClient.post('/createOrder', {
@@ -30,10 +32,19 @@
                 })
                 .then((res)=>{
                     console.log(res.data)
+                    if(res.data == '訂單已建立'){
+                        httpClient.delete('/ShoppingCart/deleteByItemIds?memberId=' + this.memberId + '&itemIds=' + selectedItemsId.join(','))
+                            .then((res)=>{
+                                console.log(res.data)
+                            })
+                            .catch((err) => {
+                                console.error(err);
+                            });
+                    }
                 })
                 .catch((err) => {
                     console.error(err);
-                });
+                });  
             },
         },
         beforeMount(){
@@ -76,7 +87,7 @@
             </tbody>
         </table>
         <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-primary">確認結帳</button></span></p>
+            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span></p>
         </div>
     <article>
         <div class="buyer-info mx-auto">

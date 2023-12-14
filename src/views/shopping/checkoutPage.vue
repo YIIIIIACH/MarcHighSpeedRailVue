@@ -9,11 +9,31 @@
             return{
                 selectedItems: ref([]),
                 isSameAsMemberData: false,
+                buyerName: ref(''),
+                phoneNumber: ref(''),
+                address: ref(''),
+                remark: ref('')
             }
         },
         methods: {
             showArray(){
                 console.log(this.selectedItems)
+            },
+            createOrder(){
+                const selectedItemsId = this.selectedItems.map(item => item.shoppingCartItemId);
+                console.log(selectedItemsId)
+
+                httpClient.post('/createOrder', {
+                    memberId : this.memberId,
+                    cartItemIds: selectedItemsId,
+                    totalPrice: this.checkoutPrice
+                })
+                .then((res)=>{
+                    console.log(res.data)
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
             },
         },
         beforeMount(){
@@ -63,26 +83,26 @@
             <h3 style="text-align: center">訂購人資料</h3>
             <div class="input-group mb-3">
                 <span class="input-group-text">訂購人姓名</span>
-                <input type="text" class="form-control" placeholder="請輸入姓名" aria-label="Server" :value="memberName">
-                <span><input type="checkbox" style="margin-left:30px;" v-model="isSameAsMemberData"><span>同會員資料</span></span>
+                <input type="text" class="form-control" placeholder="請輸入姓名" aria-label="Server" v-model="buyerName">
+                <!-- <span><input type="checkbox" style="margin-left:30px;" v-model="isSameAsMemberData"><span>同會員資料</span></span> -->
             </div>
                 
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">電話</span>
-                <input type="text" class="form-control" placeholder="Ex : 0912345678" aria-label="Username" aria-describedby="basic-addon1" :value="phoneNumber">
+                <input type="text" class="form-control" placeholder="Ex : 0912345678" aria-label="Username" aria-describedby="basic-addon1" v-model="phoneNumber">
             </div>
             <div class="input-group mb-3">
                 <span class="input-group-text" id="basic-addon1">收貨地址</span>
-                <input type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1">
+                <input type="text" class="form-control" placeholder="" aria-label="Username" aria-describedby="basic-addon1" v-model="address">
             </div>
             <div class="input-group">
                 <span class="input-group-text">備註</span>
-                <textarea class="form-control" aria-label="With textarea"></textarea>
+                <textarea class="form-control" aria-label="With textarea" v-model="remark"></textarea>
             </div>
         </div>
 
         <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-primary">確認結帳</button></span></p>     
+            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-primary" @click="createOrder()">確認結帳</button></span></p>     
         </div>
     </article>
 </template>

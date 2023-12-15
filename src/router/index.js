@@ -6,6 +6,7 @@ import goods from '../views/shopping/goods.vue'
 import goodsDetail from '../views/shopping/goodsDetail.vue'
 import shoppingCart from '../views/shopping/shoppingCart.vue'
 import checkoutPage from '../views/shopping/checkoutPage.vue'
+import shoppingHistory from '../views/shopping/shoppingHistory.vue'
 import lostItem from '../components/lostItem.vue'
 import buinessBooking from '../views/bookingSystem/buinessBooking.vue'
 import searchSchedule from '../views/bookingSystem/searchScheduleView.vue'
@@ -84,24 +85,25 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/shoppingCart/:memberId',
-      // path: '/shoppingCart',
+      // path: '/shoppingCart/:memberId',
+      path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',
-      props: true
+      // props: true
     },
-    // {
-    //   path: '/checkout/:memberId/:checkoutPrice/:selectedIds',
-    //   component: checkoutPage,
-    //   name: 'checkoutPage',
-    //   props:true
-    // },
     {
-      path: '/checkout/:memberId/:checkoutPrice',
+      // path: '/checkout/:memberId/:checkoutPrice',
       path: '/checkout/:checkoutPrice',
       component: checkoutPage,
       name: 'checkoutPage',
       props: true
+    },
+    {
+      // path: '/shoppingHistory/:checkoutPrice',
+      path: '/shoppingHistory',
+      component: shoppingHistory,
+      name: 'shoppingHistory',
+      // props: true
     },
     {
       path: '/login',

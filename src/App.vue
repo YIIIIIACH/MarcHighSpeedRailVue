@@ -83,8 +83,15 @@ function updatemId(newId){
               <router-link to="/goods" class="dropdown-item" id="fontcolor">
                 🏬 購物中心
               </router-link>
-              <router-link :to="{ name: 'shoppingCart', params: { memberId: mId } }" class="dropdown-item" id="fontcolor">
+              <!-- <router-link :to="{ name: 'shoppingCart', params: { memberId: mId } }" class="dropdown-item" id="fontcolor">
+                我的購物車
+              </router-link > -->
+              <router-link to="/shoppingCart" class="dropdown-item" id="fontcolor">
                 🛒 我的購物車
+              </router-link >
+
+              <router-link to="/shoppingHistory" class="dropdown-item" id="fontcolor">
+                購買清單
               </router-link >
             </div>
           </li>

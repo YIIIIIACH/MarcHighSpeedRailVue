@@ -114,7 +114,7 @@
 
 <template>
     <div v-if="product.value!==undefined" class="product-container">  
-        <h1 class="display-7" id="productType-head">{{this.productType}}
+        <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
             <span class="productType-head-bottomLine"></span>
         </h1>
         <div class="product-section">
@@ -177,7 +177,7 @@
         </div>
     </div> -->
     <button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Launch demo modal
+    登入
     </button>
 
 <!-- Modal -->

@@ -45,10 +45,8 @@ function changeStopSt(newStop){
 <style>
 .progress,
 .progress-bar-vertical{
-  
   position: relative;
   top: -137px;
-
 }
 .side-bar{
     margin: left 5%;

@@ -98,19 +98,12 @@ function chnageDisplayMode(newDisplayMode){
 onBeforeMount(()=>{
     isLoging.value=true;
     // verfy login first . if verified then req member's ticket order
-    httpClient.post('requestMemberLogin',{
-        "email": account,
-        "password": password
-    },{withCredentials:true})
+    httpClient.post('/verifyLoginToken',{},{withCredentials:true})
     .then((res)=>{
         console.log( res)
-        if(res.status==200){
-            //click the  cancel btn to close the modal
-            document.getElementById('cancelBtn').click();
-            msg.value='';
-            account.value=''
-            password.value=''
-            emits('updateMemberId', res.data.member_id)
+        if(res.status!=200){
+            document.getElementById('login-modal-open-btn').click();
+            return
         }
         httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
         .then((res)=>{

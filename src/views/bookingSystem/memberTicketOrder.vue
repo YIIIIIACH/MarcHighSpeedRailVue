@@ -10,6 +10,8 @@ const orderCreateTimes = reactive([]);
 const paymentDealines = reactive([])
 const orderStatuses = reactive([])
 const totalPrices = reactive([])
+const stArr = reactive([])
+const edArr = reactive([])
 function formatDate(d){
     return d.getFullYear()+'/' +(d.getMonth()+1)+'/' +String(d.getDate()).padStart(2, "0")+' '+String(d.getHours()).padStart(2, "0")+':'+String(d.getMinutes()).padStart(2, "0")
 }
@@ -31,6 +33,14 @@ const isImmediateMode = computed(()=> displayMode.value=='立即')
 const isNonpayedMode = computed(()=>displayMode.value=='未付款')
 const isPayedMode = computed(()=>displayMode.value=='已付款')
 const isAllMode = computed(()=>displayMode.value=='全部')
+function formatDateStr(dstr){
+
+    if(dstr=='not found')
+        return dstr;
+    let dpstr = dstr.split(' ')[0].split('-')
+    let tpstr = dstr.split(' ')[1].split(':')
+    return `${dpstr[0]}年 ${dpstr[1]}月 ${dpstr[2]}日 ${tpstr[0]}時 ${tpstr[1]}分`;    
+}
 const nonPayedFilter = computed(()=>{
     isLoging.value=true;
     setTimeout(function(){isLoging.value=false},300)
@@ -91,6 +101,24 @@ const nonPayedFilter = computed(()=>{
     }
     return res;
 })
+function ststName(i){
+    if(stArr[i]== undefined){
+        return 'not found'
+    }
+    if( stArr[i].stationName ==null){
+        return 'not found'
+    }
+    return stArr[i].stationName;
+}
+function edstName(i){
+    if(edArr[i]==undefined){
+        return 'not found'
+    }
+    if( edArr[i].stationName ==null){
+        return 'not found'
+    }
+    return edArr[i].stationName;
+}
 function chnageDisplayMode(newDisplayMode){
     // payImmediately.value=false;
     displayMode.value = newDisplayMode;
@@ -100,11 +128,12 @@ onBeforeMount(()=>{
     // verfy login first . if verified then req member's ticket order
     httpClient.post('/verifyLoginToken',{},{withCredentials:true})
     .then((res)=>{
-        console.log( res)
+        // console.log( res)
         if(res.status!=200){
             document.getElementById('login-modal-open-btn').click();
             return
         }
+        emits('updateMemberId', res.data)
         httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
         .then((res)=>{
             for( let i=0; i<res.data.ticketOrderIds.length; i++){
@@ -113,6 +142,29 @@ onBeforeMount(()=>{
             paymentDealines.push(new Date( res.data.paymentDeadlines[i]))
             totalPrices.push( res.data.totalPrices[i])
             orderStatuses.push(res.data.orderStatuses[i])
+            if( res.data.stArr[i].station!=null){
+                stArr.push({
+                    'stationName':res.data.stArr[i].station.stationName,
+                    'stArriveTime':res.data.stArr[i].arriveTime
+                })
+            }else{
+                stArr.push({
+                    'stationName':'not found',
+                    'stArriveTime':'not found'
+                })
+            }
+            if( res.data.edArr[i].station!=null){
+                edArr.push({
+                    'stationName':res.data.edArr[i].station.stationName,
+                    'stArriveTime':res.data.edArr[i].arriveTime
+                })
+            }else{
+                stArr.push({
+                    'stationName':'not found',
+                    'stArriveTime':'not found'
+                })
+            }
+            
             }
         // console.log( res.data);
         isLoging.value=false
@@ -151,7 +203,7 @@ function chanageLogin(){
         if(res.status==200){
             //click the  cancel btn to close the modal
             document.getElementById('cancelBtn').click();
-            emits('updateMemberId', res.data);
+            emits('updateMemberId', res.data.member_id);
             msg.value='';
         }
     }).catch((err)=>{
@@ -160,12 +212,35 @@ function chanageLogin(){
     }).then(()=>{
         httpClient.get('/getAllMemberTicketOrder',{withCredentials:true})
         .then((res)=>{
+            console.log(res.data)
             for( let i=0; i<res.data.ticketOrderIds.length; i++){
                 ticketOrderIds.push( res.data.ticketOrderIds[i]);
                 orderCreateTimes.push(new Date(res.data.orderCreateTimes[i]))
                 paymentDealines.push(new Date( res.data.paymentDeadlines[i]))
                 totalPrices.push( res.data.totalPrices[i])
                 orderStatuses.push(res.data.orderStatuses[i])
+                if( res.data.stArr[i].station!=null){
+                    stArr.push({
+                        'stationName':res.data.stArr[i].station.stationName,
+                        'stArriveTime':res.data.stArr[i].arriveTime
+                    })
+                }else{
+                    stArr.push({
+                        'stationName':'not found',
+                        'stArriveTime':'not found'
+                    })
+                }
+                if( res.data.edArr[i].station!=null){
+                    edArr.push({
+                        'stationName':res.data.edArr[i].station.stationName,
+                        'stArriveTime':res.data.edArr[i].arriveTime
+                    })
+                }else{
+                    edArr.push({
+                        'stationName':'not found',
+                        'stArriveTime':'not found'
+                    })
+                }
             }
             console.log( res.data);
             isLoging.value=false
@@ -176,10 +251,10 @@ function chanageLogin(){
     })
 }
 function checkBooking(i){
-    if( isExpired(paymentDealines[i])){
+    /*if( isExpired(paymentDealines[i])){
         console.log('not able to ckeck booking')
         return 
-    }
+    }*/
     if(orderStatuses[i]=='未付款'){
         router.push('/bookSuccess/'+ticketOrderIds[i]);
         return;
@@ -254,11 +329,24 @@ function logout(){
             </ul>
         </div>
         <div v-if="!isLoging">
-            <div v-for="i in nonPayedFilter" class="card-body ticket-order-box">
-                <h5 class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</h5>
-                <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} 訂單價格{{totalPrices[i]}}元</p>
-                <p class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</p>
-                <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+            <div v-for="i in nonPayedFilter" class="card-body " data-bs-toggle="collapse" :href="'#_'+i">
+                <div class="ticket-order-box">
+                    <div>
+                        <p>出發： {{ ststName(i) }} {{ formatDateStr( stArr[i].stArriveTime) }}</p>
+                        <p>到達： {{ edstName(i) }} {{  formatDateStr(edArr[i].stArriveTime) }}</p>
+                        <p>訂單價格{{totalPrices[i]}}元</p>
+                    </div>
+                    <div style="display: flex;justify-content: center;align-items: center;">
+                        <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+                    </div>
+                </div>
+                <div class="collapse" :id="'_'+i">
+                    <div style="display: flex; justify-content: space-around;margin: 20px 50px;">
+                        <span class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</span>
+                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} </span>
+                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</span>
+                    </div>
+                </div>
             </div>
         </div>
             <div class="container" v-if="isLoging" style="display: flex; justify-content: center;padding-top: 50px;padding-bottom: 50px;"><div class="spin-block"><div v-for="i of 9" class="item"></div></div>
@@ -332,6 +420,8 @@ function logout(){
 .ticket-order-box{
     border-bottom: 3px rgb(206, 206, 206) solid;
     margin: auto 10%;
+    display: flex;
+    justify-content: space-around;
 }
 .page-code{
     display: flex;

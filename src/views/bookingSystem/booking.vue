@@ -381,8 +381,10 @@ var isToBooking = false;
             })
             httpClient.post('/verifyLoginToken',{},{withCredentials:true})
             .then(res=>{
-                if(res.data!= 'failed'){
-                    this.userName=res.data
+                if(res.status==200){
+                    // this.userName=res.data
+                    // update memberId
+                    this.emit('updateMemberId', res.data)
                     console.log('verify login token success')
                 }else{
                     console.log( 'verify failed')

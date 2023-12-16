@@ -30,7 +30,7 @@
         highlightId: ref(0),
 
         currentPage: ref(1),
-        perpage: ref(8), //一頁的商品資料數
+        perpage: ref(6), //一頁的商品資料數
 
         priceErrorMessage: ref(''),
 
@@ -60,7 +60,7 @@
       // 加入購物車
       addItemToShoppingCart(p){
         // const memberId = '123abc'
-        if( this.userName==''){
+        if( this.memberId==''){
           // not login stat need to login 
           document.getElementById('login-modal-open-btn').click();
           return ;

@@ -210,7 +210,7 @@
       <tbody>
         <tr class="cart-items-info-style" v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
           <th scope="row">
-            <div class="form-check" >
+            <div class="form-check">
               <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
             </div>
           </th>
@@ -233,7 +233,7 @@
               </div>
             </span>
           </td>
-          <td style="color:darkorange; font-weight:bolder"><h5>$ {{item.totalPrice}}</h5></td>
+          <td style="color:darkorange; font-weight:bolder; width: 80px"><h5>$ {{item.totalPrice}}</h5></td>
           <td>
             <p >
               <span :id="'remove-text-' + item.shoppingCartItemId" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" @click="removeItem(item.shoppingCartItemId)">
@@ -255,10 +255,10 @@
       </div>
       <div style="font-weight:bolder padding-left:300px;margin-left: 28%;">
         結帳總金額$ 
-        <span style="color: red; font-size: 25px; vertical-align: middle">{{getSelectedTotalPrice}}</span>
+        <span style="color: red; font-size: 20px; vertical-align: middle;">{{getSelectedTotalPrice}}</span>
       </div>
-      <div class="d-grid gap-2 col-6 mx-auto" style="margin:30px">
-        <button class="btn btn-primary" type="button" @click="goToCheckoutPage()">結帳</button>
+      <div class="d-grid gap-2 col-6 mx-auto" style="margin:10px">
+        <button class="btn btn-success" type="button" @click="goToCheckoutPage()">結帳</button>
       </div>
     </div>
   </div>
@@ -287,12 +287,12 @@
     bottom: 10px;
     left: 92%;
     transform: translateX(-50%);
-    background-color: #f6dbc8;
+    background-color: #f4ede7;
     padding: 10px;
     border: 1px solid #ccc;
     box-shadow: 10px 0px 10px rgba(108, 3, 3, 0.1);
     z-index: 1000;
-    width: 250px;
+    width: 220px;
     height: 150px;
   }
   .floating-window-checkbox{

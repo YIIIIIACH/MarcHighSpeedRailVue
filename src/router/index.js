@@ -17,8 +17,12 @@ import userProfile from '../views/UserProfilePage.vue'
 import UserRegister from '../views/UserRegisterPage.vue'
 import memberTicketOrder from '../views/bookingSystem/memberTicketOrder.vue'
 import ticketOrderDetail from '../views/bookingSystem/ticketOrderDetail.vue'
+
+import orderPaymentSuccess from '../views/shopping/orderPaymentSuccess.vue'
+
 import paypalCheckoutReturn from '../views/bookingSystem/paypalCheckoutReturn.vue'
 import paypalBuinessCheckoutReturn from '../views/bookingSystem/paypalBuinessCheckoutReturn.vue'
+
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -98,6 +102,16 @@ const router = createRouter({
       name: 'checkoutPage',
       props: true
     },
+    {
+      path:'/orderPaymentSuccess/:orderId',
+      component: orderPaymentSuccess,
+      props: true
+    },
+    // {
+    //   path:'/orderPaymentFailed/:orderId',
+    //   component: orderPaymentSuccess,
+    //   props: true
+    // },
     {
       // path: '/shoppingHistory/:checkoutPrice',
       path: '/shoppingHistory',

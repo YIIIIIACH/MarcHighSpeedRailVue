@@ -6,32 +6,66 @@ export default {
     emits:['updateMemberId'],
     setup(props) {
         return{
-            orderItems: ref([]),
+            orders: ref([]),
             productIds: ref([]),
             products: ref([]),
         }
     },
-
+    methods:{
+        toPayPal(order){
+            let productIds = []
+            let sum = 0;
+            if(order.orderStatus == '已付款'){
+                alert('此訂單已付款')
+                return;
+            }else{
+                for( let i=0; i< order.products.length; i++){
+                    for( let j=0; j< order.quantity[i] ; j++){
+                        // productIds.push( order.products[i])
+                        sum+= order.products[i].productPrice;
+                    }
+                }
+                httpClient.post('/createPaypalOrder',{
+                    orderId: order.orderId,
+                    memerId: this.memberId,
+                    totalPrice: sum
+                }).then((res)=>{
+                   console.log(res.data)
+                   if( res.status==200){
+                    
+                        let json = res.data;
+                        for( let linkObj of json['links']){
+                            if( linkObj['rel'] == 'approve'){
+                                window.location= linkObj['href']
+                            }
+                        }
+                        return;
+                    }
+                    alert('create paypal order failed')
+                })
+            }
+        }
+    },
     beforeMount() {
         httpClient.get('/OrderHistory?memberId=' + this.memberId)
         .then((res)=>{
-            let orderItems = res.data
-            for(let item of orderItems){
-                // console.log(item)
-                this.orderItems.push(item)
-                this.productIds.push(item.productId)
+            let orders = res.data
+            for(let order of orders){
+                console.log(order)
+                this.orders.push(order)
+                this.productIds.push(order.productId)
             }
                 // console.log(this.productIds)
         })
         .then(()=>{
             httpClient.get('/product/findByProductIds?productIds=' + this.productIds.join(','))
             .then((res)=>{
-                // console.log(res.data)
+                console.log(res.data)
                 let resProducts = res.data
                 for(let product of resProducts){
                     this.products.push(product)
                 }
-                    console.log(this.products)
+                    // console.log(this.products)
             })
         })
     },
@@ -41,7 +75,7 @@ export default {
 <template>
  <h1 style="text-align:center; margin:30px">訂購紀錄</h1>
     <div class="order-history-info mx-auto">
-        <table class="table" v-for="item of orderItems" :key="item.orderId">
+        <table class="table" v-for="order of orders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
                 <th scope="col">訂單編號</th>
@@ -53,19 +87,27 @@ export default {
             </thead>
             <tbody>
                 <tr>
-                <th scope="row">{{item.orderNumber}}</th>
-                <td>{{item.orderCreationDate}}</td>
-                <td>{{item.orderCompletionDate}}</td>
-                <td>$ {{item.totalPrice}}</td>
-                <td>{{item.orderStatus}}</td>
+                <th scope="row">{{order.orderNumber}}</th>
+                <td>{{order.orderCreationDate}}</td>
+                <td>{{order.orderCompletionDate}}</td>
+                <td>$ {{order.totalPrice}}</td>
+                <td>{{order.orderStatus}}</td>
                 </tr>
             </tbody>
-                <p>訂單細項</p>
-            <div v-for="p of products" :key="p.productId">
-                <p></p>
-                <img :src="p.photoData" alt="" style="width:150px"> 
-                <p>{{p.productName}}</p>       
-            </div>
+                <div>
+                    <button type="button" class="btn btn-success" @click="toPayPal(order)">前往付款</button>
+                </div>
+                <!-- <p>訂單細項</p>
+                <div>
+
+                </div> -->
+                <!-- <div v-for="(pd,index) of item.photoData" :key="pd[index]">
+                    <p></p>
+                    <img :src="pd" :alt="item.product" style="width:100px">  
+                    <div v-for="(p, index) of item.products" :key="p[index]">
+                        <p>{{p.productName}}</p> 
+                    </div>      
+                </div> -->
         </table>
         
     </div>

@@ -23,7 +23,7 @@ onBeforeMount(()=>{
 </script>
 <template>
 <div class="container">
-    <div> congrate your payment is success</div>
+    <h1>您已成功付款。</h1>
 </div>
 </template>
 <style></style>

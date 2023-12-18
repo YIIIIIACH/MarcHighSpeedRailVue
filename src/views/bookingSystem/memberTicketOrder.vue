@@ -15,8 +15,11 @@ const edArr = reactive([])
 function formatDate(d){
     return d.getFullYear()+'/' +(d.getMonth()+1)+'/' +String(d.getDate()).padStart(2, "0")+' '+String(d.getHours()).padStart(2, "0")+':'+String(d.getMinutes()).padStart(2, "0")
 }
-function isExpired(d){
-    return (currDate.value-d<=0)? false: true }
+function unpaided(i){
+    return orderStatuses[i]=='未付款'
+}
+function isExpired(d,i){
+    return (currDate.value-d<=0)? false:true}
 const currentPwdInputType = ref('password')
 const passwordVisible = ref(false);
 const loginMsg = ref('')
@@ -48,7 +51,9 @@ const nonPayedFilter = computed(()=>{
     if(displayMode.value=='立即'){
         let found=false;
         let tmp = 0;
+        console.log( currDate.value)
         for( let idx in orderStatuses){
+            console.log( currDate.value-paymentDealines[idx])
             if(currDate.value-paymentDealines[idx]<0 && orderStatuses[idx]=='未付款'){
                 found=true;
                 tmp = ( paymentDealines[idx]- paymentDealines[tmp] >0)? tmp: idx;
@@ -250,11 +255,14 @@ function chanageLogin(){
         },1500)
     })
 }
+function overTime(i){
+    return new Date(stArr[i].stArriveTime) < new Date() ;
+}
 function checkBooking(i){
-    /*if( isExpired(paymentDealines[i])){
-        console.log('not able to ckeck booking')
-        return 
-    }*/
+    if( (new Date(stArr[i].stArriveTime) < new Date() )){
+        console.log('已過時間')
+        return;
+    }
     if(orderStatuses[i]=='未付款'){
         router.push('/bookSuccess/'+ticketOrderIds[i]);
         return;
@@ -329,7 +337,7 @@ function logout(){
             </ul>
         </div>
         <div v-if="!isLoging">
-            <div v-for="i in nonPayedFilter" class="card-body " data-bs-toggle="collapse" :href="'#_'+i">
+            <div v-for="i in nonPayedFilter" class="card-body" :key="i" data-bs-toggle="collapse" :href="'#_'+i">
                 <div class="ticket-order-box">
                     <div>
                         <p>出發： {{ ststName(i) }} {{ formatDateStr( stArr[i].stArriveTime) }}</p>
@@ -337,14 +345,14 @@ function logout(){
                         <p>訂單價格{{totalPrices[i]}}元</p>
                     </div>
                     <div style="display: flex;justify-content: center;align-items: center;">
-                        <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i])}">查看該筆訂單</button>
+                        <button href="#" @click="checkBooking(i)" class="btn btn-primary" style="width:200px"  :class="{'btn-secondary': isExpired(paymentDealines[i],i),'btn-info':unpaided(i)}" :disabled="overTime(i)">查看該筆訂單</button>
                     </div>
                 </div>
                 <div class="collapse" :id="'_'+i">
                     <div style="display: flex; justify-content: space-around;margin: 20px 50px;">
-                        <span class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單編號：{{ ticketOrderIds[i] }}</span>
-                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">訂單建立時間{{formatDate( orderCreateTimes[i])}} </span>
-                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i])}">付款期限：{{  formatDate( paymentDealines[i]) }}</span>
+                        <span class="card-title" :class="{ 'expire-text': isExpired(paymentDealines[i],i)}">訂單編號：{{ ticketOrderIds[i] }}</span>
+                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i],i)}">訂單建立時間{{formatDate( orderCreateTimes[i])}} </span>
+                        <span class="card-text" :class="{ 'expire-text': isExpired(paymentDealines[i],i)}">付款期限：{{  formatDate( paymentDealines[i]) }}</span>
                     </div>
                 </div>
             </div>

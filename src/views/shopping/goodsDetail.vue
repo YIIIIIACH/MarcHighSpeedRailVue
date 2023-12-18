@@ -14,20 +14,33 @@
                     account: ref(''),
                     password: ref(''),
                     userName: ref(''),
-                    memberId: ref(props.memberId),
+                    // memberId: ref(props.memberId),
+                    passwordVisible:ref(false),
                 }            
+            },
+            computed:{
+                getCurrentPwdInputType(){
+                    
+                    return (this.passwordVisible==true)?'text':'password'
+                },
+                isLogined(){              
+                    return (this.memberId == 'undefined')? false: true;
+                },
             },
             
             methods:{
                 // 加入購物車
                 addItemToShoppingCart(productId, quantity){
-                    if(this.userNme == ''){
+                    if(this.memberId == 'undefined'){
                         document.getElementById('login-modal-open-btn').click();
                         return ;
                     }
-                    httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity)
+                    httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity,{},{withCredentials:true})
                     .then((res) =>{
                         alert(res.data)
+                    })
+                    .catch(err =>{
+                        alert(err)
                     })
                 },
                 decrementQuantity(){
@@ -55,7 +68,7 @@
                         }
                         console.log(res.data)
                         this.userName= res.data.member_name;
-                        this.memberId = res.data.member_id;
+                        // this.memberId = res.data.member_id;
 
                         this.$emit('updateMemberId', res.data.member_id);
                         document.getElementById('login-modal-close-btn').click();
@@ -71,7 +84,11 @@
                         console.log(err)
                     })
                     
-                }
+                },
+                logout: function(){
+                    this.$emit('updateMemberId','undefined')
+                    this.userName = ''
+                },
             },
             beforeMount() {
                 const productId = this.Id
@@ -113,7 +130,16 @@
 </script>
 
 <template>
-    <div v-if="product.value!==undefined" class="product-container">  
+    <div style="display: flex; justify-content: flex-end;" >
+      <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
+        登出
+      </button>
+      <button type="button" id="login-modal-open-btn" class="btn btn-primary login-btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+      v-else>
+        登入
+      </button>
+    </div>
+    <div class="product-container">  
         <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
             <span class="productType-head-bottomLine"></span>
         </h1>
@@ -138,17 +164,16 @@
             </h5>    
             <hr style=" margin: 0px;">
         </div>
-
-        <div class="button-container" style="width:1200px">
-            <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
-            <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
-            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
-        </div>
-        <br>
-        <br>
-        <hr style="width: 90%; margin: 20px auto;">
-        <br>
-    </div>  
+    </div>
+    <div class="button-container" style="width:1200px">
+        <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
+        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
+        <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
+    </div>
+    <br>
+    <br>
+    <hr style="width: 90%; margin: 20px auto;">
+    <br> 
     
     <!-- 推薦商品 -->
     <!-- <div style="display: flex; flex-direction: column;justify-content:center; align-items: center;text-align: center;">
@@ -176,25 +201,27 @@
             </div>
         </div>
     </div> -->
-    <button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    登入
-    </button>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
       </div>
       <div class="modal-body">
-        <label>Login</label><input v-model="account">
-        <label>Pwd</label><input v-model="password">
+       <div class="input-group mb-3 ">
+          <span class="input-group-text" id="basic-addon1">帳號：</span>
+          <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+      </div>
+      <div class="input-group mb-3">
+          <span class="input-group-text" id="basic-addon1">密碼：</span>
+          <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+      </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" @click="login" class="btn btn-primary">login</button>
+        <button type="button" @click="login" class="btn btn-primary" >登入</button>
+        <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
       </div>
     </div>
   </div>
@@ -210,6 +237,7 @@
     .product-section{
         /* display: flex; */
         flex-wrap: wrap;
+        
     }
     .productType-head-bottomLine{
         position: absolute; 

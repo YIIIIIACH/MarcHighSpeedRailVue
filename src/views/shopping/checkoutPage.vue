@@ -20,32 +20,36 @@
                 console.log(this.selectedItems)
             },
             createOrder(){
-
                 const selectedItemsId = this.selectedItems.map(item => item.shoppingCartItemId);
-
-                console.log(selectedItemsId)
-
+                // console.log(selectedItemsId)
                 httpClient.post('/createOrder', {
                     memberId : this.memberId,
                     cartItemIds: selectedItemsId,
                     totalPrice: this.checkoutPrice
                 })
-                .then((res)=>{
-                    console.log(res.data)
-                    if(res.data == '訂單已建立'){
+                .then((orderRes)=>{
+                    if(orderRes.status == 200){
+                        console.log(orderRes)
                         httpClient.delete('/ShoppingCart/deleteByItemIds?memberId=' + this.memberId + '&itemIds=' + selectedItemsId.join(','))
-                            .then((res)=>{
-                                console.log(res.data)
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                            });
+                        .then((res)=>{
+                            console.log(res.data)
+                        })
+                        .catch((err) => {
+                            console.error(err);
+                        })
+                        window.location.href= orderRes.data.links[1].href;
+                        return
                     }
                 })
                 .catch((err) => {
                     console.error(err);
                 });  
             },
+            // createPaypalOrder(){
+            //     httpClient.post('/createPaypalOrder', {
+            //         orderId
+            //     })
+            // }
         },
         beforeMount(){
             // 以 key 抓本地儲存庫資料
@@ -62,7 +66,7 @@
 
 <template>
     <header>
-        <h3 style="text-align: center">訂單商品</h3>
+        <h1 style="text-align: center; margin:30px">訂單商品</h1>
     </header>
         <table class="table" style="width:70%; margin:auto;">
             <thead class="table-info">
@@ -77,7 +81,7 @@
             <tbody>
                 <tr v-for=" item in this.selectedItems" :key="item.shoppingCartItemId" class="checkout-items">
                     <th scope="row" colspan="1">
-                        <img :src="item.photoData" :alt="item.productName" style="width:100px">    
+                        <img :src="item.photoData" :alt="item.productName" style="width:100px; height:100px">    
                     </th>
                     <td><span>{{item.productName}}</span></td>
                     <td rowspan="1">$ {{item.productPrice}}</td>
@@ -86,12 +90,13 @@
                 </tr>
             </tbody>
         </table>
-        <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span></p>
+        <div style="text-align: right; margin-right: 280px; margin-bottom: 100px">
+            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span>
+            </p>
         </div>
     <article>
         <div class="buyer-info mx-auto">
-            <h3 style="text-align: center">訂購人資料</h3>
+            <h3 style="text-align: center; margin:30px">訂購人資料</h3>
             <div class="input-group mb-3">
                 <span class="input-group-text">訂購人姓名</span>
                 <input type="text" class="form-control" placeholder="請輸入姓名" aria-label="Server" v-model="buyerName">

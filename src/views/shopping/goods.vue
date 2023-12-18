@@ -10,14 +10,10 @@
         account: ref(''),
         password: ref(''),
         userName: ref(''),
-        // memberId : ref(''),
-        memberId: ref(props.memberId),
+        // memberId: ref(props.memberId),
         filterMode: ref('全部商品'),
         products: ref([]), //要渲染的商品資料
-        // products[ {
-        //   'xx':'xx',
-        //   'showAddInCart': false
-        // }]
+
         source_products: ref([]), //原始商品資料，用於暫存所有資料
 
         keyword: ref(""), 
@@ -40,12 +36,15 @@
       };
     },
     computed: {
+      isLogined(){
+        return (this.memberId == 'undefined')? false: true;
+      },
       getCurrentPwdInputType(){
-                return (this.passwordVisible==true)?'text':'password'
+        return (this.passwordVisible==true)?'text':'password'
       },
       totalPage() {
-          return Math.ceil(this.products.length / this.perpage)
-          //Math.ceil()取最小分頁整數
+        return Math.ceil(this.products.length / this.perpage)
+        //Math.ceil()取最小分頁整數
       },
       pageStart() {
         return (this.currentPage - 1) * this.perpage
@@ -199,12 +198,16 @@
           }
           // console.log(res.data)
           this.userName= res.data.member_name;
-          this.memberId = res.data.member_id;
+          // this.memberId = res.data.member_id;
 
           this.$emit('updateMemberId', res.data.member_id);
           document.getElementById('login-modal-close-btn').click();
         })
-      }
+      },
+      logout: function(){
+        this.$emit('updateMemberId','undefined')
+        this.userName = ''
+      },
     },
     components: {},
     beforeMount() {
@@ -231,12 +234,24 @@
 </script>
 
 <template>
+  <div style="display: flex; justify-content: flex-end;" >
+      <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
+        登出
+      </button>
+      <button type="button" id="login-modal-open-btn" class="btn btn-primary login-btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+      v-else>
+        登入
+      </button>
+  </div>
+  <div style="display: flex; justify-content: flex-end;" >
+      
+  </div>
   <!-- 搜尋欄 -->
   <div class="search-bar">
     <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
     <button class="btn btn-outline-success" @click="searchByKeyword" style="width:100px">搜尋</button>
   </div>
-
+  
   <!-- 分類 -->
   <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
         <ul class="navbar-nav center">
@@ -446,12 +461,10 @@
   </nav>
   <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
   <!-- Button trigger modal -->
-<button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  登入
-</button>
+
 
 <!-- Modal -->
-<div class="modal fade aa" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -469,7 +482,6 @@
       </div>
       <div class="modal-footer">
         <button type="button" @click="login" class="btn btn-primary" >登入</button>
-        <button type="button" @click="logout" class="btn btn-warning">登出</button>
         <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
       </div>
     </div>
@@ -547,4 +559,5 @@
 .add-btn{
   width:110px;
 }
+
 </style>

@@ -47,7 +47,10 @@
         goToCheckoutPage(){
           // 篩選已勾選的品項
           const selectedItems = this.shoppingCartItems.filter(item => item.isSelected)
-
+          if(selectedItems.length === 0){
+            alert('您未選取任何商品。')
+            return;
+          }
           // // 儲存已勾選的品項Id儲存成陣列
           // const selectedIds = selectedItems.map(item => item.shoppingCartItemId);
           // // .join(',') -> 將陣列轉換為逗號分隔的字串以傳輸
@@ -99,7 +102,7 @@
             console.log(err)
           })
 
-          for( let i=0; i < this.shoppingCartItems.length;i++){
+          for( let i = 0; i < this.shoppingCartItems.length ; i++){
             if(this.shoppingCartItems[i].shoppingCartItemId == itId){
               this.shoppingCartItems.splice(i,1)
               continue;
@@ -134,7 +137,7 @@
 
         inputQuantity(item){
           if(item.quantity >= 1){
-            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
             .then((res)=>{
               console.log(res)
             })
@@ -223,13 +226,18 @@
       </button>
   </div>
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
-    <h1>請先登入會員</h1>
+    <br>
+    <br>
+    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢購物車</h1>
   </div>
   <div v-else>
     <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
-    <span class="cart-items-title-bottomLine"></span>
+    <!-- <span class="cart-items-title-bottomLine"></span> -->
     <!-- 購物車品項 -->
-    <div style="padding:0% 15% 10% 15%">
+    <div v-if="this.shoppingCartItems.length === 0">
+      <h2 style="text-align:center; margin:30px">您的購物車是空的。</h2>
+    </div>
+    <div style="padding:0% 15% 10% 15%" v-else>
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
           <tr class="cart-items-info-style table-info">
@@ -254,7 +262,7 @@
                 <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
               </div>
             </th>
-            <td style="width:300px;">
+            <td style="width: 200px; text-align: left;">
               <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)">
                 <img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)">
               </div>

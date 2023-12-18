@@ -23,7 +23,7 @@
                 const selectedItemsId = this.selectedItems.map(item => item.shoppingCartItemId);
                 // console.log(selectedItemsId)
                 httpClient.post('/createOrder', {
-                    memberId : this.memberId,
+                    memberId: this.memberId,
                     cartItemIds: selectedItemsId,
                     totalPrice: this.checkoutPrice
                 })
@@ -37,7 +37,7 @@
                         .catch((err) => {
                             console.error(err);
                         })
-                        window.location.href= orderRes.data.links[1].href;
+                        window.location.href = orderRes.data.links[1].href;
                         return
                     }
                 })
@@ -118,7 +118,7 @@
         </div>
 
         <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-primary" @click="createOrder()">確認結帳</button></span></p>     
+            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span></p>     
         </div>
     </article>
 </template>

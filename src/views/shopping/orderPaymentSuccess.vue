@@ -14,7 +14,7 @@ onBeforeMount(()=>{
     .then(res => {
         console.log( res.data)
         if(res.status == 200){
-            alert('product order status change !!')
+            // alert('product order status change !!')
         }else{
             alert('product order status change failed')
         }
@@ -23,7 +23,7 @@ onBeforeMount(()=>{
 </script>
 <template>
 <div class="container">
-    <h1>您已成功付款。</h1>
+    <h3>您已成功付款。</h3>
 </div>
 </template>
 <style></style>

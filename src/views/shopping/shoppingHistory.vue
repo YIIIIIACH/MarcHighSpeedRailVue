@@ -13,17 +13,41 @@ export default {
             productIds: ref([]),
             products: ref([]),
             passwordVisible: ref(false),
+
+            showPaid: ref(false),
+            showUnpaid: ref(true),
         }
     },
     computed:{
         isLogined(){              
-          return (this.memberId == 'undefined')? false: true;
+            return (this.memberId == 'undefined')? false: true;
         },
         getCurrentPwdInputType(){
-        return (this.passwordVisible==true)?'text':'password'
+            return (this.passwordVisible==true)?'text':'password'
+        },
+        filteredOrders() {
+            // 透過計算屬性過濾顯示的訂單
+            return this.orders.filter(order => {
+                if (this.showPaid && order.orderStatus === '已付款') {
+                return true;
+                }
+                if (this.showUnpaid && order.orderStatus === '待付款') {
+                return true;
+                }
+                // 都沒有勾選就顯示所有訂單
+                return !this.showPaid && !this.showUnpaid; 
+            });
         },
     },
     methods:{
+        showPaidOrders() {
+            this.showPaid = true;
+            this.showUnpaid = false;
+        },
+        showUnpaidOrders() {
+            this.showPaid = false;
+            this.showUnpaid = true;
+        },
         toPayPal(order){
             let productIds = []
             let sum = 0;
@@ -43,7 +67,7 @@ export default {
                     totalPrice: sum
                 }).then((res)=>{
                    console.log(res.data)
-                   if( res.status==200){
+                   if( res.status == 200){
                     
                         let json = res.data;
                         for( let linkObj of json['links']){
@@ -115,13 +139,20 @@ export default {
         v-else>
             登入
         </button>
-    </div>  
-    <h1 style="text-align:center; margin:30px">訂購紀錄</h1>
+    </div>
+     
     <div v-if="this.memberId === 'undefined'" style="text-align: center">
-        <h1>請先登入會員</h1>
+        <br>
+        <br>
+        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢訂購紀錄</h1>
     </div>
     <div class="order-history-info mx-auto" v-else>
-        <table class="table" v-for="order of orders" :key="order.orderId">
+        <h1 class="shoppingHistory-title">📋 訂購紀錄</h1>
+        <div class="text-center mt-3">
+            <button class="btn btn-primary" @click="showPaidOrders">已付款</button>
+            <button class="btn btn-warning" @click="showUnpaidOrders">待付款</button>
+        </div>  
+        <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
                 <th scope="col">訂單編號</th>
@@ -152,7 +183,7 @@ export default {
                         <button type="button" class="btn btn-success" @click="toPayPal(order)">前往付款</button>
                     </td>
                     <td v-else>
-                        <button style="display:none">此按鈕不顯示</button>
+                        <button style="display:none">此 Button 佔位用</button>
                     </td>
                 </tr>
             </tbody>
@@ -185,33 +216,9 @@ export default {
                     </td>
                 </tr>
             </tfoot> 
-        </table>
-        
+        </table>     
     </div>
-    <!--
-        <tr v-for="idx in order.products" :key="idx">
-                    <th class="card-body">
-                        <div v-for="(pd,index) of order.photoData" :key="pd[index]">
-                            <img :src="pd" :alt="order.product" style="width:100px">
-                        </div>
-                    </th> 
-                    <td>
-                        <div v-for="p of order.products" :key="p.productId">
-                            <p>{{p.productName}}</p>
-                        </div>
-                    </td> 
-                    <td>
-                        <div v-for="(q,qIndex) of order.quantity" :key="q[qIndex]">
-                            <p>數量:{{q}}</p>
-                        </div>
-                    </td>
-                    <td>
-                        <div v-for="p of order.products" :key="p.productId">
-                            <p>單價:{{p.productPrice}}</p>
-                        </div>
-                    </td>
-                </tr>
-    -->
+    
     <!-- modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -243,5 +250,9 @@ export default {
     }
     .table{
         text-align: center;
+    }
+    .shoppingHistory-title{
+        text-align: center; 
+        margin: 30px;
     }
 </style>

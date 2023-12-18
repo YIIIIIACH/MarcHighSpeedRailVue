@@ -99,16 +99,17 @@
                 // })
                 // .then(()=>{
                     httpClient.get(`/api/product/${productId}`)
-                    .then((res) =>{
+                    .then((res) => {
                         //物件用.value
                         //陣列用.push()
                         this.product.value = res.data
                         this.productType = res.data.productType
                     })
-                    .then(() =>{
+                    .then(() => {
                             httpClient.get('/product/findByType?selectType=' + this.productType)
                             .then((res)=>{
-                                // console.log(res.data)
+                                // console.log('hello')
+                                
                                 for(let p of res.data){
                                     this.recommendProducts.push(p)
                                 }
@@ -139,10 +140,10 @@
         登入
       </button>
     </div>
+    <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
+        <span class="productType-head-bottomLine"></span>
+    </h1>
     <div class="product-container">  
-        <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
-            <span class="productType-head-bottomLine"></span>
-        </h1>
         <div class="product-section">
             <img :src="this.product.value.photoData" class="rounded float-start img-customize" alt="this.product.value.productName">
         </div>
@@ -164,11 +165,11 @@
             </h5>    
             <hr style=" margin: 0px;">
         </div>
-    </div>
-    <div class="button-container" style="width:1200px">
-        <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
-        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
-        <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
+        <div class="button-container" style="width:1200px">
+            <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
+            <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
+            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
+        </div>
     </div>
     <br>
     <br>
@@ -272,4 +273,12 @@
     .custom-button {
          width: 30px;
     }
+    /* .product-container{
+        display: flex; 
+        justify-content: center;  
+        border: 2px solid; 
+        width:80%;
+        margin: auto;
+
+    } */
 </style>

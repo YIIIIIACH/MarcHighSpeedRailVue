@@ -254,7 +254,7 @@
   
   <!-- 分類 -->
   <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
-        <ul class="navbar-nav center">
+        <ul class="navbar-nav center" >
             <!-- <div class="list-product-type"></div> -->
           <li class="nav-item">
             |
@@ -263,7 +263,7 @@
               :class="{'btn-outline-primary': productType != '全部商品','btn-primary': productType == '全部商品', }"
               @click="selectedType('全部商品')"
             >
-              <span class="icon">🌟</span> 全部商品
+              <span class="icon">🌟</span><span style="font-weight:bold;"> 全部商品</span>
             </button>
             |
           </li>
@@ -273,7 +273,7 @@
               :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
               @click="selectedType('精選食品')"
             >
-              <span class="icon">🍔</span>精選食品
+              <span class="icon">🍔</span><span style="font-weight:bold;"> 精選食品</span>
             </button>
             |
           </li>
@@ -283,7 +283,7 @@
               :class="{'btn-outline-primary': productType != '日用生活','btn-primary': productType == '日用生活', }"
               @click="selectedType('日用生活')"
             >
-              <span class="icon">🏠</span> 日用生活
+              <span class="icon">🏠</span><span style="font-weight:bold;"> 日用生活</span>
             </button>
             |
           </li>
@@ -294,7 +294,7 @@
               :class="{'btn-outline-primary': productType != '旅行戶外','btn-primary': productType == '旅行戶外', }"
               @click="selectedType('旅行戶外')"
             >
-              <span class="icon">🌴</span> 旅行戶外
+              <span class="icon">🌴</span><span style="font-weight:bold;"> 旅行戶外</span>
             </button>
             |
           </li>
@@ -304,7 +304,7 @@
               :class="{'btn-outline-primary': productType != '休閒用品','btn-primary': productType == '休閒用品', }"
               @click="selectedType('休閒用品')"
             >
-              <span class="icon">⛱️</span> 休閒用品
+              <span class="icon">⛱️</span><span style="font-weight:bold;"> 休閒用品</span>
             </button>
             |
           </li>
@@ -314,7 +314,7 @@
               :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
               @click="selectedType('數位產品')"
             >
-              <span class="icon">🎮</span> 數位產品
+              <span class="icon">🎮</span><span style="font-weight:bold;"> 數位產品</span>
             </button>
             |
           </li>
@@ -324,7 +324,7 @@
               :class="{'btn-outline-primary': productType != '紀念商品','btn-primary': productType == '紀念商品', }"
               @click="selectedType('紀念商品')"
             >
-              <span class="icon">🎁</span> 紀念商品
+              <span class="icon">🎁</span><span style="font-weight:bold;"> 紀念商品</span>
             </button>
             |
           </li>
@@ -334,7 +334,7 @@
               :class="{'btn-outline-primary': productType != '經典模型','btn-primary': productType == '經典模型', }"
               @click="selectedType('經典模型')"
             >
-              <span class="icon">🎨</span> 經典模型
+              <span class="icon">🎨</span><span style="font-weight:bold;"> 經典模型</span>
             </button>
             |
           </li>
@@ -344,7 +344,7 @@
               :class="{'btn-outline-primary': productType != '實用文具','btn-primary': productType == '實用文具', }"
               @click="selectedType('實用文具')"
             >
-              <span class="icon">✏️</span> 實用文具
+              <span class="icon">✏️</span><span style="font-weight:bold;"> 實用文具</span>
             </button>
             |
           </li>
@@ -416,9 +416,9 @@
           <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
           <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
-          <div class="row">
+          <div class="row" style="font-weight: bold;">
             <div class="col-7 ">
-              <p class="card-title">{{ p.productName }}</p>
+              <p class="card-title" >{{ p.productName }}</p>
               <div >
                 <p style="color:#EA7500;">${{ p.productPrice }}</p>
               </div>

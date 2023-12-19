@@ -26,8 +26,7 @@ export default {
             return (this.passwordVisible==true)?'text':'password'
         },
         filteredOrders() {
-            // 透過計算屬性過濾顯示的訂單
-            return this.orders.filter(order => {
+            let filterOrders= this.orders.filter(order => {
                 if (this.showPaid && order.orderStatus === '已付款') {
                 return true;
                 }
@@ -37,9 +36,18 @@ export default {
                 // 都沒有勾選就顯示所有訂單
                 return !this.showPaid && !this.showUnpaid; 
             });
+
+            console.log(filterOrders)
+            // 透過計算屬性過濾顯示的訂單
+            return filterOrders;
         },
     },
     methods:{
+        // sortByCompletionDate(){
+        //     this.filteredOrders.sort((a,b) => {
+
+        //     })
+        // },
         showPaidOrders() {
             this.showPaid = true;
             this.showUnpaid = false;
@@ -51,6 +59,7 @@ export default {
         toPayPal(order){
             let productIds = []
             let sum = 0;
+            console.log(order)
             if(order.orderStatus == '已付款'){
                 alert('此訂單已付款')
                 return;
@@ -66,7 +75,6 @@ export default {
                     memerId: this.memberId,
                     totalPrice: sum
                 }).then((res)=>{
-                   console.log(res.data)
                    if( res.status == 200){
                     
                         let json = res.data;
@@ -85,13 +93,11 @@ export default {
             httpClient.post( '/requestMemberLogin',{
             "password": this.password,
             "email": this.account
-            },{withCredentials:true})
+            },{withCredentials: true})
             .then((res) => {
             if(res.data.member_id == null){
-                console.log('login failed')
                 return; //中斷, 不執行下面的code
             }
-            // console.log(res.data)
             this.userName= res.data.member_name;
             // this.memberId = res.data.member_id;
 
@@ -105,25 +111,44 @@ export default {
         },
     },
     beforeMount() {
+        httpClient.post('/verifyLoginToken',{},{withCredentials: true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+        
         httpClient.get('/OrderHistory?memberId=' + this.memberId)
         .then((res)=>{
+            // console.log( res.data)
             let orders = res.data
             for(let order of orders){
                 console.log(order)
+                
+                let isoString = order.orderCreationDate // 接收後端傳來的日期字串
+                let date = new Date(isoString); // 字串轉成 JS Date 物件
+                let formattedDate = date.toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }); // 使用 toLocaleString 將日期格式化為本地格式, 並忽略"秒"的時間
+                order.orderCreationDate = formattedDate 
+
+                if(order.orderCompletionDate !== null){
+                    order.orderCompletionDate = new Date( order.orderCompletionDate).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+                }
+
+                // console.log( order.orderCompletionDate);
                 this.orders.push(order)
                 this.productIds.push(order.productId)
             }
-                // console.log(this.productIds)
         })
         .then(()=>{
             httpClient.get('/product/findByProductIds?productIds=' + this.productIds.join(','))
             .then((res)=>{
-                console.log(res.data)
                 let resProducts = res.data
                 for(let product of resProducts){
                     this.products.push(product)
                 }
-                    // console.log(this.products)
             })
         })
     },
@@ -148,10 +173,21 @@ export default {
     </div>
     <div class="order-history-info mx-auto" v-else>
         <h1 class="shoppingHistory-title">📋 訂購紀錄</h1>
-        <div class="text-center mt-3">
-            <button class="btn btn-primary" @click="showPaidOrders">已付款</button>
-            <button class="btn btn-warning" @click="showUnpaidOrders">待付款</button>
-        </div>  
+        <div class="text-center mt-4 mb-3">
+            <button class="btn btn-primary " @click="showPaidOrders">已付款</button>
+            <button class="btn btn-warning " @click="showUnpaidOrders">待付款</button>
+        </div>
+
+        <!-- <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                依完成時間
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li class="dropdown-item" @click="sortByCompletionDate()">升敘</li>
+                <li class="dropdown-item">降敘</li>
+            </ul>
+        </div>  -->
+
         <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
@@ -167,7 +203,7 @@ export default {
                 <th scope="row">{{order.orderNumber}}</th>
                 <td>{{order.orderCreationDate}}</td>
                 <td>{{order.orderCompletionDate}}</td>
-                <td>$ {{order.totalPrice}}</td>
+                <td>$ <span style="color: red">{{order.totalPrice}}</span></td>
                 <td :style="{color : order.orderStatus === '待付款' ? 'red' : 'dark'}">{{order.orderStatus}}</td>
                 </tr>
                 <tr>

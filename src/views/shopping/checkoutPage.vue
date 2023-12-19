@@ -52,6 +52,15 @@
             // }
         },
         beforeMount(){
+            httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+            .then((res) => {
+            console.log(res.data)
+            if( res.status== 200){
+                this.$emit('updateMemberId',res.data)
+                console.log( 'emits to update memberid ')
+            }
+            })
+            .catch(err=>console.log(err))
             // 以 key 抓本地儲存庫資料
             let items = localStorage.getItem('items');
             // 資料轉 js 陣列

@@ -6,7 +6,7 @@
             emits:['updateMemberId'],
             setup(props) {
                 return{
-                    product: ref({}),
+                    product: reactive({}),
                     quantity: ref(1),
                     productType: ref(''),
                     recommendProducts: ref([]),
@@ -92,35 +92,41 @@
             },
             beforeMount() {
                 const productId = this.Id
-                // httpClient.post('/verifyLoginToken')
-                // .then(res=>{      
-                //     this.userName = res.data;
-                //     console.log(this.userName)
-                // })
-                // .then(()=>{
-                    httpClient.get(`/api/product/${productId}`)
-                    .then((res) => {
-                        //物件用.value
-                        //陣列用.push()
-                        this.product.value = res.data
-                        this.productType = res.data.productType
-                    })
-                    .then(() => {
-                            httpClient.get('/product/findByType?selectType=' + this.productType)
-                            .then((res)=>{
-                                // console.log('hello')
-                                
-                                for(let p of res.data){
-                                    this.recommendProducts.push(p)
-                                }
-                            })
-                            .catch((err)=>{
-                                console.log(err)
-                            })
+                httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+                .then((res) => {
+                    console.log(res.data)
+                    if( res.status== 200){
+                        this.$emit('updateMemberId',res.data)
+                        // console.log( 'emits to update memberid ')
+                    }
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+
+                httpClient.get(`/api/product/${productId}`)
+                .then((res) => {
+                    //物件用.value
+                    //陣列用.push()
+                    this.product.value = res.data
+                    this.productType = res.data.productType
+                })
+                .then(() => {
+                    httpClient.get('/product/findByType?selectType=' + this.productType)
+                    .then((res)=>{
+                        // console.log('hello')
+                        
+                        for(let p of res.data){
+                            this.recommendProducts.push(p)
+                        }
                     })
                     .catch((err)=>{
                         console.log(err)
                     })
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
                 // }).catch(err=>{
                 //     console.log('login-token verify failed')
                 //     document.getElementById('login-modal-open-btn').click();
@@ -145,17 +151,17 @@
     </h1>
     <div class="product-container">  
         <div class="product-section">
-            <img :src="this.product.value.photoData" class="rounded float-start img-customize" alt="this.product.value.productName">
+            <img :src="this.product.value?.photoData" class="rounded float-start img-customize" :alt="this.product.value?.productName">
         </div>
         <div class="row product-desc">
-            <h1 class="display-6 mb-1" style="color:darkblue; font-size:25px">{{this.product.value.productName}}</h1><br>
+            <h1 class="display-6 mb-1" style="color:darkblue; font-size:25px">{{this.product.value?.productName}}</h1><br>
             <hr style=" margin: 0px;">
             <h4 class="mb-5 mt-5">
                 <small class="text-muted ">建議售價 </small>
-                <span :style="{ color: 'red' }">${{this.product.value.productPrice}}</span>
+                <span :style="{ color: 'red' }">$ {{this.product.value?.productPrice}}</span>
                 <hr style="margin: 0px;">
             </h4>
-            <h4 class="mb-4">{{this.product.value.productDescription}}</h4>
+            <h4 class="mb-4">{{this.product.value?.productDescription}}</h4>
             <h5 class="mb-5 mt-4">數量  
                 <span class="quantity-controls">
                     <button @click="decrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">－</button>
@@ -273,12 +279,12 @@
     .custom-button {
          width: 30px;
     }
-    /* .product-container{
-        display: flex; 
-        justify-content: center;  
-        border: 2px solid; 
+    .product-container{
+        /* display: flex; 
+        justify-content: center;   */
+        /* border: 2px solid;  */
         width:80%;
         margin: auto;
 
-    } */
+    }
 </style>

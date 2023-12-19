@@ -211,6 +211,17 @@
     },
     components: {},
     beforeMount() {
+
+      httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+        
       // fetch all product and pages before mount
       httpClient.get("/products")
         .then((res) => {

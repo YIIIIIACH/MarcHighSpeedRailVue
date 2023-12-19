@@ -71,6 +71,7 @@
         changeStyle(itemId, isHovered) {
           const removeTextElement = document.querySelector(`#remove-text-${itemId}`);
           const pNameElement = document.querySelector(`#product-name-${itemId}`);
+          // console.log(removeTextElement)
 
             if(removeTextElement) {      
               if (isHovered) {        
@@ -195,6 +196,16 @@
         },
       }, 
       beforeMount(){
+        httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status== 200){
+            this.$emit('updateMemberId', res.data)
+            console.log('emits to update memberid')
+          }
+        })
+        .catch(err=>console.log(err))
+
         const memberId = this.memberId;
         // console.log(memberId)
         httpClient.get('/ShoppingCart?memberId=' + memberId)
@@ -240,7 +251,7 @@
     <div style="padding:0% 15% 10% 15%" v-else>
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
-          <tr class="cart-items-info-style table-info">
+          <tr class="cart-head-style table-info">
             <th scope="col">
                 <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray" v-model="selectAll" @change="handleSelectAll"><span>全選</span>
             </th>
@@ -267,7 +278,7 @@
                 <img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)">
               </div>
               <div style="padding-top:20px">
-                <span style="font-size:13px" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
+                <span style="font-size:13px;" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
               </div>
             </td>
             <td><h6>$ {{item.productPrice}}</h6></td>
@@ -379,5 +390,8 @@
 
   .cart-items-info-style{
     vertical-align: middle;
+  }
+  .cart-head-style{
+    color: blue
   }
 </style>

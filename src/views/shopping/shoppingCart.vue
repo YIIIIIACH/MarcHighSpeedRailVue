@@ -47,7 +47,10 @@
         goToCheckoutPage(){
           // 篩選已勾選的品項
           const selectedItems = this.shoppingCartItems.filter(item => item.isSelected)
-
+          if(selectedItems.length === 0){
+            alert('您未選取任何商品。')
+            return;
+          }
           // // 儲存已勾選的品項Id儲存成陣列
           // const selectedIds = selectedItems.map(item => item.shoppingCartItemId);
           // // .join(',') -> 將陣列轉換為逗號分隔的字串以傳輸
@@ -68,6 +71,7 @@
         changeStyle(itemId, isHovered) {
           const removeTextElement = document.querySelector(`#remove-text-${itemId}`);
           const pNameElement = document.querySelector(`#product-name-${itemId}`);
+          // console.log(removeTextElement)
 
             if(removeTextElement) {      
               if (isHovered) {        
@@ -99,7 +103,7 @@
             console.log(err)
           })
 
-          for( let i=0; i < this.shoppingCartItems.length;i++){
+          for( let i = 0; i < this.shoppingCartItems.length ; i++){
             if(this.shoppingCartItems[i].shoppingCartItemId == itId){
               this.shoppingCartItems.splice(i,1)
               continue;
@@ -134,7 +138,7 @@
 
         inputQuantity(item){
           if(item.quantity >= 1){
-            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
             .then((res)=>{
               console.log(res)
             })
@@ -145,7 +149,7 @@
         decrementQuantity(item,itemPrice){
           if (item.quantity > 1) {
             item.quantity -= 1;
-            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
             .then((res)=>{
               console.log(res)
 
@@ -156,7 +160,7 @@
         },
         incrementQuantity(item,itemPrice){
           item.quantity += 1;
-          httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+          httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
           .then((res)=>{
             console.log(res)
           })
@@ -192,6 +196,16 @@
         },
       }, 
       beforeMount(){
+        httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status== 200){
+            this.$emit('updateMemberId', res.data)
+            console.log('emits to update memberid')
+          }
+        })
+        .catch(err=>console.log(err))
+
         const memberId = this.memberId;
         // console.log(memberId)
         httpClient.get('/ShoppingCart?memberId=' + memberId)
@@ -213,6 +227,7 @@
 </script>
 
 <template>
+  <!-- 登入登出 -->
   <div style="display: flex; justify-content: flex-end;" >
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
@@ -222,26 +237,34 @@
         登入
       </button>
   </div>
+
+  <!-- 購物車內容 -->
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
-    <h1>請先登入會員</h1>
+    <br>
+    <br>
+    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢購物車</h1>
   </div>
   <div v-else>
     <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
-    <span class="cart-items-title-bottomLine"></span>
+    <!-- <span class="cart-items-title-bottomLine"></span> -->
     <!-- 購物車品項 -->
-    <div style="padding:0% 15% 10% 15%">
+    <div v-if="this.shoppingCartItems.length === 0">
+      <h2 style="text-align:center; margin:30px">您的購物車是空的。</h2>
+    </div>
+    <div style="padding:0% 15% 10% 15%" v-else>
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
-          <tr class="cart-items-info-style table-info">
-            <th scope="col">
-                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray" v-model="selectAll" @change="handleSelectAll"><span>全選</span>
+          <tr class="cart-head-style table-info">
+            <th scope="col" style="width:70px">
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span>全選</span>
             </th>
             <th scope="col" style="width:280px">商品</th>
+            <th scope="col" style="width:130px">商品名稱</th>
             <th scope="col" style="width:130px">單價</th>
             <th scope="col" style="width:130px">數量</th>
-            <th scope="col">總計</th>
+            <th scope="col" style="width:130px">總計</th>
             <th scope="col">
-              <span style="color: blue" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
+              <span style="color: blue; width:130px" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
                 全部移除
               </span>
             </th>
@@ -249,17 +272,19 @@
         </thead>
         <tbody>
           <tr class="cart-items-info-style" v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
-            <th scope="row">
-              <div class="form-check">
+            <th scope="row" class="narrow-th">
+              <div class="form-check" style="display: flex; justify-content: center; align-items: center;">
                 <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
               </div>
             </th>
-            <td style="width:300px;">
+            <td style="width: 200px;">
               <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)">
                 <img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)">
-              </div>
+              </div>     
+            </td>
+            <td>
               <div style="padding-top:20px">
-                <span style="font-size:13px" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
+                <span style="font-size:13px;" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
               </div>
             </td>
             <td><h6>$ {{item.productPrice}}</h6></td>
@@ -303,6 +328,7 @@
       </div>
     </div>
   </div>
+
   <!-- modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -327,7 +353,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <style>
@@ -371,5 +396,11 @@
 
   .cart-items-info-style{
     vertical-align: middle;
+  }
+  .cart-head-style{
+    color: blue
+  }
+  .narrow-th {
+    width: 50px; /* 設定寬度，根據需要調整 */
   }
 </style>

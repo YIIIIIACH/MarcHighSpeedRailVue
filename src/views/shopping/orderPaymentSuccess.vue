@@ -5,6 +5,16 @@ import httpClient from "../../main";
 const props = defineProps(['orderId'])
 onBeforeMount(()=>{
     // get the paypal  orderid 
+    httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+    .then((res) => {
+        console.log(res.data)
+        if( res.status== 200){
+        this.$emit('updateMemberId',res.data)
+        console.log( 'emits to update memberid ')
+        }
+    })
+    .catch(err=>console.log(err))
+    
     let paypaltoken = window.location.search;
     paypaltoken = paypaltoken.slice(1)
     paypaltoken = paypaltoken.split('&')[0].split('=')[1]
@@ -14,7 +24,7 @@ onBeforeMount(()=>{
     .then(res => {
         console.log( res.data)
         if(res.status == 200){
-            alert('product order status change !!')
+            // alert('product order status change !!')
         }else{
             alert('product order status change failed')
         }
@@ -23,7 +33,7 @@ onBeforeMount(()=>{
 </script>
 <template>
 <div class="container">
-    <h1>您已成功付款。</h1>
+    <h3>您已成功付款。</h3>
 </div>
 </template>
 <style></style>

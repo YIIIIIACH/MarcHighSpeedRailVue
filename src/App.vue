@@ -77,21 +77,21 @@ function updatemId(newId){
               aria-haspopup="true"
               aria-expanded="false"
             >
-              禮品商店
+              購物商店
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item" id="fontcolor">
-                🏬 購物中心
+                購物中心
               </router-link>
               <!-- <router-link :to="{ name: 'shoppingCart', params: { memberId: mId } }" class="dropdown-item" id="fontcolor">
                 我的購物車
               </router-link > -->
               <router-link to="/shoppingCart" class="dropdown-item" id="fontcolor">
-                🛒 我的購物車
+                我的購物車
               </router-link >
 
               <router-link to="/shoppingHistory" class="dropdown-item" id="fontcolor">
-                購買清單
+                訂購清單
               </router-link >
             </div>
           </li>

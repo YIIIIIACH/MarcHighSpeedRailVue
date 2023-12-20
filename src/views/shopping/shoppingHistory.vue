@@ -13,20 +13,53 @@ export default {
             productIds: ref([]),
             products: ref([]),
             passwordVisible: ref(false),
+
+            showPaid: ref(false),
+            showUnpaid: ref(true),
         }
     },
     computed:{
         isLogined(){              
-          return (this.memberId == 'undefined')? false: true;
+            return (this.memberId == 'undefined')? false: true;
         },
         getCurrentPwdInputType(){
-        return (this.passwordVisible==true)?'text':'password'
+            return (this.passwordVisible==true)?'text':'password'
+        },
+        filteredOrders() {
+            let filterOrders= this.orders.filter(order => {
+                if (this.showPaid && order.orderStatus === '已付款') {
+                return true;
+                }
+                if (this.showUnpaid && order.orderStatus === '待付款') {
+                return true;
+                }
+                // 都沒有勾選就顯示所有訂單
+                return !this.showPaid && !this.showUnpaid; 
+            });
+
+            console.log(filterOrders)
+            // 透過計算屬性過濾顯示的訂單
+            return filterOrders;
         },
     },
     methods:{
+        // sortByCompletionDate(){
+        //     this.filteredOrders.sort((a,b) => {
+
+        //     })
+        // },
+        showPaidOrders() {
+            this.showPaid = true;
+            this.showUnpaid = false;
+        },
+        showUnpaidOrders() {
+            this.showPaid = false;
+            this.showUnpaid = true;
+        },
         toPayPal(order){
             let productIds = []
             let sum = 0;
+            console.log(order)
             if(order.orderStatus == '已付款'){
                 alert('此訂單已付款')
                 return;
@@ -42,8 +75,7 @@ export default {
                     memerId: this.memberId,
                     totalPrice: sum
                 }).then((res)=>{
-                   console.log(res.data)
-                   if( res.status==200){
+                   if( res.status == 200){
                     
                         let json = res.data;
                         for( let linkObj of json['links']){
@@ -61,13 +93,11 @@ export default {
             httpClient.post( '/requestMemberLogin',{
             "password": this.password,
             "email": this.account
-            },{withCredentials:true})
+            },{withCredentials: true})
             .then((res) => {
             if(res.data.member_id == null){
-                console.log('login failed')
                 return; //中斷, 不執行下面的code
             }
-            // console.log(res.data)
             this.userName= res.data.member_name;
             // this.memberId = res.data.member_id;
 
@@ -81,25 +111,44 @@ export default {
         },
     },
     beforeMount() {
+        httpClient.post('/verifyLoginToken',{},{withCredentials: true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+        
         httpClient.get('/OrderHistory?memberId=' + this.memberId)
         .then((res)=>{
+            // console.log( res.data)
             let orders = res.data
             for(let order of orders){
                 console.log(order)
+                
+                let isoString = order.orderCreationDate // 接收後端傳來的日期字串
+                let date = new Date(isoString); // 字串轉成 JS Date 物件
+                let formattedDate = date.toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }); // 使用 toLocaleString 將日期格式化為本地格式, 並忽略"秒"的時間
+                order.orderCreationDate = formattedDate 
+
+                if(order.orderCompletionDate !== null){
+                    order.orderCompletionDate = new Date( order.orderCompletionDate).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+                }
+
+                // console.log( order.orderCompletionDate);
                 this.orders.push(order)
                 this.productIds.push(order.productId)
             }
-                // console.log(this.productIds)
         })
         .then(()=>{
             httpClient.get('/product/findByProductIds?productIds=' + this.productIds.join(','))
             .then((res)=>{
-                console.log(res.data)
                 let resProducts = res.data
                 for(let product of resProducts){
                     this.products.push(product)
                 }
-                    // console.log(this.products)
             })
         })
     },
@@ -107,6 +156,7 @@ export default {
 </script>
 
 <template>
+    <!-- 登入登出 -->
     <div style="display: flex; justify-content: flex-end;" >
         <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
             登出
@@ -115,13 +165,30 @@ export default {
         v-else>
             登入
         </button>
-    </div>  
-    <h1 style="text-align:center; margin:30px">訂購紀錄</h1>
+    </div>
+    
+    <!-- 訂購紀錄 -->
     <div v-if="this.memberId === 'undefined'" style="text-align: center">
-        <h1>請先登入會員</h1>
+        <br>
+        <br>
+        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢訂購紀錄</h1>
     </div>
     <div class="order-history-info mx-auto" v-else>
-        <table class="table" v-for="order of orders" :key="order.orderId">
+        <h1 class="shoppingHistory-title">📋 訂購紀錄</h1>
+        <div class="text-center mt-4 mb-3">
+            <button class="btn btn-primary " @click="showPaidOrders">已付款</button>
+            <button class="btn btn-warning " @click="showUnpaidOrders">待付款</button>
+        </div>
+        <!-- <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+                依完成時間
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li class="dropdown-item" @click="sortByCompletionDate()">升敘</li>
+                <li class="dropdown-item">降敘</li>
+            </ul>
+        </div>  -->
+        <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
                 <th scope="col">訂單編號</th>
@@ -136,7 +203,7 @@ export default {
                 <th scope="row">{{order.orderNumber}}</th>
                 <td>{{order.orderCreationDate}}</td>
                 <td>{{order.orderCompletionDate}}</td>
-                <td>$ {{order.totalPrice}}</td>
+                <td>$ <span style="color: red">{{order.totalPrice}}</span></td>
                 <td :style="{color : order.orderStatus === '待付款' ? 'red' : 'dark'}">{{order.orderStatus}}</td>
                 </tr>
                 <tr>
@@ -152,90 +219,56 @@ export default {
                         <button type="button" class="btn btn-success" @click="toPayPal(order)">前往付款</button>
                     </td>
                     <td v-else>
-                        <button style="display:none">此按鈕不顯示</button>
+                        <button style="display:none">此 Button 佔位用</button>
                     </td>
                 </tr>
             </tbody>
             <tfoot class="collapse" :id="'collapseExample' + order.orderId">
                 <tr v-for="(o,idx) of order.products" :key="idx">
                     <th class="card-body">
-                        <div >
-                            <img :src="order.photoData[idx]"  style="width:100px; height:100px">
-                        </div>
+                        <div><img :src="order.photoData[idx]"  style="width:100px; height:100px"></div>
                     </th> 
                     <td>
-                        <div>
-                            <p>{{order.products[idx].productName}}</p>
-                        </div>
+                        <div><p>{{order.products[idx].productName}}</p></div>
                     </td> 
                     <td>      
-                        <div>
-                            <p>單價: {{ order.products[idx].productPrice}}</p>
-                        </div>
+                        <div><p>單價: {{ order.products[idx].productPrice}}</p></div>
                     </td>
                     <td>
-                        <div >
-                            <p>數量: {{ order.quantity[idx]}}</p>
-                        </div>
+                        <div><p>數量: {{ order.quantity[idx]}}</p></div>
                     </td>
                     <td>
-                        <div>
-                            <p>總金額: {{order.products[idx].productPrice * order.quantity[idx]}}</p>
-                        </div>
+                        <div><p>總金額: {{order.products[idx].productPrice * order.quantity[idx]}}</p></div>
                     </td>
                 </tr>
             </tfoot> 
-        </table>
-        
+        </table>     
     </div>
-    <!--
-        <tr v-for="idx in order.products" :key="idx">
-                    <th class="card-body">
-                        <div v-for="(pd,index) of order.photoData" :key="pd[index]">
-                            <img :src="pd" :alt="order.product" style="width:100px">
-                        </div>
-                    </th> 
-                    <td>
-                        <div v-for="p of order.products" :key="p.productId">
-                            <p>{{p.productName}}</p>
-                        </div>
-                    </td> 
-                    <td>
-                        <div v-for="(q,qIndex) of order.quantity" :key="q[qIndex]">
-                            <p>數量:{{q}}</p>
-                        </div>
-                    </td>
-                    <td>
-                        <div v-for="p of order.products" :key="p.productId">
-                            <p>單價:{{p.productPrice}}</p>
-                        </div>
-                    </td>
-                </tr>
-    -->
+    
     <!-- modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3 ">
+                        <span class="input-group-text" id="basic-addon1">帳號：</span>
+                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">密碼：</span>
+                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="login" class="btn btn-primary" >登入</button>
+                    <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-        <div class="input-group mb-3 ">
-            <span class="input-group-text" id="basic-addon1">帳號：</span>
-            <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="basic-addon1">密碼：</span>
-            <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
-        </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" @click="login" class="btn btn-primary" >登入</button>
-          <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 <style>
     .order-history-info{
@@ -243,5 +276,9 @@ export default {
     }
     .table{
         text-align: center;
+    }
+    .shoppingHistory-title{
+        text-align: center; 
+        margin: 30px;
     }
 </style>

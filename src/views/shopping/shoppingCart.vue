@@ -149,7 +149,7 @@
         decrementQuantity(item,itemPrice){
           if (item.quantity > 1) {
             item.quantity -= 1;
-            httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+            httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
             .then((res)=>{
               console.log(res)
 
@@ -160,7 +160,7 @@
         },
         incrementQuantity(item,itemPrice){
           item.quantity += 1;
-          httpClient.put('/ShoppingCart/updata?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
+          httpClient.put('/ShoppingCart/update?memberId=' + this.memberId + '&quantity=' + item.quantity + '&itemId=' + item.shoppingCartItemId)
           .then((res)=>{
             console.log(res)
           })
@@ -227,6 +227,7 @@
 </script>
 
 <template>
+  <!-- 登入登出 -->
   <div style="display: flex; justify-content: flex-end;" >
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
@@ -236,6 +237,8 @@
         登入
       </button>
   </div>
+
+  <!-- 購物車內容 -->
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
     <br>
     <br>
@@ -252,15 +255,16 @@
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
           <tr class="cart-head-style table-info">
-            <th scope="col">
-                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray" v-model="selectAll" @change="handleSelectAll"><span>全選</span>
+            <th scope="col" style="width:70px">
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span>全選</span>
             </th>
             <th scope="col" style="width:280px">商品</th>
+            <th scope="col" style="width:130px">商品名稱</th>
             <th scope="col" style="width:130px">單價</th>
             <th scope="col" style="width:130px">數量</th>
-            <th scope="col">總計</th>
+            <th scope="col" style="width:130px">總計</th>
             <th scope="col">
-              <span style="color: blue" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
+              <span style="color: blue; width:130px" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
                 全部移除
               </span>
             </th>
@@ -268,15 +272,17 @@
         </thead>
         <tbody>
           <tr class="cart-items-info-style" v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
-            <th scope="row">
-              <div class="form-check">
+            <th scope="row" class="narrow-th">
+              <div class="form-check" style="display: flex; justify-content: center; align-items: center;">
                 <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
               </div>
             </th>
-            <td style="width: 200px; text-align: left;">
+            <td style="width: 200px;">
               <div @mouseleave="changeStyle(item.shoppingCartItemId, false)" @mouseover="changeStyle(item.shoppingCartItemId, true)">
                 <img :src="item.photoData" :alt="item.productName" style="width:150px" @click="goToGoodsDetail(item.productId)">
-              </div>
+              </div>     
+            </td>
+            <td>
               <div style="padding-top:20px">
                 <span style="font-size:13px;" @click="goToGoodsDetail(item.productId)" @mouseover="changeStyle(item.shoppingCartItemId, true)" @mouseleave="changeStyle(item.shoppingCartItemId, false)" :id="'product-name-' + item.shoppingCartItemId">{{item.productName}}</span>
               </div>
@@ -322,6 +328,7 @@
       </div>
     </div>
   </div>
+
   <!-- modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -346,7 +353,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <style>
@@ -393,5 +399,8 @@
   }
   .cart-head-style{
     color: blue
+  }
+  .narrow-th {
+    width: 50px; /* 設定寬度，根據需要調整 */
   }
 </style>

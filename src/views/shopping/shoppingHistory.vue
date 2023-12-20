@@ -156,6 +156,7 @@ export default {
 </script>
 
 <template>
+    <!-- 登入登出 -->
     <div style="display: flex; justify-content: flex-end;" >
         <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
             登出
@@ -165,7 +166,8 @@ export default {
             登入
         </button>
     </div>
-     
+    
+    <!-- 訂購紀錄 -->
     <div v-if="this.memberId === 'undefined'" style="text-align: center">
         <br>
         <br>
@@ -177,7 +179,6 @@ export default {
             <button class="btn btn-primary " @click="showPaidOrders">已付款</button>
             <button class="btn btn-warning " @click="showUnpaidOrders">待付款</button>
         </div>
-
         <!-- <div class="dropdown">
             <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                 依完成時間
@@ -187,7 +188,6 @@ export default {
                 <li class="dropdown-item">降敘</li>
             </ul>
         </div>  -->
-
         <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
@@ -226,29 +226,19 @@ export default {
             <tfoot class="collapse" :id="'collapseExample' + order.orderId">
                 <tr v-for="(o,idx) of order.products" :key="idx">
                     <th class="card-body">
-                        <div >
-                            <img :src="order.photoData[idx]"  style="width:100px; height:100px">
-                        </div>
+                        <div><img :src="order.photoData[idx]"  style="width:100px; height:100px"></div>
                     </th> 
                     <td>
-                        <div>
-                            <p>{{order.products[idx].productName}}</p>
-                        </div>
+                        <div><p>{{order.products[idx].productName}}</p></div>
                     </td> 
                     <td>      
-                        <div>
-                            <p>單價: {{ order.products[idx].productPrice}}</p>
-                        </div>
+                        <div><p>單價: {{ order.products[idx].productPrice}}</p></div>
                     </td>
                     <td>
-                        <div >
-                            <p>數量: {{ order.quantity[idx]}}</p>
-                        </div>
+                        <div><p>數量: {{ order.quantity[idx]}}</p></div>
                     </td>
                     <td>
-                        <div>
-                            <p>總金額: {{order.products[idx].productPrice * order.quantity[idx]}}</p>
-                        </div>
+                        <div><p>總金額: {{order.products[idx].productPrice * order.quantity[idx]}}</p></div>
                     </td>
                 </tr>
             </tfoot> 
@@ -256,29 +246,29 @@ export default {
     </div>
     
     <!-- modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3 ">
+                        <span class="input-group-text" id="basic-addon1">帳號：</span>
+                        <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon1">密碼：</span>
+                        <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" @click="login" class="btn btn-primary" >登入</button>
+                    <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-        <div class="input-group mb-3 ">
-            <span class="input-group-text" id="basic-addon1">帳號：</span>
-            <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
-        </div>
-        <div class="input-group mb-3">
-            <span class="input-group-text" id="basic-addon1">密碼：</span>
-            <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
-        </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" @click="login" class="btn btn-primary" >登入</button>
-          <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-        </div>
-      </div>
     </div>
-  </div>
 </template>
 <style>
     .order-history-info{

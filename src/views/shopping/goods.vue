@@ -205,8 +205,15 @@
         })
       },
       logout: function(){
-        this.$emit('updateMemberId','undefined')
-        this.userName = ''
+        // httpClient.post('/logout')
+        // .then((res)=>{
+          this.$emit('updateMemberId','undefined')
+          this.userName = ''
+          console.log(res.data)
+        // })
+        // .catch((err)=>{
+        //   console.error('登出失敗', err);
+        // })
       },
     },
     components: {},
@@ -422,9 +429,8 @@
   <!-- 產品 -->
   <article> 
     <div class="each-product">
-      <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
+      <div class="card card-gap" style="width: 300px; box-shadow: 5px 5px 5px #EBD6D6" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
         <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
-          <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
           <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
           <div class="row" style="font-weight: bold;">
@@ -435,7 +441,7 @@
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
+                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button>
             </div>
           </div>
         </div>

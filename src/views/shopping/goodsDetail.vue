@@ -137,6 +137,7 @@
 </script>
 
 <template>
+    <!-- 登入登出 -->
     <div style="display: flex; justify-content: flex-end;" >
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
@@ -146,10 +147,47 @@
         登入
       </button>
     </div>
+
+
     <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
         <span class="productType-head-bottomLine"></span>
     </h1>
-    <div class="product-container">  
+
+    <!-- 商品資訊 -->
+    <div class="card mb-3" style="max-width: 1200px; margin:auto;">
+        <div class="row g-0">
+            <div class="col-md-6">
+                <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px">
+            </div>
+            <div class="col-md-4">
+                <div class="card-body" style="width: 520px">
+                    <h5 class="card-title" style="color:darkblue; font-size:25px; margin-top:40px">{{this.product.value?.productName}}</h5>
+                    <h4 class="mb-5 mt-5">
+                        <small class="text-muted ">建議售價 </small>
+                        <span :style="{ color: 'red' }">$ {{this.product.value?.productPrice}}</span>
+                        <hr style="margin: 0px; width:140px">
+                    </h4>
+                    <h5 class="card-text">{{this.product.value?.productDescription}}</h5>
+                    <hr style="margin: 0px;">
+                    <h5 class="mb-4 mt-5">數量  
+                        <span class="quantity-controls">
+                            <button @click="decrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">－</button>
+                            <input v-model="quantity" type="text" @input="handleNumberInput" style="width:50px; text-align: center;"/>
+                            <button @click="incrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">＋</button>
+                        </span>
+                    </h5>
+                    <div>
+                        <button type="button" class="btn btn-success" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
+                        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
+                        <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商品細項舊版面 -->
+    <!-- <div class="product-container">  
         <div class="product-section">
             <img :src="this.product.value?.photoData" class="rounded float-start img-customize" :alt="this.product.value?.productName">
         </div>
@@ -173,14 +211,12 @@
         </div>
         <div class="button-container" style="width:1200px">
             <button type="button" class="btn btn-success mx-6" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
-            <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
-            <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
         </div>
     </div>
     <br>
     <br>
     <hr style="width: 90%; margin: 20px auto;">
-    <br> 
+    <br>  -->
     
     <!-- 推薦商品 -->
     <!-- <div style="display: flex; flex-direction: column;justify-content:center; align-items: center;text-align: center;">
@@ -209,43 +245,33 @@
         </div>
     </div> -->
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
-      </div>
-      <div class="modal-body">
-       <div class="input-group mb-3 ">
-          <span class="input-group-text" id="basic-addon1">帳號：</span>
-          <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
-      </div>
-      <div class="input-group mb-3">
-          <span class="input-group-text" id="basic-addon1">密碼：</span>
-          <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
-      </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" @click="login" class="btn btn-primary" >登入</button>
-        <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-      </div>
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+        </div>
+        <div class="modal-body">
+        <div class="input-group mb-3 ">
+            <span class="input-group-text" id="basic-addon1">帳號：</span>
+            <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+        </div>
+        <div class="input-group mb-3">
+            <span class="input-group-text" id="basic-addon1">密碼：</span>
+            <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+        </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" @click="login" class="btn btn-primary" >登入</button>
+            <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+        </div>
+        </div>
     </div>
-  </div>
-</div>
+    </div>
 </template>
 
 <style>
-    .img-customize{
-        /* border: 2px solid; */
-        width: 460px;
-        margin: 0px 80px 0px 200px;
-    }
-    .product-section{
-        /* display: flex; */
-        flex-wrap: wrap;
-        
-    }
     .productType-head-bottomLine{
         position: absolute; 
         bottom: 0; 
@@ -267,24 +293,7 @@
     .recommend-product{
         width: 10px;
     }
-    .product-desc{
-        padding-top: 60px;
-        width: 500px
-    }
-    .button-container{    
-        display: flex;
-        justify-content: flex-end; 
-        margin-right: 70px
-    }
     .custom-button {
          width: 30px;
-    }
-    .product-container{
-        /* display: flex; 
-        justify-content: center;   */
-        /* border: 2px solid;  */
-        width:80%;
-        margin: auto;
-
     }
 </style>

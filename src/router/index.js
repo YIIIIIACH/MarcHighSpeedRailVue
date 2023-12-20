@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-const Home = { template: '<div style="background-color:red;width:1000px;height:800px">Home</div>' }
-// const About = {template: '<div>About</div>'}
+import Home from '../views/home/home.vue'
 import booking from '../views/bookingSystem/booking.vue'
 import goods from '../views/shopping/goods.vue'
 import goodsDetail from '../views/shopping/goodsDetail.vue'

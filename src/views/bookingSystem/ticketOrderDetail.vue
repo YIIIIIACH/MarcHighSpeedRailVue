@@ -163,7 +163,10 @@ function loadRailRouteStopStation(){
           <h3>{{ b.ticketDiscount.ticketDiscountName }}</h3>
           <p class="card-text ">第{{ b.seat.carriage }}車廂 {{ b.seat.seatCode }} {{ b.seat.seatDescirption }} {{ b.ticketDiscount.ticketDiscountName }}{{ b.ticketPrice }}元</p>
         </div>
-        <div v-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="ticket-button">
+        <div v-if="b.ticketStatus=='已使用'">
+          <button disabled class="btn btn-success">已使用</button>
+        </div>
+        <div v-else-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="ticket-button">
           <a href="#"   class="btn btn-primary">
             生成車票QRcode
           </a>

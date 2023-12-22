@@ -14,7 +14,7 @@ const edstName = ref('')
 const bookingInfo = reactive([])
 const railRouteStopStation = reactive([])
 const loadingStopSt = ref(false)
-const formatStArrtime = computed(()=> {
+const formatStArrDate = computed(()=> {
   if(Object.keys(schInfo).length >0 ){
     let allTime = stArr.arriveTime.toString()
     let dstr = allTime.split(' ')[0]
@@ -23,27 +23,48 @@ const formatStArrtime = computed(()=> {
   }
   return ''
 })
-const formatEtArrtime = computed(()=> {
+const formatStArrTime = computed(()=> {
+  if(Object.keys(schInfo).length >0 ){
+    let allTime = stArr.arriveTime.toString()
+    let tstr = allTime.split(' ')[1]
+    tstr = tstr.split(':')
+    return tstr[0]+'時' +tstr[1]+'分'
+  }
+  return ''
+})//
+const formatEtArrDate = computed(()=> {
   if(Object.keys(schInfo).length >0 ){
     let allTime = edArr.arriveTime.toString()
     let dstr = allTime.split(' ')[0]
+    let tstr = allTime.split(' ')[1]
     dstr = dstr.split('-')
     return dstr[0]+'年' +dstr[1]+'月'+dstr[2] +'日'
   }
   return ''
-})
+})//
+const formatEdArrTime = computed(()=> {
+  if(Object.keys(schInfo).length >0 ){
+    let allTime = edArr.arriveTime.toString()
+    let tstr = allTime.split(' ')[1]
+    tstr = tstr.split(':')
+    return tstr[0]+'時' +tstr[1]+'分'
+  }
+  return ''
+})//
 const emits = defineEmits(['updateMemberId'])
 // this.defineProps([])
 const props = defineProps(['tckodid','memberId'])
 onBeforeMount(()=>{
   loadingStopSt.value=true
   // check is login
-  httpClient.post('/verifyLoginToken',{},{withCredentials:true}).then((res)=>{
-        if( res.data=="not cookie found" || res.data=="failed"){
-          console.log('login failed')
-          return 
-        }
-        userName.value = res.data
+  httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+    .then((res)=>{
+        // console.log( res)
+        if(res.status!=200){
+            document.getElementById('login-modal-open-btn').click();
+            return
+          }
+          emits('updateMemberId', res.data)
       }).catch(err=>console.log(err))
       
       httpClient.get('/getBookingByTicketOrder/'+props.tckodid,{withCredentials:true})
@@ -107,7 +128,7 @@ function loadRailRouteStopStation(){
 }
 </script>
 <template>
-<div >
+<div>
 <div class="container" style="padding-bottom: 20%;">
   <div class="row justify-content-center" style="z-index: 1000;" >
     <div class="card" style="padding: 10px 0px;padding-bottom: 30px;margin-top: 5%;border: 0px rgb(255, 255, 255) solid;" >
@@ -115,8 +136,10 @@ function loadRailRouteStopStation(){
         <button type="button" @click="$router.push('/ticketOrder')" class="btn btn-outline-secondary changepage-botton">回上一頁</button>
         <div class="card-text"  v-show="!loadingStopSt">
         <label>花費時間{{ railRouteSegmentInfo.railRouteSegmentDurationMinute }}分鐘</label>
-        <div class="cart-title" style="display: flex;justify-content: space-between;align-items: center;" ><label>{{formatStArrtime}}</label><label class="station-text">{{ ststName }}站 —————  {{ edstName }}站</label><label>{{ formatEtArrtime }}</label></div>
+        <div class="cart-title" style="display: flex;justify-content: space-between;align-items: center;" ><div class="time-text-box"><div>{{formatStArrDate}}</div><div>{{ formatStArrTime }}</div></div>
+        <label class="station-text">{{ ststName }}站 —————  {{ edstName }}站</label><div class="time-text-box"><div>{{ formatEtArrDate }}</div><div>{{ formatEdArrTime }}</div></div>
         </div>
+      </div>
       <button type="button" @click="$router.push('/')" class="btn btn-outline-secondary changepage-botton" >回首頁</button>
     </div>
     <div  id="rail-route-stop-station" style=" width:100%;height: 200px;">
@@ -138,9 +161,12 @@ function loadRailRouteStopStation(){
       <div class="card-body booking-box" v-for="b of bookingInfo">
         <div>
           <h3>{{ b.ticketDiscount.ticketDiscountName }}</h3>
-          <p class="card-text ">第{{ b.seat.carriage }}車廂 {{ b.seat.seatCode }} {{ b.seat.seatDescirption }} {{ b.ticketDiscount.ticketDiscountName }}{{ railRouteSegmentInfo.railRouteSegmentTicketPrice }}元</p>
+          <p class="card-text ">第{{ b.seat.carriage }}車廂 {{ b.seat.seatCode }} {{ b.seat.seatDescirption }} {{ b.ticketDiscount.ticketDiscountName }}{{ b.ticketPrice }}元</p>
         </div>
-        <div v-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="ticket-button">
+        <div v-if="b.ticketStatus=='已使用'">
+          <button disabled class="btn btn-success">已使用</button>
+        </div>
+        <div v-else-if="b.ticketQRcode==null" @click="createTicketQR(b)" class="ticket-button">
           <a href="#"   class="btn btn-primary">
             生成車票QRcode
           </a>
@@ -180,6 +206,10 @@ function loadRailRouteStopStation(){
 </div>
 </template>
 <style>
+.time-text-box{
+  width: 170px;
+  padding: auto auto;
+}
 .schedule-box{
   display:flex;
     justify-content: space-around;

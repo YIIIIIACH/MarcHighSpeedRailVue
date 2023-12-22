@@ -119,6 +119,15 @@ function newGoBuinessBook(){
     
 }
 onBeforeMount(() => {
+    httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+    .then((res)=>{
+        // console.log( res)
+        if(res.status!=200){
+            document.getElementById('login-modal-open-btn').click();
+            emits('updateMemberId', res.data)
+            return
+        }
+    })
     httpClient.post('/requestDiscountTypeBook',{
         "ticketDiscountName":"商務票",
         "scheduleId": props.schid,

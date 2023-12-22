@@ -33,7 +33,7 @@ export default defineConfig({
         }
       },
       "/api":{
-        target: "http://localhost:8080/MarcHigiSpeedRail", // will make request from front server proxy request to backend server .
+        target: "http://localhost:8080/MarcHighSpeedRail", // will make request from front server proxy request to backend server .
         changeOrigin:true,
         followRedirects:true,
         secure:false,

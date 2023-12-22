@@ -10,14 +10,10 @@
         account: ref(''),
         password: ref(''),
         userName: ref(''),
-        // memberId : ref(''),
-        memberId: ref(props.memberId),
+        // memberId: ref(props.memberId),
         filterMode: ref('全部商品'),
         products: ref([]), //要渲染的商品資料
-        // products[ {
-        //   'xx':'xx',
-        //   'showAddInCart': false
-        // }]
+
         source_products: ref([]), //原始商品資料，用於暫存所有資料
 
         keyword: ref(""), 
@@ -30,7 +26,7 @@
         highlightId: ref(0),
 
         currentPage: ref(1),
-        perpage: ref(8), //一頁的商品資料數
+        perpage: ref(6), //一頁的商品資料數
 
         priceErrorMessage: ref(''),
 
@@ -40,12 +36,15 @@
       };
     },
     computed: {
+      isLogined(){
+        return (this.memberId == 'undefined')? false: true;
+      },
       getCurrentPwdInputType(){
-                return (this.passwordVisible==true)?'text':'password'
+        return (this.passwordVisible==true)?'text':'password'
       },
       totalPage() {
-          return Math.ceil(this.products.length / this.perpage)
-          //Math.ceil()取最小分頁整數
+        return Math.ceil(this.products.length / this.perpage)
+        //Math.ceil()取最小分頁整數
       },
       pageStart() {
         return (this.currentPage - 1) * this.perpage
@@ -60,7 +59,7 @@
       // 加入購物車
       addItemToShoppingCart(p){
         // const memberId = '123abc'
-        if( this.userName==''){
+        if( this.memberId==''){
           // not login stat need to login 
           document.getElementById('login-modal-open-btn').click();
           return ;
@@ -199,15 +198,37 @@
           }
           // console.log(res.data)
           this.userName= res.data.member_name;
-          this.memberId = res.data.member_id;
+          // this.memberId = res.data.member_id;
 
           this.$emit('updateMemberId', res.data.member_id);
           document.getElementById('login-modal-close-btn').click();
         })
-      }
+      },
+      logout: function(){
+        // httpClient.post('/logout')
+        // .then((res)=>{
+          this.$emit('updateMemberId','undefined')
+          this.userName = ''
+          console.log(res.data)
+        // })
+        // .catch((err)=>{
+        //   console.error('登出失敗', err);
+        // })
+      },
     },
     components: {},
     beforeMount() {
+
+      httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+        
       // fetch all product and pages before mount
       httpClient.get("/products")
         .then((res) => {
@@ -231,15 +252,27 @@
 </script>
 
 <template>
+  <div style="display: flex; justify-content: flex-end;" >
+      <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
+        登出
+      </button>
+      <button type="button" id="login-modal-open-btn" class="btn btn-primary login-btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+      v-else>
+        登入
+      </button>
+  </div>
+  <div style="display: flex; justify-content: flex-end;" >
+      
+  </div>
   <!-- 搜尋欄 -->
   <div class="search-bar">
     <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
     <button class="btn btn-outline-success" @click="searchByKeyword" style="width:100px">搜尋</button>
   </div>
-
+  
   <!-- 分類 -->
   <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
-        <ul class="navbar-nav center">
+        <ul class="navbar-nav center" >
             <!-- <div class="list-product-type"></div> -->
           <li class="nav-item">
             |
@@ -248,7 +281,7 @@
               :class="{'btn-outline-primary': productType != '全部商品','btn-primary': productType == '全部商品', }"
               @click="selectedType('全部商品')"
             >
-              <span class="icon">🌟</span> 全部商品
+              <span class="icon">🌟</span><span style="font-weight:bold;"> 全部商品</span>
             </button>
             |
           </li>
@@ -258,7 +291,7 @@
               :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
               @click="selectedType('精選食品')"
             >
-              <span class="icon">🍔</span>精選食品
+              <span class="icon">🍔</span><span style="font-weight:bold;"> 精選食品</span>
             </button>
             |
           </li>
@@ -268,7 +301,7 @@
               :class="{'btn-outline-primary': productType != '日用生活','btn-primary': productType == '日用生活', }"
               @click="selectedType('日用生活')"
             >
-              <span class="icon">🏠</span> 日用生活
+              <span class="icon">🏠</span><span style="font-weight:bold;"> 日用生活</span>
             </button>
             |
           </li>
@@ -279,7 +312,7 @@
               :class="{'btn-outline-primary': productType != '旅行戶外','btn-primary': productType == '旅行戶外', }"
               @click="selectedType('旅行戶外')"
             >
-              <span class="icon">🌴</span> 旅行戶外
+              <span class="icon">🌴</span><span style="font-weight:bold;"> 旅行戶外</span>
             </button>
             |
           </li>
@@ -289,7 +322,7 @@
               :class="{'btn-outline-primary': productType != '休閒用品','btn-primary': productType == '休閒用品', }"
               @click="selectedType('休閒用品')"
             >
-              <span class="icon">⛱️</span> 休閒用品
+              <span class="icon">⛱️</span><span style="font-weight:bold;"> 休閒用品</span>
             </button>
             |
           </li>
@@ -299,7 +332,7 @@
               :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
               @click="selectedType('數位產品')"
             >
-              <span class="icon">🎮</span> 數位產品
+              <span class="icon">🎮</span><span style="font-weight:bold;"> 數位產品</span>
             </button>
             |
           </li>
@@ -309,7 +342,7 @@
               :class="{'btn-outline-primary': productType != '紀念商品','btn-primary': productType == '紀念商品', }"
               @click="selectedType('紀念商品')"
             >
-              <span class="icon">🎁</span> 紀念商品
+              <span class="icon">🎁</span><span style="font-weight:bold;"> 紀念商品</span>
             </button>
             |
           </li>
@@ -319,7 +352,7 @@
               :class="{'btn-outline-primary': productType != '經典模型','btn-primary': productType == '經典模型', }"
               @click="selectedType('經典模型')"
             >
-              <span class="icon">🎨</span> 經典模型
+              <span class="icon">🎨</span><span style="font-weight:bold;"> 經典模型</span>
             </button>
             |
           </li>
@@ -329,7 +362,7 @@
               :class="{'btn-outline-primary': productType != '實用文具','btn-primary': productType == '實用文具', }"
               @click="selectedType('實用文具')"
             >
-              <span class="icon">✏️</span> 實用文具
+              <span class="icon">✏️</span><span style="font-weight:bold;"> 實用文具</span>
             </button>
             |
           </li>
@@ -396,20 +429,19 @@
   <!-- 產品 -->
   <article> 
     <div class="each-product">
-      <div class="card card-gap" style="width: 300px" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
+      <div class="card card-gap" style="width: 300px; box-shadow: 5px 5px 5px #EBD6D6" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
         <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
-          <!-- {{p.productId}} -->
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
           <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
-          <div class="row">
+          <div class="row" style="font-weight: bold;">
             <div class="col-7 ">
-              <p class="card-title">{{ p.productName }}</p>
+              <p class="card-title" >{{ p.productName }}</p>
               <div >
                 <p style="color:#EA7500;">${{ p.productPrice }}</p>
               </div>
             </div>
             <div class="col-5 ">
-                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button><!--@click.stop="addItemToShoppingCart(p.productId)"-->
+                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button>
             </div>
           </div>
         </div>
@@ -446,12 +478,10 @@
   </nav>
   <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
   <!-- Button trigger modal -->
-<button type="button" id="login-modal-open-btn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-  登入
-</button>
+
 
 <!-- Modal -->
-<div class="modal fade aa" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -469,7 +499,6 @@
       </div>
       <div class="modal-footer">
         <button type="button" @click="login" class="btn btn-primary" >登入</button>
-        <button type="button" @click="logout" class="btn btn-warning">登出</button>
         <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
       </div>
     </div>
@@ -547,4 +576,5 @@
 .add-btn{
   width:110px;
 }
+
 </style>

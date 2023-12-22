@@ -6,6 +6,7 @@ import router from './router/index.js'
 import 'bootstrap'
 import axios from 'axios';
 import App from './App.vue'
+import VueCookies from 'vue-cookies';
 
 const app = createApp(App)
 
@@ -23,3 +24,10 @@ app.use(createPinia())
 app.use(router)
 app.mount('#app')
 export default httpClient;
+
+app.use(VueCookies)
+
+// 可以在main.js或一個獨立的配置文件中進行
+app.config.globalProperties.$isTokenPresent = 'null'; // 初始設置Token不存在
+
+

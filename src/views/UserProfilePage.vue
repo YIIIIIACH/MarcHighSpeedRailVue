@@ -18,7 +18,12 @@
                 <label for="phone">電話:</label>
                 <input type="tel" id="phone" v-model="user.phone">
             </div>
-            <div class="form-row">
+          <div class="form-row">
+            <!-- 錯誤訊息顯示區域 -->
+            <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+          </div>
+
+          <div class="form-row">
                 <button type="submit">Save</button>
             </div>
         </form>
@@ -26,6 +31,9 @@
 </template>  
   
 <script>
+import axios from "axios";
+import {useToken} from "@/composables/useToken";
+
 export default {
     name: 'UserProfile',
     data() {
@@ -35,13 +43,32 @@ export default {
                 password: '',
                 email: '',
                 phone: ''
-            }
+            },
+          errorMessage: ''
         };
     },
+   created() {
+    console.log('Value of val is:created ');
+     useToken.checkToken();
+         // .then(response=>{
+         //
+         //     }
+         // )
+  },
     methods: {
-        submitForm() {
-            // 處理表單提交
-            console.log(this.user);
+          async submitForm() {
+            try {
+
+              const response = await axios.post('/member/profile', this.user);
+              console.log('Response:', response.data);
+              if (response.data.success) {
+                this.$router.push('/profile');
+              }
+            } catch (error) {
+              console.error('Error:', error.response);
+              this.errorMessage = '輸入錯誤';
+              // 處理錯誤，例如顯示錯誤訊息
+            }
         },
         edit(field) {
             // 處理特定欄位的修改
@@ -114,5 +141,10 @@ button[type="submit"] {
 button[type="submit"]:hover {
     background-color: #ffb700;
     /* 鼠標懸停時的背景顏色 */
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
 }
 </style>

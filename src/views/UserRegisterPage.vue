@@ -36,13 +36,23 @@
       });
   
       function submitForm() {
-        console.log(form.value);
+        const url = '後端API端點的URL'; // 替換為你的後端API端點的實際URL
+        const formData = {
+          name: form.value.name,
+          password: form.value.password,
+          email: form.value.email,
+          phone: form.value.phone,
+        };
+
+        axios.post(url, formData)
+            .then(response => {
+              console.log(response.data); // 處理伺服器的回應
+              // 你可以在這裡處理伺服器的回應，例如顯示註冊成功或錯誤信息
+            })
+            .catch(error => {
+              console.error('錯誤:', error); // 處理錯誤
+            });
       }
-  
-      return {
-        form,
-        submitForm
-      };
     },
     props:['memberId'],
     emits: ['updateMemberId'],

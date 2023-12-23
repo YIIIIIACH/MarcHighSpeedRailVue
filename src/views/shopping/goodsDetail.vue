@@ -16,6 +16,7 @@
                     userName: ref(''),
                     // memberId: ref(props.memberId),
                     passwordVisible:ref(false),
+                    showRemind:ref(false),
                 }            
             },
             computed:{
@@ -29,6 +30,33 @@
             },
             
             methods:{
+                addProductToTrackingList(){
+                    if(this.memberId == ''){
+                    document.getElementById('login-modal-open-btn').click();
+                    return ;
+                    }
+
+                    httpClient.post('/ProductTrackingList/add',{
+                    pId: this.product.value?.productId,
+                    mId: this.memberId
+                    })
+                    .then((res)=>{
+                    console.log(res.data)
+                    alert(res.data)
+                    })
+
+                    this.product.value.isTracking = true;
+                },
+                cancelTracking(){
+                    httpClient.delete('/ProductTrackingList/delete2?mId=' + this.memberId + '&pId=' + this.product.value?.productId)
+                        .then((res)=>{
+                            console.log(res.data)
+                        })
+                        .catch((err)=>{
+                        console.log(err)
+                        })
+                    this.product.value.isTracking = false;
+                },
                 // 加入購物車
                 addItemToShoppingCart(productId, quantity){
                     if(this.memberId == 'undefined'){
@@ -37,7 +65,12 @@
                     }
                     httpClient.post('/ShoppingCart/addProducts?productId=' + productId + '&memberId=' + this.memberId + '&quantity=' + quantity,{},{withCredentials:true})
                     .then((res) =>{
-                        alert(res.data)
+                        console.log(res.data)
+                        if(res.data == '商品已在購物車內'){
+                            this.showRemind = true; 
+                        }else{
+                            alert(res.data)
+                        }
                     })
                     .catch(err =>{
                         alert(err)
@@ -104,7 +137,7 @@
                     console.log(err)
                 })
 
-                httpClient.get(`/api/product/${productId}`)
+                httpClient.get(`/api/product/${productId}?mId=${this.memberId}`)
                 .then((res) => {
                     //物件用.value
                     //陣列用.push()
@@ -148,13 +181,12 @@
       </button>
     </div>
 
-
-    <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}
-        <span class="productType-head-bottomLine"></span>
-    </h1>
+    <div style="width:80%;margin:auto">
+    <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}</h1>
+    <hr>
 
     <!-- 商品資訊 -->
-    <div class="card mb-3" style="max-width: 1200px; margin:auto;">
+    <div class="card mb-3" style="max-width: 1400px; margin:auto;">
         <div class="row g-0">
             <div class="col-md-6">
                 <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px; height: 500px">
@@ -177,7 +209,10 @@
                         </span>
                     </h5>
                     <div>
+                        <span class="tracking-icon" @click="addProductToTrackingList()" v-show="!this.product.value?.isTracking">🤍</span>
+                        <span class="tracking-icon" @click.stop="cancelTracking()" v-show="this.product.value?.isTracking">❤️</span>
                         <button type="button" class="btn btn-success" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
+                        <p v-show="showRemind" class="remind">商品已在購物車中</p>
                         <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
                         <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
                     </div>
@@ -185,7 +220,7 @@
             </div>
         </div>
     </div>
-
+    </div>
     <!-- 商品細項舊版面 -->
     <!-- <div class="product-container">  
         <div class="product-section">
@@ -295,5 +330,12 @@
     }
     .custom-button {
          width: 30px;
+    }
+    .remind{
+        margin-top:5px;
+        margin:5px 0px 0px 65px;
+        color:red;
+        font-weight: bolder;
+        font-size: 1.1rem;
     }
 </style>

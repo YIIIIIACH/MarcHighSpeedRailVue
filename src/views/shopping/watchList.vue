@@ -6,9 +6,22 @@ export default {
     emits:['updateMemberId'],
     setup(props) {
         return{
+            account: ref(''),
+            password: ref(''),
+            userName: ref(''),
+
             trackingProducts : ref([]),
             highlightId: ref(0),
+            passwordVisible:ref(false),
         }
+    },
+    computed:{
+        isLogined(){
+            return (this.memberId == 'undefined')? false: true;
+        },
+        getCurrentPwdInputType(){
+            return (this.passwordVisible==true)?'text':'password'
+        },
     },
     methods:{
         goToGoodsDetail(productId) {
@@ -49,7 +62,29 @@ export default {
                 }
 
             }
-        }
+        },
+        login: function() {
+            httpClient.post( '/requestMemberLogin',{
+            "password": this.password,
+            "email": this.account
+            },{withCredentials:true})
+            .then((res) => {
+            if(res.data.member_id == null){
+                console.log('login failed')
+                return; //中斷, 不執行下面的code
+            }
+            // console.log(res.data)
+            this.userName = res.data.member_name;
+            // console.log(this.userName)
+            // this.memberId = res.data.member_id;
+            this.$emit('updateMemberId', res.data.member_id);
+            document.getElementById('login-modal-close-btn').click();
+            })
+        },
+        logout: function(){
+            this.$emit('updateMemberId','undefined')
+            this.userName = ''
+      },
     },
     beforeMount() {
         httpClient.get('/ProductTrackingList?mId=' + this.memberId)
@@ -63,6 +98,16 @@ export default {
 }
 </script>
 <template>
+    <div style="display: flex; justify-content: flex-end;" >
+        <span>使用者: {{this.userName}}</span>
+        <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
+            登出
+        </button>
+        <button type="button" id="login-modal-open-btn" class="btn btn-primary login-btn" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        v-else>
+            登入
+        </button>
+    </div>
     <div id="main-content">
         <h1 style="text-align:center; margin:30px">追蹤清單</h1>
         <hr>
@@ -82,6 +127,31 @@ export default {
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">會員登入</h5>
+            </div>
+            <div class="modal-body">
+            <div class="input-group mb-3 ">
+                <span class="input-group-text" id="basic-addon1">帳號：</span>
+                <input type="text" v-model="account" class="form-control" placeholder="會員帳號" aria-label="Username" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">密碼：</span>
+                <input  v-model="password" :type="getCurrentPwdInputType" class="form-control" placeholder="會員密碼" aria-label="Username" aria-describedby="basic-addon1"><span class="input-group-text" @click="passwordVisible=(passwordVisible)?false:true">{{ (passwordVisible)?'隱藏密碼':'顯示密碼' }}</span>
+            </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" @click="login" class="btn btn-primary" >登入</button>
+                <button type="button" id="login-modal-close-btn" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
+            </div>
             </div>
         </div>
     </div>

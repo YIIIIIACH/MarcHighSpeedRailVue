@@ -239,6 +239,7 @@
   </div>
 
   <!-- 購物車內容 -->
+  <div >
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
     <br>
     <br>
@@ -246,12 +247,13 @@
   </div>
   <div v-else>
     <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
+    <hr>
     <!-- <span class="cart-items-title-bottomLine"></span> -->
     <!-- 購物車品項 -->
-    <div v-if="this.shoppingCartItems.length === 0">
+    <!-- <div v-if="this.shoppingCartItems.length === 0">
       <h2 style="text-align:center; margin:30px">您的購物車是空的。</h2>
-    </div>
-    <div style="padding:0% 15% 10% 15%" v-else>
+    </div> -->
+    <div style="padding:0% 15% 10% 15%">
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
           <tr class="cart-head-style table-info">
@@ -259,12 +261,12 @@
                 <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span>全選</span>
             </th>
             <th scope="col" style="width:280px">商品</th>
-            <th scope="col" style="width:130px">商品名稱</th>
-            <th scope="col" style="width:130px">單價</th>
+            <th scope="col" style="width:200px">商品名稱</th>
+            <th scope="col" style="width:250px">單價</th>
             <th scope="col" style="width:130px">數量</th>
-            <th scope="col" style="width:130px">總計</th>
+            <th scope="col" style="width:300px">總計</th>
             <th scope="col">
-              <span style="color: blue; width:130px" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
+              <span style="color: blue;" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
                 全部移除
               </span>
             </th>
@@ -310,7 +312,7 @@
         </tbody>
       </table>
     </div>
-
+  </div>
     <!-- 結帳用懸浮視窗 -->
     <div class="floating-window">
       <div>

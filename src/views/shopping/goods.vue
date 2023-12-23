@@ -55,6 +55,18 @@
         //取得該頁最後一個值的index
       }
     },
+    // onMounted(){
+    //   const allCookies = document.cookie.split(';');
+    //     for(let c of allCookies){
+    //         const [name, value] = c.trim().split('=');
+    //         if(name  === "member-name"){
+    //             this.userName = value
+    //             console.log(this.userName)
+    //             console.log("55664")
+    //             break;
+    //         }
+    //     }
+    // },
     methods: {
       // 加入追蹤清單
       addProductToTrackingList(p){
@@ -225,9 +237,9 @@
             return; //中斷, 不執行下面的code
           }
           // console.log(res.data)
-          this.userName= res.data.member_name;
+          this.userName = res.data.member_name;
+          // console.log(this.userName)
           // this.memberId = res.data.member_id;
-
           this.$emit('updateMemberId', res.data.member_id);
           document.getElementById('login-modal-close-btn').click();
         })
@@ -244,12 +256,11 @@
         // })
       },
     },
-    components: {},
     beforeMount() {
 
       httpClient.post('/verifyLoginToken',{},{withCredentials:true})
         .then((res) => {
-          console.log(res.data)
+          // console.log(res.data)
           if( res.status == 200){
             this.$emit('updateMemberId', res.data)
             // console.log( 'emits to update memberid ')
@@ -282,6 +293,7 @@
 
 <template>
   <div style="display: flex; justify-content: flex-end;" >
+      <span>使用者: {{this.userName}}</span>
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
       </button>
@@ -290,9 +302,7 @@
         登入
       </button>
   </div>
-  <div style="display: flex; justify-content: flex-end;" >
-      
-  </div>
+  <div id="test">
   <!-- 搜尋欄 -->
   <div class="search-bar">
     <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
@@ -476,18 +486,18 @@
     <div class="each-product">
       <div class="card card-gap" style="width: 300px; box-shadow: 5px 5px 5px #EBD6D6" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
         <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
-          <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
+          <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="width: 100%; height: 300px;"/>
           <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
           <div v-show="p.showAddInTracking" class="inimg-notification">已加入追蹤</div>
           <div class="row" style="font-weight: bold;">
             <div class="col-7">
-              <p class="card-title" >{{ p.productName }}</p>
-              <p style="color:#EA7500;">${{ p.productPrice }}</p>
+              <p class="card-title title" >{{ p.productName }}</p>
+              <p class="product-price">${{ p.productPrice }}</p>
             </div>
           </div>
-          <div>
-            <span style="font-size:25px; cursor:pointer" @click.stop="addProductToTrackingList(p)" v-show="!p.isTracking">🤍</span>
-            <span style="font-size:25px; cursor:pointer" @click.stop="cancelTracking(p)" v-show="p.isTracking">❤️</span>
+          <div class="btn-add">
+            <span class="tracking-icon" @click.stop="addProductToTrackingList(p)" v-show="!p.isTracking">🤍</span>
+            <span class="tracking-icon" @click.stop="cancelTracking(p)" v-show="p.isTracking">❤️</span>
             <button class="btn btn-success add-btn" @click.stop="addItemToShoppingCart(p)" type="submit">加入購物車</button>
             <!-- <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">❤️</button>
             <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">🤍</button> -->
@@ -526,7 +536,7 @@
   </nav>
   <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
   <!-- Button trigger modal -->
-
+</div>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -606,7 +616,13 @@
 .showcase-productName{
   color: rgb(47, 35, 11);
 }
-
+.title{
+  margin: 10px 0px 0px 20px;
+}
+.product-price{
+  color:#EA7500;
+  margin: 0px 0px 10px 20px;
+}
 .inimg-notification {
   position:absolute;
   top: 50%;
@@ -623,6 +639,16 @@
 }
 .add-btn{
   width:110px;
+  margin-bottom: 10px;
 }
-
+.tracking-icon{
+  font-size:25px; 
+  cursor:pointer;
+  padding:15px;
+}
+#test{
+  width:80%;
+  /* border:2px red solid;  */
+  margin:auto;
+}
 </style>

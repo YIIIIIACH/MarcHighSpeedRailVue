@@ -13,7 +13,9 @@ export default {
     },
   },
   components: {
-    testComp: { template: "<div>遺失物測試</div>" },
+    testComp: {
+      template: '<div class="modal-dialog modal-lg">遺失物協尋</div>',
+    },
   },
 };
 </script>

@@ -65,7 +65,7 @@ export default {
                 return;
             }else{
                 for( let i=0; i< order.products.length; i++){
-                    for( let j=0; j< order.quantity[i] ; j++){
+                    for( let j = 0; j< order.quantity[i] ; j++){
                         // productIds.push( order.products[i])
                         sum+= order.products[i].productPrice;
                     }

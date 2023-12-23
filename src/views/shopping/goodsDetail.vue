@@ -157,7 +157,7 @@
     <div class="card mb-3" style="max-width: 1200px; margin:auto;">
         <div class="row g-0">
             <div class="col-md-6">
-                <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px">
+                <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px; height: 500px">
             </div>
             <div class="col-md-4">
                 <div class="card-body" style="width: 520px">

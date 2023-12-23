@@ -56,6 +56,34 @@
       }
     },
     methods: {
+      // 加入追蹤清單
+      addProductToTrackingList(p){
+        if(this.memberId == ''){
+          document.getElementById('login-modal-open-btn').click();
+          return ;
+        }
+        httpClient.post('/ProductTrackingList/add',{
+          pId: p.productId,
+          mId: this.memberId
+        })
+        .then((res)=>{
+          console.log(res.data)
+        })
+        p.showAddInTracking = true
+        setTimeout(function(){p.showAddInTracking=false},1500)
+
+        p.isTracking = true;
+      },
+      cancelTracking(p){
+        httpClient.delete('/ProductTrackingList/delete2?mId=' + this.memberId + '&pId=' + p.productId)
+            .then((res)=>{
+                console.log(res.data)
+            })
+            .catch((err)=>{
+            console.log(err)
+            })
+        p.isTracking = false;
+      },
       // 加入購物車
       addItemToShoppingCart(p){
         // const memberId = '123abc'
@@ -69,7 +97,7 @@
           console.log(res)
         })
         p.showAddInCart = true
-        setTimeout(function(){p.showAddInCart=false},700)
+        setTimeout(function(){p.showAddInCart=false},1500)
       },
       // 導向商品詳細頁
       goToGoodsDetail(productId) {
@@ -209,7 +237,7 @@
         // .then((res)=>{
           this.$emit('updateMemberId','undefined')
           this.userName = ''
-          console.log(res.data)
+          // console.log(res.data)
         // })
         // .catch((err)=>{
         //   console.error('登出失敗', err);
@@ -230,7 +258,8 @@
         .catch(err=>console.log(err))
         
       // fetch all product and pages before mount
-      httpClient.get("/products")
+      // httpClient.get("/products")
+        httpClient.get("/products?mId=" + this.memberId)
         .then((res) => {
           let ps = res.data;
           // let page = res.data;
@@ -426,6 +455,22 @@
     </fieldset>
   </aside>
 
+  <!-- <aside class="sideBar">
+    <fieldset>
+        <span>價格範圍</span>
+            <span>
+                <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
+                ——
+                <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
+                <div style="height: 1.2em;">
+                  <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
+                </div>
+            </span>
+        <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
+        <button class="btn btn-outline-success price-btn" @click="clearPrice" type="submit">清除</button>
+    </fieldset>
+  </aside> -->
+
   <!-- 產品 -->
   <article> 
     <div class="each-product">
@@ -433,16 +478,19 @@
         <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
           <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="object-fit: width: 100%; height: 300px;"/>
           <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
+          <div v-show="p.showAddInTracking" class="inimg-notification">已加入追蹤</div>
           <div class="row" style="font-weight: bold;">
-            <div class="col-7 ">
+            <div class="col-7">
               <p class="card-title" >{{ p.productName }}</p>
-              <div >
-                <p style="color:#EA7500;">${{ p.productPrice }}</p>
-              </div>
+              <p style="color:#EA7500;">${{ p.productPrice }}</p>
             </div>
-            <div class="col-5 ">
-                <button class="btn btn-success mt-3 add-btn" @click.stop="addItemToShoppingCart(p) " type="submit">加入購物車</button>
-            </div>
+          </div>
+          <div>
+            <span style="font-size:25px; cursor:pointer" @click.stop="addProductToTrackingList(p)" v-show="!p.isTracking">🤍</span>
+            <span style="font-size:25px; cursor:pointer" @click.stop="cancelTracking(p)" v-show="p.isTracking">❤️</span>
+            <button class="btn btn-success add-btn" @click.stop="addItemToShoppingCart(p)" type="submit">加入購物車</button>
+            <!-- <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">❤️</button>
+            <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">🤍</button> -->
           </div>
         </div>
       </div> 

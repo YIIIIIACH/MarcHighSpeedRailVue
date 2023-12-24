@@ -2,13 +2,15 @@
 import axios from "axios";
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
-import { useRouter, useRoute } from 'vue-router'
+import {useRouter, useRoute} from 'vue-router'
+
 const $cookies = inject('$cookies');
 
 const router = useRouter()
 const route = useRoute()
 // 響應式引用
 const user = ref({
+  id: '',
   name: '',
   email: '',
   phone: ''
@@ -16,17 +18,25 @@ const user = ref({
 const errorMessage = ref('');
 
 
-onMounted( () => {
-  console.log("77777");
-  if ($cookies.isKey('info')){
-    let getInfo = $cookies.get("info");
-    if (getInfo!==""){
-      let memberInfo = JSON.parse(Base64.decode(getInfo));
-      user.value.name=memberInfo.member_name;
-      user.value.email=memberInfo.member_email;
-      user.value.phone=memberInfo.member_phone;
-    }
+onMounted(() => {
+  console.log("start profile");
+  if (!$cookies.isKey('info')) {
+    console.log("no cookie")
+    router.push("/login")
+    return;
   }
+  let getInfo = $cookies.get("info");
+  if (getInfo === "") {
+    console.log("no cookie")
+    router.push("/login")
+    return;
+  }
+  let memberInfo = JSON.parse(Base64.decode(getInfo));
+  user.value.id = memberInfo.member_id;
+  user.value.name = memberInfo.member_name;
+  user.value.email = memberInfo.member_email;
+  user.value.phone = memberInfo.member_phone;
+
 
 });
 
@@ -50,51 +60,80 @@ onMounted( () => {
 
 
 // 提交表單
-function logout() {
+async function logout() {
   try {
-    const response = axios.post('/api/member/signout', user.value);
-
-    console.log('Response:', response.data);
-    if (response.data.success) {
-      $cookies.remove("token");
-      router.push('/profile');
-    }
+    const myToken = $cookies.get('token')
+    const response = await axios.post('/api/member/signout', {login_token: myToken});
+    console.log('Response:' + JSON.stringify(response.data));
   } catch (error) {
-    console.error('Error:', error.response);
+    console.log('Error:' + error);
     errorMessage.value = '錯誤'; // 更新錯誤訊息
   }
+  $cookies.remove("info");
+  $cookies.remove("token");
+  await router.push('/login');
+
 }
 
 function pwd() {
   router.push('/pwd');
 }
 
-function deleteInfo() {
+async function deleteInfo() {
   try {
-    const getToken = $cookies.get("token")
-    const response = axios.post('/api/member/removeUser', getToken);
-    console.log('Response:', response.data);
+    let deletePost = {
+      member_id: user.value.id,
+      member_name: user.value.name,
+      member_email: "",
+      member_phone: ""
+    }
+    const response = await axios.post('/api/member/removeUser', deletePost);
+    console.log('Response:' + JSON.stringify(response.data));
 
-    if (!response.data==null) {
-     $cookies.remove("token");
-      router.push('/login');
+    if (response.data !== null) {
+      $cookies.remove("info");
+      $cookies.remove("token");
+      await router.push('/login');
     }
   } catch (error) {
-    console.error('Error:', error.response);
+    console.log('Error:' + error);
     errorMessage.value = '錯誤'; // 更新錯誤訊息
   }
 }
 
-function edit() {
+async function edit() {
   try {
-    const response = axios.post('/api/member/edit', user.value);
-    console.log('Response:', response.data);
+    if (user.value.id === "") {
+      await router.push("/login")
+      return;
+    }
+    if (user.value.name === "") {
+      errorMessage.value = '名稱不得為空'
+      return;
+    }
+    if (user.value.email === "") {
+      errorMessage.value = '信箱不得為空'
+      return;
+    }
+    if (user.value.phone === "") {
+      errorMessage.value = '電話不得為空'
+      return;
+    }
+    let memberPost = {
+      member_id: user.value.id,
+      member_name: user.value.name,
+      member_email: user.value.email,
+      member_phone: user.value.phone
+    }
+    const response = await axios.post('/api/member/edit', memberPost);
+    console.log('Response:' + JSON.stringify(response.data));
 
-    if (!response.data == null) {
-      router.push('/profile');
+    if (response.data !== null) {
+      errorMessage.value = "更新成功"
+      $cookies.set('info',Base64.encode(JSON.stringify(response.data)), 60 * 60 * 24 * 3)
     }
   } catch (error) {
-    console.error('Error:', error.response);
+    console.log('Error:' + error);
     errorMessage.value = '輸入錯誤'; // 更新錯誤訊息
   }
 }
@@ -122,10 +161,10 @@ function edit() {
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
       </div>
 
-      <button class="save-button" @click="edit">更改資訊</button>
-      <button class="pwd-button" @click="pwd">變更密碼</button>
-      <button class="logout-button" @click="logout">登出</button>
-      <button class="delete-button" @click="deleteInfo">刪除帳號</button>
+      <button type="button" class="save-button" @click="edit">更改資訊</button>
+      <button type="button" class="pwd-button" @click="pwd">變更密碼</button>
+      <button type="button" class="logout-button" @click="logout">登出</button>
+      <button type="button" class="delete-button" @click="deleteInfo">刪除帳號</button>
     </form>
   </div>
 </template>

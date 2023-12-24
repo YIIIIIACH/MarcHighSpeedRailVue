@@ -75,7 +75,7 @@
 
 <template>
     <header>
-        <h1 style="text-align: center; margin:30px">訂單商品</h1>
+        <h1 style="text-align: center; margin:30px">結帳商品</h1>
     </header>
     <!-- 結帳訂單資訊 -->
     <table class="table" style="width:70%; margin:auto;">
@@ -129,10 +129,10 @@
             </div>
         </div>
         
-        <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span></p>     
-        </div>
     </article>
+    <div style="text-align: right; margin-right: 180px">
+        <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span></p>     
+    </div>
 </template>
 
 <style>

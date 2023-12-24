@@ -41,10 +41,14 @@ export default {
             }
             httpClient.post('/ShoppingCart/addProduct?productId=' + t.productId + '&' + 'memberId=' + this.memberId)
             .then((res)=>{
-            console.log(res)
+                console.log(res.data)
+                if(res.data == "商品已在購物車中。"){
+                    alert("商品已在購物車中，無需重複添加")
+                }else{
+                    t.showAddInCart = true
+                    setTimeout(function(){t.showAddInCart=false},1500)
+                }
             })
-            t.showAddInCart = true
-            setTimeout(function(){t.showAddInCart=false},1500)
         },
         deleteTracking(tId){
             httpClient.delete('/ProductTrackingList/delete?mId=' + this.memberId + '&tId=' + tId)
@@ -115,15 +119,18 @@ export default {
             <div v-for="t of trackingProducts" :key="t.trackingId">
                 <div class="card card-gap" @click="goToGoodsDetail(t.productId)">
                     <div @mouseover="handleMouseOver(t.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === t.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': t.showAddInCart}" style="height:400px">
-                        <p style="text-align:end;" @click.stop="deleteTracking(t.trackingId)" ><span style="cursor: pointer">X</span></p>
+                        <p style="text-align:end;" @click.stop="deleteTracking(t.trackingId)" >
+                            <span style="cursor: pointer">⨉</span>
+                        </p>
                         <img :src="t.photoData" class="card-img-top" :alt="t.productName" style="height:200px">
-                        <div v-show="t.showAddInCart" class="inimg-notification">已加入購物車</div>
+                        <div v-show="t.showAddInCart" class="inimg-notification" style="width:9rem">成功加入購物車</div>
                         <div class="card-body">
                             <p class="card-title">{{t.productName}}</p>
                             <div>
                                 <p style="color:#EA7500;">${{t.productPrice}}</p>
                             </div>
-                            <button class="btn btn-success mt-1 add-btn" @click.stop="addItemToShoppingCart(t) " type="submit">加入購物車</button>
+                            <button class="btn btn-success mt-1 add-cart-btn" @click.stop="addItemToShoppingCart(t)" type="submit">加入購物車</button>
+                            <p style="color:gray">追蹤日期 :  {{t.trackingDate}}</p>
                         </div>
                     </div>
                 </div>
@@ -174,8 +181,8 @@ export default {
     z-index: 1000;
     }
     .card-gap{
-    width: 12rem; 
-    box-shadow: 5px 5px 5px #EBD6D6;
+    width: 15rem; 
+    box-shadow: 5px 5px 5px #6d6d6d;
     }
     .card-title{
         font-size: 14px;

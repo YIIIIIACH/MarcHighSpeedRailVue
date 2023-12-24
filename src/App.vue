@@ -77,7 +77,7 @@ function updatemId(newId){
               aria-haspopup="true"
               aria-expanded="false"
             >
-              購物商店
+              禮品商店
             </a>
             <div class="dropdown-menu" aria-labelledby="shoppingDropdown">
               <router-link to="/goods" class="dropdown-item" id="fontcolor">

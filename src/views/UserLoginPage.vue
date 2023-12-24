@@ -1,5 +1,7 @@
 <script>
 import axios from 'axios';
+import {Base64} from 'js-base64'
+
 
 export default {
   data() {
@@ -13,7 +15,8 @@ export default {
     async submitLogin() {
       try {
         console.log("submitLogin");
-        const response = await axios.post('/member/signin', {
+        console.log('Login attempt with:', this.email, this.password);
+        const response = await axios.post('/api/member/signin', {
           email: this.email,
           password: this.password
         }, {
@@ -25,10 +28,13 @@ export default {
         if (response.data === null) {
           this.loginError = true; // 如果回傳值為null，設置loginError為true
         } else {
+          console.log("login success");
           // 處理成功的響應數據
           this.loginError = false;
           // 創建cookie並將回傳值放進cookie
-          this.$cookies.set('token',response.login_token,60 * 60 * 24 * 3)
+          this.$cookies.set('token', response.data.login_token, 60 * 60 * 24 * 3)
+          //memberInfo base64後儲存
+          this.$cookies.set('info',Base64.encode(JSON.stringify(response.data)), 60 * 60 * 24 * 3)
           this.$router.push('/profile');
         }
       } catch (error) {
@@ -36,13 +42,13 @@ export default {
         this.loginError = true; // 處理錯誤
       }
 
-      console.log('Login attempt with:', this.email, this.password);
+
       // 重置表單字段
       this.email = '';
       this.password = '';
     }
   },
-  props:['memberId'],
+  props: ['memberId'],
   emits: ['updateMemberId'],
 };
 </script>
@@ -52,15 +58,14 @@ export default {
       <img src="@/assets/taiwan-high-speed-rail-logo.png" alt="Taiwan High Speed Rail Logo" class="logo">
       <div class="login-form">
         <h3>會員登入</h3>
-        <input type="email" placeholder="帳號" v-model="email" class="input-field" />
-        <input type="password" placeholder="密碼" v-model="password" class="input-field" />
+        <input type="email" placeholder="帳號" v-model="email" class="input-field"/>
+        <input type="password" placeholder="密碼" v-model="password" class="input-field"/>
         <div v-if="loginError" class="error-message">帳號或密碼錯誤</div> <!-- 新增錯誤訊息顯示 -->
         <button @click="submitLogin" class="login-btn">登入</button>
       </div>
     </div>
   </div>
 </template>
-
 
 
 <style scoped>

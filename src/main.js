@@ -28,6 +28,6 @@ export default httpClient;
 app.use(VueCookies)
 
 // 可以在main.js或一個獨立的配置文件中進行
-app.config.globalProperties.$isTokenPresent = 'null'; // 初始設置Token不存在
+app.config.globalProperties.$memberInfo= 'null'; // 初始設置Token不存在
 
 

@@ -19,8 +19,18 @@ const errorMessage = ref('');
 
 
 onMounted(() => {
-  console.log("77777");
-
+  console.log("start pwd");
+  if (!$cookies.isKey('info')) {
+    console.log("no cookie")
+    router.push("/login")
+    return;
+  }
+  let getInfo = $cookies.get("info");
+  if (getInfo === "") {
+    console.log("no cookie")
+    router.push("/login")
+    return;
+  }
 
 });
 

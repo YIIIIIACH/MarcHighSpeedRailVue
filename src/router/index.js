@@ -4,6 +4,7 @@ import booking from '../views/bookingSystem/booking.vue'
 import goods from '../views/shopping/goods.vue'
 import goodsDetail from '../views/shopping/goodsDetail.vue'
 import shoppingCart from '../views/shopping/shoppingCart.vue'
+import watchList from '../views/shopping/watchList.vue'
 import checkoutPage from '../views/shopping/checkoutPage.vue'
 import shoppingHistory from '../views/shopping/shoppingHistory.vue'
 import lostItem from '../components/lostItem.vue'
@@ -93,6 +94,11 @@ const router = createRouter({
       component: shoppingCart,
       name: 'shoppingCart',
       // props: true
+    },
+    {
+      path:'/watchList',
+      component: watchList,
+      props: true
     },
     {
       // path: '/checkout/:memberId/:checkoutPrice',

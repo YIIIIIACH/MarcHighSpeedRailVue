@@ -1,47 +1,56 @@
 <script setup>
-import { reactive, onBeforeMount } from 'vue';
-const props = defineProps(['memberId'])
-const emits = defineEmits(['updateMemberId'])
-const pageBlockDisplayArr = reactive([true, false, false, false])
-onBeforeMount(()=>{
-    window.addEventListener("scroll", 
-    function handleScroll(){
-        let y = window.scrollY;
-        pageBlockDisplayArr[1] = (y> 60)?true: false
-        pageBlockDisplayArr[2] = (y> 576)?true: false
-        pageBlockDisplayArr[3] = (y> 1340)?true: false
-    })
-})
-
+import { reactive, onBeforeMount } from "vue";
+const props = defineProps(["memberId"]);
+const emits = defineEmits(["updateMemberId"]);
+const pageBlockDisplayArr = reactive([true, false, false, false]);
+onBeforeMount(() => {
+  window.addEventListener("scroll", function handleScroll() {
+    let y = window.scrollY;
+    pageBlockDisplayArr[1] = y > 60 ? true : false;
+    pageBlockDisplayArr[2] = y > 576 ? true : false;
+    pageBlockDisplayArr[3] = y > 1340 ? true : false;
+  });
+});
 </script>
 <template>
-    <div class="home-page-container">
-        <Transition>
-            <div class="page-block" v-show="pageBlockDisplayArr[0]" ></div>
-        </Transition>
-        <Transition>
-            <div class="page-block" v-show="pageBlockDisplayArr[1]" ></div>
-        </Transition>
-        <Transition>
-            <div class="page-block" v-show="pageBlockDisplayArr[2]" ></div>
-        </Transition>
-        <Transition>
-            <div class="page-block" v-show="pageBlockDisplayArr[3]" ></div>
-        </Transition>
-    </div>
+  <div class="home-page-container">
+    <Transition>
+      <div class="page-block" id="div1" v-show="pageBlockDisplayArr[0]"></div>
+    </Transition>
+    <Transition>
+      <div class="page-block" id="div2" v-show="pageBlockDisplayArr[1]"></div>
+    </Transition>
+    <Transition>
+      <div class="page-block" id="div3" v-show="pageBlockDisplayArr[2]"></div>
+    </Transition>
+    <Transition>
+      <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]"></div>
+    </Transition>
+  </div>
 </template>
 
 <style>
-.home-page-container{
-    margin-top: 50px;
-    margin-bottom: 300px;
+.home-page-container {
+  margin-top: 0px;
+  margin-bottom: 300px;
 }
-.page-block{
-    background-color: red;
-    padding: auto 0px;
-    margin: 40px 15%;
-    width: 70%;
-    height: 600px;
+.page-block {
+  padding: auto 0px;
+  margin: 0px 15%;
+  width: 70%;
+  height: 600px;
+}
+#div1 {
+  background-color: chartreuse;
+}
+#div2 {
+  background-color: rgb(0, 89, 255);
+}
+#div3 {
+  background-color: rgb(0, 153, 255);
+}
+#div4 {
+  background-color: rgb(140, 0, 255);
 }
 .v-enter-active,
 .v-leave-active {

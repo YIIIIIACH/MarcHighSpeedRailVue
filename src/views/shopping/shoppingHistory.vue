@@ -65,7 +65,7 @@ export default {
                 return;
             }else{
                 for( let i=0; i< order.products.length; i++){
-                    for( let j=0; j< order.quantity[i] ; j++){
+                    for( let j = 0; j< order.quantity[i] ; j++){
                         // productIds.push( order.products[i])
                         sum+= order.products[i].productPrice;
                     }
@@ -111,6 +111,17 @@ export default {
         },
     },
     beforeMount() {
+
+        // const allCookies = document.cookie.split(';');
+        // for(let c of allCookies){
+        //     const [name, value] = c.trim().split('=');
+        //     if(name  == "member-name"){
+        //         this.userName = value
+        //         break;
+        // console.log(this.userName)
+        //     }
+        // }
+
         httpClient.post('/verifyLoginToken',{},{withCredentials: true})
         .then((res) => {
           console.log(res.data)
@@ -175,19 +186,12 @@ export default {
     </div>
     <div class="order-history-info mx-auto" v-else>
         <h1 class="shoppingHistory-title">📋 訂購紀錄</h1>
+        <hr>
         <div class="text-center mt-4 mb-3">
             <button class="btn btn-primary " @click="showPaidOrders">已付款</button>
             <button class="btn btn-warning " @click="showUnpaidOrders">待付款</button>
         </div>
-        <!-- <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                依完成時間
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li class="dropdown-item" @click="sortByCompletionDate()">升敘</li>
-                <li class="dropdown-item">降敘</li>
-            </ul>
-        </div>  -->
+
         <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
@@ -238,7 +242,7 @@ export default {
                         <div><p>數量: {{ order.quantity[idx]}}</p></div>
                     </td>
                     <td>
-                        <div><p>總金額: {{order.products[idx].productPrice * order.quantity[idx]}}</p></div>
+                        <div><p>小計: {{order.products[idx].productPrice * order.quantity[idx]}}</p></div>
                     </td>
                 </tr>
             </tfoot> 

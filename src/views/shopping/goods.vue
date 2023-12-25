@@ -301,7 +301,6 @@
 <template>
   <!-- 登入登出按鈕 -->
   <div style="display: flex; justify-content: flex-end;" >
-      <span>使用者: {{this.userName}}</span>
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
       </button>
@@ -640,7 +639,9 @@
   float: left;
   height: 200px;
   padding: 10px;
-  background: rgb(243, 243, 233);
+  background: rgb(242, 251, 251);
+  /* border: rgb(189, 186, 186) 3px;； */
+  border-style:groove;
   margin: 20px 0px 0px 20px;
 }
 .min-price {

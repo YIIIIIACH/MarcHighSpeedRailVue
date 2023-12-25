@@ -103,7 +103,6 @@ export default {
 </script>
 <template>
     <div style="display: flex; justify-content: flex-end;" >
-        <span>使用者: {{this.userName}}</span>
         <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
             登出
         </button>

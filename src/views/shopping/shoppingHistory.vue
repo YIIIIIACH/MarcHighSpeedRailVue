@@ -248,7 +248,7 @@ export default {
             </tfoot> 
         </table>     
     </div>
-    
+
     <!-- modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -285,4 +285,5 @@ export default {
         text-align: center; 
         margin: 30px;
     }
+
 </style>

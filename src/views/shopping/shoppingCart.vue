@@ -262,15 +262,16 @@
   </div>
 
   <!-- 購物車內容 -->
-  <div >
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
     <br>
     <br>
-    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢購物車</h1>
+    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看購物車</h1>
   </div>
   <div v-else>
-    <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
-    <hr>
+    <div style="width:70%; margin: auto">
+      <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
+      <hr>
+    </div>
     <!-- <span class="cart-items-title-bottomLine"></span> -->
     <!-- 購物車品項 -->
     <!-- <div v-if="this.shoppingCartItems.length === 0">
@@ -362,8 +363,6 @@
     </nav>
   </div>
 
-  
-
     <!-- 結帳用懸浮視窗 -->
     <div class="floating-window">
       <div>
@@ -380,7 +379,6 @@
         </div>
       </div>
     </div>
-  </div>
 
   <!-- modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -457,4 +455,5 @@
   .narrow-th {
     width: 50px;
   }
+  
 </style>

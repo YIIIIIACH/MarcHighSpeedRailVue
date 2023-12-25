@@ -16,6 +16,12 @@
             }
         },
         methods: {
+            showBuyerInfo(){
+                this.buyerName = "Bryan Lee"
+                this.phoneNumber = "0987654321"
+                this.address = "台北市大同區吉祥路666號"
+                this.remark = "買爆你們！"
+            },
             showArray(){
                 console.log(this.selectedItems)
             },
@@ -75,7 +81,7 @@
 
 <template>
     <header>
-        <h1 style="text-align: center; margin:30px">訂單商品</h1>
+        <h1 style="text-align: center; margin:30px">結帳商品</h1>
     </header>
     <!-- 結帳訂單資訊 -->
     <table class="table" style="width:70%; margin:auto;">
@@ -85,7 +91,7 @@
                 <th>商品名稱</th>
                 <th scope="col">單價</th>
                 <th scope="col">數量</th>
-                <th scope="col">總價</th>
+                <th scope="col">小計</th>
             </tr>
         </thead>
         <tbody>
@@ -129,10 +135,14 @@
             </div>
         </div>
         
-        <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span></p>     
-        </div>
     </article>
+    <div style="text-align: right; margin-right: 180px">
+        <p style="margin: 50px;">
+            <button @click="showBuyerInfo()" style="margin-right: 50px">demo</button>結帳總金額:$ 
+            <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span>
+            <span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span>
+        </p>     
+    </div>
 </template>
 
 <style>

@@ -188,8 +188,8 @@ export default {
         <h1 class="shoppingHistory-title">📋 訂購紀錄</h1>
         <hr>
         <div class="text-center mt-4 mb-3">
-            <button class="btn btn-primary " @click="showPaidOrders">已付款</button>
-            <button class="btn btn-warning " @click="showUnpaidOrders">待付款</button>
+            <button class="btn btn-primary " @click="showPaidOrders" style="width:130px">已付款訂單</button>
+            <button class="btn btn-warning " @click="showUnpaidOrders" style="width:130px; margin-left:50px">待付款訂單</button>
         </div>
 
         <table class="table" v-for="order of filteredOrders" :key="order.orderId">
@@ -248,7 +248,7 @@ export default {
             </tfoot> 
         </table>     
     </div>
-    
+
     <!-- modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -285,4 +285,5 @@ export default {
         text-align: center; 
         margin: 30px;
     }
+
 </style>

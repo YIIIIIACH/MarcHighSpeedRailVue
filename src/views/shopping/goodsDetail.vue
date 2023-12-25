@@ -42,7 +42,7 @@
                     })
                     .then((res)=>{
                     console.log(res.data)
-                    alert(res.data)
+                        alert(res.data)              
                     })
 
                     this.product.value.isTracking = true;
@@ -50,7 +50,7 @@
                 cancelTracking(){
                     httpClient.delete('/ProductTrackingList/delete2?mId=' + this.memberId + '&pId=' + this.product.value?.productId)
                         .then((res)=>{
-                            console.log(res.data)
+                            alert(res.data)
                         })
                         .catch((err)=>{
                         console.log(err)
@@ -59,6 +59,7 @@
                 },
                 // 加入購物車
                 addItemToShoppingCart(productId, quantity){
+                    this.showRemind = false;
                     if(this.memberId == 'undefined'){
                         document.getElementById('login-modal-open-btn').click();
                         return ;
@@ -194,6 +195,7 @@
             <div class="col-md-4">
                 <div class="card-body" style="width: 520px">
                     <h5 class="card-title" style="color:darkblue; font-size:25px; margin-top:40px">{{this.product.value?.productName}}</h5>
+                    
                     <h4 class="mb-5 mt-5">
                         <small class="text-muted ">建議售價 </small>
                         <span :style="{ color: 'red' }">$ {{this.product.value?.productPrice}}</span>
@@ -209,12 +211,11 @@
                         </span>
                     </h5>
                     <div>
-                        <span class="tracking-icon" @click="addProductToTrackingList()" v-show="!this.product.value?.isTracking">🤍</span>
-                        <span class="tracking-icon" @click.stop="cancelTracking()" v-show="this.product.value?.isTracking">❤️</span>
-                        <button type="button" class="btn btn-success" @click="addItemToShoppingCart(this.Id, this.quantity)" style="width:130px">加入購物車</button>
-                        <p v-show="showRemind" class="remind">商品已在購物車中</p>
-                        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button>
-                        <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">加入追蹤</button> -->
+                        <button type="button" class="btn btn-success add-cart-btn" @click="addItemToShoppingCart(this.Id, this.quantity)">🛒 加入購物車</button> 
+                        <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="addProductToTrackingList()" v-show="!this.product.value?.isTracking">🤍 加入追蹤</button>
+                        <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="cancelTracking()" v-show="this.product.value?.isTracking">❤️ 已追蹤</button>
+                        <p v-show="showRemind" class="remind">商品已在購物車中，無需重複添加</p>
+                        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button> -->
                     </div>
                 </div>
             </div>
@@ -307,7 +308,7 @@
 </template>
 
 <style>
-    .productType-head-bottomLine{
+    /* .productType-head-bottomLine{
         position: absolute; 
         bottom: 0; 
         left: 50%; 
@@ -316,7 +317,7 @@
         height: 4px; 
         background-color: darkgray; 
         margin-bottom: -5px;
-    }
+    } */
     #productType-head{
         text-align:center; 
         margin: 10px; 
@@ -333,7 +334,6 @@
     }
     .remind{
         margin-top:5px;
-        margin:5px 0px 0px 65px;
         color:red;
         font-weight: bolder;
         font-size: 1.1rem;

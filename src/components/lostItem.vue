@@ -1,27 +1,6 @@
-<script>
-import { ref } from "vue";
-export default {
-  setup() {
-    return {
-      test: "test lost item",
-      testNum: ref(2),
-    };
-  },
-  methods: {
-    testFunc: function () {
-      return "testFunc";
-    },
-  },
-  components: {
-    testComp: {
-      template: '<div class="modal-dialog modal-lg">遺失物協尋</div>',
-    },
-  },
-};
+<script setup>
 </script>
-<template>
-  <testComp></testComp>
-</template>
+<template>AAA</template>
 <style>
 .slide-left-enter-active,
 .slide-left-leave-active,

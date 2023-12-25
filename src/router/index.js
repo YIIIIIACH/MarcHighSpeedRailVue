@@ -80,7 +80,8 @@ const router = createRouter({
     },
     {
       path: '/goods',
-      component: goods
+      component: goods,
+      name: 'goods'
     },
     {
       path: '/goods/goodsDetail/:Id',
@@ -89,11 +90,9 @@ const router = createRouter({
       props: true
     },
     {
-      // path: '/shoppingCart/:memberId',
       path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',
-      // props: true
     },
     {
       path:'/watchList',
@@ -108,21 +107,14 @@ const router = createRouter({
       props: true
     },
     {
-      path:'/orderPaymentSuccess/:orderId',
+      path:'/orderPaymentSuccess/:orderId/:orderNumber/:checkoutPrice',
       component: orderPaymentSuccess,
       props: true
     },
-    // {
-    //   path:'/orderPaymentFailed/:orderId',
-    //   component: orderPaymentSuccess,
-    //   props: true
-    // },
     {
-      // path: '/shoppingHistory/:checkoutPrice',
       path: '/shoppingHistory',
       component: shoppingHistory,
       name: 'shoppingHistory',
-      // props: true
     },
     {
       path: '/login',

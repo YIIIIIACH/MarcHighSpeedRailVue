@@ -10,15 +10,21 @@ export default {
             password: ref(''),
             userName: ref(''),
             orders: ref([]),
+
+            // filteredOrders: ref([]),
+            searchableOrder:ref({}),
+
             productIds: ref([]),
             products: ref([]),
             passwordVisible: ref(false),
 
             showPaid: ref(false),
             showUnpaid: ref(true),
+            inputOrderNumber: ref(''),
         }
     },
     computed:{
+        
         isLogined(){              
             return (this.memberId == 'undefined')? false: true;
         },
@@ -47,6 +53,13 @@ export default {
         //     this.filteredOrders.sort((a,b) => {
 
         //     })
+        // },
+        // searchOrderByOrderNumber(){
+        //     for(let o of this.filteredOrders){
+        //         if(o.orderNumber == this.inputOrderNumber){
+
+        //         }
+        //     }
         // },
         showPaidOrders() {
             this.showPaid = true;
@@ -191,6 +204,11 @@ export default {
             <button class="btn btn-primary " @click="showPaidOrders" style="width:130px">已付款訂單</button>
             <button class="btn btn-warning " @click="showUnpaidOrders" style="width:130px; margin-left:50px">待付款訂單</button>
         </div>
+
+        <!-- <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" v-model="inputOrderNumber" @blur="searchOrderByOrderNumber()">
+            <label for="floatingInput">請輸入訂單編號：</label>
+        </div> -->
 
         <table class="table" v-for="order of filteredOrders" :key="order.orderId">
             <thead class="table-info">

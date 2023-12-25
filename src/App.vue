@@ -5,35 +5,27 @@
 import { RouterLink, RouterView, useRoute } from "vue-router";
 import Navbar from "./components/navbar.vue";
 import { ref, onMounted } from "vue";
+import router from "../src/router/index";
 const path = useRoute().path;
 
-console.log(!path.includes('emp'))
-const mId = ref('undefined')
-function updatemId(newId){
-  mId.value= newId;
+console.log(!path.includes("emp"));
+const mId = ref("undefined");
+function updatemId(newId) {
+  mId.value = newId;
 }
 </script>
 <template>
+  <a class="navbar-brand" @click="router.push('/')" id="navLogo"
+    ><img src="@\assets\IndexLogo.png"
+  /></a>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
     <div class="container-fluid">
-      <a class="navbar-brand" href="javascript:void(0)"
-        >Taiwan High Speed Rail</a
-      >
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#mynavbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="mynavbar">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item">
-            <router-link class="nav-link" id="fontcolor" to="/"
-              >home</router-link
-            >
-          </li>
+      <div class="collapse navbar-collapse">
+        <div></div>
+        <ul class="navbar-nav me-auto" id="mynavbar">
+          <!-- <li class="nav-item" id="navLogo">
+            <router-link class="nav-link" id="fontcolor" to="/"> </router-link>
+          </li> -->
           <li class="nav-item">
             <router-link to="/lostItem" class="nav-link" id="fontcolor"
               >遺失物搜尋</router-link
@@ -83,15 +75,23 @@ function updatemId(newId){
               <router-link to="/goods" class="dropdown-item" id="fontcolor">
                 購物中心
               </router-link>
-              <router-link to="/shoppingCart" class="dropdown-item" id="fontcolor">
+              <router-link
+                to="/shoppingCart"
+                class="dropdown-item"
+                id="fontcolor"
+              >
                 我的購物車
-              </router-link >
+              </router-link>
               <router-link to="/watchList" class="dropdown-item" id="fontcolor">
                 追蹤清單
-              </router-link >
-              <router-link to="/shoppingHistory" class="dropdown-item" id="fontcolor">
+              </router-link>
+              <router-link
+                to="/shoppingHistory"
+                class="dropdown-item"
+                id="fontcolor"
+              >
                 訂購清單
-              </router-link >
+              </router-link>
             </div>
           </li>
           <li class="nav-item">
@@ -105,15 +105,22 @@ function updatemId(newId){
             >
           </li>
         </ul>
-        <form class="d-flex">
+        <!-- <form class="d-flex">
           <input class="form-control me-2" type="text" placeholder="Search" />
           <button class="btn btn-primary" type="button">Search</button>
-        </form>
+        </form> -->
       </div>
     </div>
   </nav>
   <section>
-    <router-view @updateMemberId="(newId) => {updatemId(newId);}" :memberId="mId"></router-view>
+    <router-view
+      @updateMemberId="
+        (newId) => {
+          updatemId(newId);
+        }
+      "
+      :memberId="mId"
+    ></router-view>
   </section>
 </template>
 
@@ -162,5 +169,19 @@ a:visited {
 .fade-enter-to,
 .fade-leave-from {
   opacity: 1;
+}
+
+#navLogo img {
+  margin-top: -15px;
+  margin-left: -20px;
+  float: left;
+}
+
+#mynavbar {
+  float: left;
+}
+
+.navbar-nav {
+  flex-grow: 1; /* 讓 navbar-nav 充滿剩餘的空間 */
 }
 </style>

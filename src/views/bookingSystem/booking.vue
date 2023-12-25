@@ -485,7 +485,7 @@ var isToBooking = false;
     }
     .progress-bar-vertical {
         position:absolute;
-        left:50px;
+        left:45px;
         top:40px;
         width: 30px;
         min-height: 780px;

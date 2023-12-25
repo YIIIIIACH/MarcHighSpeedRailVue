@@ -91,7 +91,7 @@
                 <th>商品名稱</th>
                 <th scope="col">單價</th>
                 <th scope="col">數量</th>
-                <th scope="col">總價</th>
+                <th scope="col">小計</th>
             </tr>
         </thead>
         <tbody>

@@ -84,13 +84,24 @@ export default {
             this.$emit('updateMemberId', res.data.member_id);
             document.getElementById('login-modal-close-btn').click();
             })
+            beforeMount();
         },
         logout: function(){
             this.$emit('updateMemberId','undefined')
             this.userName = ''
-      },
+        },
     },
     beforeMount() {
+        httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          // console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+
         httpClient.get('/ProductTrackingList?mId=' + this.memberId)
         .then(res =>{
             console.log(res.data)
@@ -102,6 +113,7 @@ export default {
 }
 </script>
 <template>
+    <!-- 登入登出 -->
     <div style="display: flex; justify-content: flex-end;" >
         <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
             登出
@@ -111,7 +123,12 @@ export default {
             登入
         </button>
     </div>
-    <div id="main-content">
+    <div v-if="this.memberId === 'undefined'" style="text-align: center">
+        <br>
+        <br>
+        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看訂購清單</h1>
+    </div>
+    <div id="main-content" v-else>
         <h1 style="text-align:center; margin:30px">追蹤清單</h1>
         <hr>
         <div class="product-container">

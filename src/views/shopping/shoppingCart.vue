@@ -265,7 +265,7 @@
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
     <br>
     <br>
-    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢購物車</h1>
+    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看購物車</h1>
   </div>
   <div v-else>
     <div style="width:70%; margin: auto">

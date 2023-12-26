@@ -139,7 +139,6 @@ async function submitInfo() {
   </div>
 </template>
 
-
 <style scoped>
 .user-profile {
   display: flex;
@@ -194,7 +193,6 @@ input:focus {
   margin-bottom: 20px; /* 與下方元素的間距 */
 }
 
-
 .submit-button {
   background-color: #ffb700;
   color: white;
@@ -220,6 +218,7 @@ label {
 }
 
 .terms-box {
+  width: 500px;
   margin-top: 20px;
   border: 1px solid #ccc;
   padding: 15px;
@@ -227,6 +226,7 @@ label {
 }
 
 .terms-content {
+
   height: 150px; /* 或根據需要調整 */
   overflow-y: scroll; /* 啟用垂直捲動條 */
   padding-right: 5px; /* 為捲動條留出空間 */

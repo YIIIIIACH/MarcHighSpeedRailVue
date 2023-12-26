@@ -117,41 +117,42 @@ export default {
           if( res.status == 200){
             this.$emit('updateMemberId', res.data)
             // console.log( 'emits to update memberid ')
+            httpClient.get('/OrderHistory?memberId=' + res.data)
+            .then((res)=>{
+                // console.log( res.data)
+                let orders = res.data
+                for(let order of orders){
+                    console.log(order)
+                    
+                    let isoString = order.orderCreationDate // 接收後端傳來的日期字串
+                    let date = new Date(isoString); // 字串轉成 JS Date 物件
+                    let formattedDate = date.toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }); // 使用 toLocaleString 將日期格式化為本地格式, 並忽略"秒"的時間
+                    order.orderCreationDate = formattedDate 
+
+                    if(order.orderCompletionDate !== null){
+                        order.orderCompletionDate = new Date( order.orderCompletionDate).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
+                    }
+
+                    // console.log( order.orderCompletionDate);
+                    this.sourceOrders.push(order)
+                    this.orders.push(order)
+                    this.productIds.push(order.productId)
+                }
+            })
+            .then(()=>{
+                httpClient.get('/product/findByProductIds?productIds=' + this.productIds.join(','))
+                .then((res)=>{
+                    let resProducts = res.data
+                    for(let product of resProducts){
+                        this.products.push(product)
+                    }
+                })
+            })
           }
         })
         .catch(err=>console.log(err))
         
-        httpClient.get('/OrderHistory?memberId=' + this.memberId)
-        .then((res)=>{
-            // console.log( res.data)
-            let orders = res.data
-            for(let order of orders){
-                console.log(order)
-                
-                let isoString = order.orderCreationDate // 接收後端傳來的日期字串
-                let date = new Date(isoString); // 字串轉成 JS Date 物件
-                let formattedDate = date.toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }); // 使用 toLocaleString 將日期格式化為本地格式, 並忽略"秒"的時間
-                order.orderCreationDate = formattedDate 
-
-                if(order.orderCompletionDate !== null){
-                    order.orderCompletionDate = new Date( order.orderCompletionDate).toLocaleString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false });
-                }
-
-                // console.log( order.orderCompletionDate);
-                this.sourceOrders.push(order)
-                this.orders.push(order)
-                this.productIds.push(order.productId)
-            }
-        })
-        .then(()=>{
-            httpClient.get('/product/findByProductIds?productIds=' + this.productIds.join(','))
-            .then((res)=>{
-                let resProducts = res.data
-                for(let product of resProducts){
-                    this.products.push(product)
-                }
-            })
-        })
+        
     },
 }
 </script>

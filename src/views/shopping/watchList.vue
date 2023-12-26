@@ -126,7 +126,7 @@ export default {
     <div v-if="this.memberId === 'undefined'" style="text-align: center">
         <br>
         <br>
-        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看訂購清單</h1>
+        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看追蹤清單</h1>
     </div>
     <div id="main-content" v-else>
         <h1 style="text-align:center; margin:30px">追蹤清單</h1>

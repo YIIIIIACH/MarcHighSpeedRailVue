@@ -15,11 +15,10 @@ function updatemId(newId) {
 }
 </script>
 <template>
-  <a class="navbar-brand" @click="router.push('/')" id="navLogo"
-    ></a>
+  <a class="navbar-brand" @click="router.push('/')" id="navLogo"></a>
   <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 100px;">
     <div style="float:left;overflow: visible;margin-top:95px" >
-      <img src="@\assets\IndexLogo.png" />
+      <router-link :to="{name: '/'}"><img src="@\assets\IndexLogo.png"/></router-link>
     </div>
     <div class="container-fluid">
       <div class="collapse navbar-collapse" >
@@ -91,7 +90,7 @@ function updatemId(newId) {
                 class="dropdown-item"
                 id="fontcolor"
               >
-                訂購清單
+                訂購紀錄
               </router-link>
             </div>
           </li>

@@ -1,12 +1,11 @@
 <script setup>
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
-import {useRouter, useRoute} from 'vue-router'
+import {useRouter} from 'vue-router'
 import httpClient from '@/main'
 const $cookies = inject('$cookies');
 
 const router = useRouter()
-const route = useRoute()
 // 響應式引用
 const user = ref({
   id: '',
@@ -35,35 +34,17 @@ onMounted(() => {
   user.value.name = memberInfo.member_name;
   user.value.email = memberInfo.member_email;
   user.value.phone = memberInfo.member_phone;
-
-
 });
 
-//   const usetoken = ref(null);
-// try {
-//   const myToken = this.$cookies.get('token')
-//   const postData = {
-//     // 這裡填入您想要發送給後端的資料，例如用戶ID或其他查詢參數
-//     login_token: myToken
-//   };
-//
-//   const response = await axios.post('/api/member/tokenlogin', postData);
-//   user.value = response.data; // 假設返回的數據結構與user物件匹配
-//   console.log(JSON.stringify(user))
-// } catch (error) {
-//   console.error('Error fetching user data:', error);
-//   errorMessage.value = '無法加載用戶資料';
-// }
-// useToken.value.checkToken();
-// console.log("profile"+JSON.stringify(app.config.globalProperties.$memberInfo))
 
-
-// 提交表單
 async function logout() {
   try {
     const myToken = $cookies.get('token')
+
+    // console.log('Response:' + JSON.stringify(response.data));
     const response = await httpClient.post('/member/signout', {login_token: myToken});
     console.log('Response:' + JSON.stringify(response.data));
+
   } catch (error) {
     console.log('Error:' + error);
     errorMessage.value = '錯誤'; // 更新錯誤訊息
@@ -86,6 +67,8 @@ async function deleteInfo() {
       member_email: "",
       member_phone: ""
     }
+
+    // console.log('Response:' + JSON.stringify(response.data));
     const response = await httpClient.post('/member/removeUser', deletePost);
     console.log('Response:' + JSON.stringify(response.data));
 
@@ -124,6 +107,9 @@ async function edit() {
       member_email: user.value.email,
       member_phone: user.value.phone
     }
+
+    // console.log('Response:' + JSON.stringify(response.data));
+
     const response = await httpClient.post('/member/edit', memberPost);
     console.log('Response:' + JSON.stringify(response.data));
 
@@ -140,6 +126,13 @@ async function edit() {
 </script>
 
 <template>
+  <div class="menu-wrapper">
+    <!-- 條列式選單 -->
+    <button class="menu-item" @click="pwd">更改密碼</button>
+    <button class="menu-item" @click="logout">登出</button>
+    <button class="menu-item" @click="deleteInfo">刪除資料</button>
+    <!-- 根據需要添加更多按鈕 -->
+  </div>
   <div class="user-profile">
     <h3>個人資訊</h3>
     <form>
@@ -161,10 +154,11 @@ async function edit() {
       </div>
 
       <button type="button" class="save-button" @click="edit">更改資訊</button>
-      <button type="button" class="pwd-button" @click="pwd">變更密碼</button>
-      <button type="button" class="logout-button" @click="logout">登出</button>
-      <button type="button" class="delete-button" @click="deleteInfo">刪除帳號</button>
+<!--      <button type="button" class="pwd-button" @click="pwd">變更密碼</button>-->
+<!--      <button type="button" class="logout-button" @click="logout">登出</button>-->
+<!--      <button type="button" class="delete-button" @click="deleteInfo">刪除帳號</button>-->
     </form>
+
   </div>
 </template>
 
@@ -232,52 +226,36 @@ label {
   /* 鼠標懸停時的背景顏色 */
 }
 
-.pwd-button {
-  background-color: #ffb700;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.pwd-button:hover {
-  background-color: #ff8000;
-  /* 鼠標懸停時的背景顏色 */
-}
-
 .error-message {
   color: red;
   font-size: 14px;
 }
 
-.logout-button {
-  background-color: #ffb700;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
+.menu-wrapper {
+  position: sticky; /* 改為 absolute 定位 */
+  top: 0; /* 頂部對齊 */
+  right: 0; /* 右側對齊 */
+  width: 200px; /* 選單的寬度 */
+  height: auto; /* 根據內容自動調整高度 */
+  background-color: #f9f9f9; /* 背景顏色 */
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* 調整陰影方向到左側 */
+  z-index: 1000; /* 確保選單在其他內容之上 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 確保元素對齊父元素的右側 */
 }
 
-.logout-button:hover {
-  background-color: #ff8000;
+.menu-item {
+  padding: 10px 15px; /* 內部間距 */
+  text-align: left; /* 文字對齊 */
+  border: none; /* 去除邊框 */
+  background-color: transparent; /* 透明背景 */
+  width: 100%; /* 充滿容器寬度 */
+  cursor: pointer; /* 鼠標樣式 */
 }
 
-
-.delete-button {
-  background-color: #ffb700;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
+.menu-item:hover {
+  background-color: #eaeaea; /* 鼠標懸停背景色 */
 }
 
-.delete-button:hover {
-  background-color: #d32f2f;
-}
 </style>

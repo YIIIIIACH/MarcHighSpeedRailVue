@@ -23,7 +23,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(item, index) in jsonData.values" :key="index">
+          <tr v-for="(item, index) in jsonDateFilted" :key="index">
             <td>{{ item.stationName }}</td>
             <td>{{ item.findDate }}</td>
             <td>{{ item.stayStation }}</td>
@@ -31,6 +31,23 @@
           </tr>
         </tbody>
       </table>
+    </div>
+    <div class="page-bar">
+      <nav aria-label="Page navigation example">
+        <ul class="pagination">
+          <li class="page-item" @click="changePage(-1,-1)">
+            <a class="page-link" href="#" aria-label="Previous">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+          <li class="page-item" v-for="i in jsonDataPageCnt" :key="i" :class="{'active': currPageNum==i}" @click="changePage(0, i)"><a class="page-link" href="#" >{{ i }}</a></li>
+          <li @click="changePage(1,-1)">
+            <a class="page-link" href="#" aria-label="Next">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
     </div>
     <!-- <ul class="list-group">
       <li
@@ -53,18 +70,45 @@
 
 <script setup>
 import httpClient from "@/main";
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, computed } from "vue";
 
 const props = defineProps(["memberId"]);
 const emits = defineEmits(["updateMemberId"]);
 
 const jsonData = reactive([]);
 const searchTerm = ref("");
-
+const currPageNum = ref(1)
+const pageSize = 4;
+const jsonDateFilted = computed(()=>{
+  // default page size is 4
+  // return idx (pageNum-1)*pageSize  to (pageNum)*pageSize-1
+  let cnt = 0;
+  let res = [];
+  for( let i=0; i< jsonData.values.length ; i++){
+    if( i>= (currPageNum.value-1)*pageSize  && i< (currPageNum.value)*pageSize){
+      res.push( jsonData.values[i]);
+    }
+  }
+  return res;
+})
+const jsonDataPageCnt = computed(()=>{
+  let cnt = jsonData.values.length
+  return  Math.ceil(cnt/pageSize)
+})
+function changePage(offset, tarPageNum){
+  if(tarPageNum != -1){
+    currPageNum.value = tarPageNum
+  }
+  if( currPageNum.value+offset < 1 || currPageNum.value+offset> Math.ceil( jsonData.values.length/pageSize)){
+    return;
+  }
+  currPageNum.value+= offset;
+}
 function performSearch() {
   getSearchSimple(searchTerm.value);
 }
 function getSearchSimple(simpleOutward) {
+  currPageNum.value = 1;
   httpClient
     .get(
       "/LostProperty/frontend/search/simpleOutward?simpleOutward=" +
@@ -107,5 +151,9 @@ function getSearchSimple(simpleOutward) {
 .slide-right-leave-to {
   opacity: 0;
   transform: translate3d(-100%, 0, 0);
+}
+.page-bar{
+  display: flex;
+  justify-content: center;
 }
 </style>

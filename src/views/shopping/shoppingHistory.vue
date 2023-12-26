@@ -9,10 +9,9 @@ export default {
             account: ref(''),
             password: ref(''),
             userName: ref(''),
-            orders: ref([]),
 
-            // filteredOrders: ref([]),
-            searchableOrder:ref({}),
+            orders: ref([]),
+            sourceOrders: ref([]),
 
             productIds: ref([]),
             products: ref([]),
@@ -23,51 +22,27 @@ export default {
             inputOrderNumber: ref(''),
         }
     },
-    computed:{
-        
+    computed:{     
         isLogined(){              
             return (this.memberId == 'undefined')? false: true;
         },
         getCurrentPwdInputType(){
             return (this.passwordVisible==true)?'text':'password'
         },
-        filteredOrders() {
-            let filterOrders= this.orders.filter(order => {
-                if (this.showPaid && order.orderStatus === '已付款') {
-                return true;
-                }
-                if (this.showUnpaid && order.orderStatus === '待付款') {
-                return true;
-                }
-                // 都沒有勾選就顯示所有訂單
-                return !this.showPaid && !this.showUnpaid; 
-            });
-
-            console.log(filterOrders)
-            // 透過計算屬性過濾顯示的訂單
-            return filterOrders;
-        },
     },
     methods:{
-        // sortByCompletionDate(){
-        //     this.filteredOrders.sort((a,b) => {
-
-        //     })
-        // },
-        // searchOrderByOrderNumber(){
-        //     for(let o of this.filteredOrders){
-        //         if(o.orderNumber == this.inputOrderNumber){
-
-        //         }
-        //     }
-        // },
+        searchOrderByOrderNumber(){
+            this.orders = this.sourceOrders.filter(o => o.orderNumber === this.inputOrderNumber)
+        },
         showPaidOrders() {
-            this.showPaid = true;
-            this.showUnpaid = false;
+            // this.showPaid = true;
+            // this.showUnpaid = false;
+            this.orders = this.sourceOrders.filter(o => o.orderStatus === "已付款");
         },
         showUnpaidOrders() {
-            this.showPaid = false;
-            this.showUnpaid = true;
+            // this.showPaid = false;
+            // this.showUnpaid = true;
+             this.orders = this.sourceOrders.filter(o => o.orderStatus === "待付款");
         },
         toPayPal(order){
             let productIds = []
@@ -162,6 +137,7 @@ export default {
                 }
 
                 // console.log( order.orderCompletionDate);
+                this.sourceOrders.push(order)
                 this.orders.push(order)
                 this.productIds.push(order.productId)
             }
@@ -205,12 +181,12 @@ export default {
             <button class="btn btn-warning " @click="showUnpaidOrders" style="width:130px; margin-left:50px">待付款訂單</button>
         </div>
 
-        <!-- <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" v-model="inputOrderNumber" @blur="searchOrderByOrderNumber()">
+        <div class="form-floating mb-3">
+            <input type="text" class="form-control" id="floatingInput" placeholder="name@example.com" v-model="inputOrderNumber" @keyup.enter="searchOrderByOrderNumber()">
             <label for="floatingInput">請輸入訂單編號：</label>
-        </div> -->
+        </div>
 
-        <table class="table" v-for="order of filteredOrders" :key="order.orderId">
+        <table class="table" v-for="order of orders" :key="order.orderId">
             <thead class="table-info">
                 <tr>
                 <th scope="col">訂單編號</th>

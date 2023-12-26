@@ -31,7 +31,11 @@ onBeforeMount(() => {
         </div>
       </Transition>
       <Transition>
-        <div class="page-block" id="div3" v-show="pageBlockDisplayArr[2]"></div>
+        <div class="page-block" id="div3" v-show="pageBlockDisplayArr[2]">
+          <router-link to="/lostItem"
+            ><img class="centerDiv" src="src\assets\div3.jpg"
+          /></router-link>
+        </div>
       </Transition>
       <Transition>
         <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]"></div>

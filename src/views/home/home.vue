@@ -38,10 +38,21 @@ onBeforeMount(() => {
         </div>
       </Transition>
       <Transition>
-        <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]"></div>
+        <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]">
+          <router-link to="/register"
+            ><img class="centerDiv" src="src\assets\div4.jpg"
+          /></router-link>
+        </div>
       </Transition>
     </div>
   </div>
+  <footer class="bd-footer py-4 py-md-5 bg-dark">
+    <div class="container py-4 py-md-5 px-4 px-md-3" id="footerType">
+      本網頁僅提供學習JAVA還有一堆酷酷的程式課程<br />圖像和人物皆有肖像權，請勿無斷轉載使用<br /><br />This
+      webpage is only for learning web program,<br />Do not use it for
+      otherside.
+    </div>
+  </footer>
 </template>
 
 <style>
@@ -85,9 +96,14 @@ onBeforeMount(() => {
   position: static;
   z-index: -1000;
   background-color: #3ca86c;
-  height: 2600px;
+  height: 2400px;
 }
 .centerDiv {
   text-align: center;
+}
+#footerType {
+  /* height: 200px; */
+  text-align: center;
+  color: #3ca86c;
 }
 </style>

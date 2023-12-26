@@ -16,6 +16,12 @@
             }
         },
         methods: {
+            showBuyerInfo(){
+                this.buyerName = "Bryan Lee"
+                this.phoneNumber = "0987654321"
+                this.address = "台北市大同區吉祥路666號"
+                this.remark = "買爆你們！"
+            },
             showArray(){
                 console.log(this.selectedItems)
             },
@@ -74,41 +80,44 @@
 </script>
 
 <template>
-    <header>
-        <h1 style="text-align: center; margin:30px">訂單商品</h1>
-    </header>
-    <!-- 結帳訂單資訊 -->
-    <table class="table" style="width:70%; margin:auto;">
-        <thead class="table-info">
-            <tr style="text-align:center;">
-                <th scope="col" >商品圖片</th>
-                <th>商品名稱</th>
-                <th scope="col">單價</th>
-                <th scope="col">數量</th>
-                <th scope="col">總價</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for=" item in this.selectedItems" :key="item.shoppingCartItemId" class="checkout-items">
-                <th scope="row" colspan="1">
-                    <img :src="item.photoData" :alt="item.productName" style="width:100px; height:100px">    
-                </th>
-                <td><span>{{item.productName}}</span></td>
-                <td rowspan="1">$ {{item.productPrice}}</td>
-                <td>{{item.quantity}}</td>
-                <td>$ {{item.totalPrice}}</td>
-            </tr>
-        </tbody>
-    </table>
-    <div style="text-align: right; margin-right: 280px; margin-bottom: 100px">
-        <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span>
-        </p>
-    </div>
-
+    <div style="width:70%; margin:auto">
+        <header>
+            <h1 style="text-align: center; margin:30px">結帳商品</h1>
+            <hr>
+        </header>
+        <!-- 結帳訂單資訊 -->
+        <table class="table" style=" margin:auto;">
+            <thead class="table-info">
+                <tr style="text-align:center;">
+                    <th scope="col" >商品圖片</th>
+                    <th>商品名稱</th>
+                    <th scope="col">單價</th>
+                    <th scope="col">數量</th>
+                    <th scope="col">小計</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for=" item in this.selectedItems" :key="item.shoppingCartItemId" class="checkout-items">
+                    <th scope="row" colspan="1">
+                        <img :src="item.photoData" :alt="item.productName" style="width:100px; height:100px">    
+                    </th>
+                    <td><span>{{item.productName}}</span></td>
+                    <td rowspan="1">$ {{item.productPrice}}</td>
+                    <td>{{item.quantity}}</td>
+                    <td>$ {{item.totalPrice}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="text-align: right; margin-bottom: 100px">
+            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span>
+            </p>
+        </div>
+    
     <!-- 訂購人資料 -->
     <article>
         <div class="buyer-info mx-auto">
             <h3 style="text-align: center; margin:30px">訂購人資料</h3>
+            <hr>
             <div class="input-group mb-3">
                 <span class="input-group-text">訂購人姓名</span>
                 <input type="text" class="form-control" placeholder="請輸入姓名" aria-label="Server" v-model="buyerName">
@@ -129,10 +138,15 @@
             </div>
         </div>
         
-        <div style="text-align: right; margin-right: 180px">
-            <p style="margin: 50px;">結帳總金額:$ <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span><span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span></p>     
-        </div>
     </article>
+    <div style="text-align: right; margin-right: 400px">
+        <p style="margin: 50px;">
+            <button @click="showBuyerInfo()" style="margin-right: 50px">demo</button>結帳總金額:$ 
+            <span style="color:red; font-size: 20px; padding-right:10px">{{this.checkoutPrice}}</span>
+            <span><button type="button" class="btn btn-success" @click="createOrder()">確認結帳</button></span>
+        </p>     
+    </div>
+    </div>
 </template>
 
 <style>

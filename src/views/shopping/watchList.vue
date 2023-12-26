@@ -41,10 +41,14 @@ export default {
             }
             httpClient.post('/ShoppingCart/addProduct?productId=' + t.productId + '&' + 'memberId=' + this.memberId)
             .then((res)=>{
-            console.log(res)
+                console.log(res.data)
+                if(res.data == "商品已在購物車中。"){
+                    alert("商品已在購物車中，無需重複添加")
+                }else{
+                    t.showAddInCart = true
+                    setTimeout(function(){t.showAddInCart=false},1500)
+                }
             })
-            t.showAddInCart = true
-            setTimeout(function(){t.showAddInCart=false},1500)
         },
         deleteTracking(tId){
             httpClient.delete('/ProductTrackingList/delete?mId=' + this.memberId + '&tId=' + tId)
@@ -80,13 +84,24 @@ export default {
             this.$emit('updateMemberId', res.data.member_id);
             document.getElementById('login-modal-close-btn').click();
             })
+            beforeMount();
         },
         logout: function(){
             this.$emit('updateMemberId','undefined')
             this.userName = ''
-      },
+        },
     },
     beforeMount() {
+        httpClient.post('/verifyLoginToken',{},{withCredentials:true})
+        .then((res) => {
+          // console.log(res.data)
+          if( res.status == 200){
+            this.$emit('updateMemberId', res.data)
+            // console.log( 'emits to update memberid ')
+          }
+        })
+        .catch(err=>console.log(err))
+
         httpClient.get('/ProductTrackingList?mId=' + this.memberId)
         .then(res =>{
             console.log(res.data)
@@ -98,8 +113,8 @@ export default {
 }
 </script>
 <template>
+    <!-- 登入登出 -->
     <div style="display: flex; justify-content: flex-end;" >
-        <span>使用者: {{this.userName}}</span>
         <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
             登出
         </button>
@@ -108,22 +123,30 @@ export default {
             登入
         </button>
     </div>
-    <div id="main-content">
+    <div v-if="this.memberId === 'undefined'" style="text-align: center">
+        <br>
+        <br>
+        <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看追蹤清單</h1>
+    </div>
+    <div id="main-content" v-else>
         <h1 style="text-align:center; margin:30px">追蹤清單</h1>
         <hr>
         <div class="product-container">
             <div v-for="t of trackingProducts" :key="t.trackingId">
                 <div class="card card-gap" @click="goToGoodsDetail(t.productId)">
                     <div @mouseover="handleMouseOver(t.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === t.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': t.showAddInCart}" style="height:400px">
-                        <p style="text-align:end;" @click.stop="deleteTracking(t.trackingId)" ><span style="cursor: pointer">X</span></p>
+                        <p style="text-align:end;" @click.stop="deleteTracking(t.trackingId)" >
+                            <span style="cursor: pointer">⨉</span>
+                        </p>
                         <img :src="t.photoData" class="card-img-top" :alt="t.productName" style="height:200px">
-                        <div v-show="t.showAddInCart" class="inimg-notification">已加入購物車</div>
+                        <div v-show="t.showAddInCart" class="inimg-notification" style="width:9rem">成功加入購物車</div>
                         <div class="card-body">
                             <p class="card-title">{{t.productName}}</p>
                             <div>
                                 <p style="color:#EA7500;">${{t.productPrice}}</p>
                             </div>
-                            <button class="btn btn-success mt-1 add-btn" @click.stop="addItemToShoppingCart(t) " type="submit">加入購物車</button>
+                            <button class="btn btn-success mt-1 add-cart-btn" @click.stop="addItemToShoppingCart(t)" type="submit">加入購物車</button>
+                            <p style="color:gray">追蹤日期 :  {{t.trackingDate}}</p>
                         </div>
                     </div>
                 </div>
@@ -174,8 +197,8 @@ export default {
     z-index: 1000;
     }
     .card-gap{
-    width: 12rem; 
-    box-shadow: 5px 5px 5px #EBD6D6;
+    width: 15rem; 
+    box-shadow: 5px 5px 5px #6d6d6d;
     }
     .card-title{
         font-size: 14px;

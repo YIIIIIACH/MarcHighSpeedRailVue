@@ -208,7 +208,7 @@ import displayScheduleStopStation from '../../components/Marc/schedule/displaySc
     }
     .progress-bar-vertical {
         position:absolute;
-        left:53px;
+        left:45px;
         top:40px;
         width: 25px;
         min-height: 780px;

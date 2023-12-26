@@ -33,9 +33,11 @@
         notification: ref(''),
         showNotification: false,
         passwordVisible:ref(false),
+
       };
     },
     computed: {
+      
       isLogined(){
         return (this.memberId == 'undefined')? false: true;
       },
@@ -107,9 +109,13 @@
         httpClient.post('/ShoppingCart/addProduct?productId=' + p.productId + '&' + 'memberId=' + this.memberId)
         .then((res)=>{
           console.log(res)
+          if(res.data == "商品已在購物車中。"){
+            alert("商品已在購物車中，無需重複添加")
+          }else{
+            p.showAddSuccseeInCartMessage = true
+            setTimeout(function(){p.showAddSuccseeInCartMessage=false}, 1500)
+          }
         })
-        p.showAddInCart = true
-        setTimeout(function(){p.showAddInCart=false},1500)
       },
       // 導向商品詳細頁
       goToGoodsDetail(productId) {
@@ -155,6 +161,7 @@
 
       //關鍵字搜尋 
       searchByKeyword: function () {
+        document.getElementById('product-type-allproduct').click();
         this.products = [];
         httpClient.get("/product/findByNameLike?nameInput=" + this.keyword)
           .then((res) => {
@@ -292,8 +299,8 @@
 </script>
 
 <template>
+  <!-- 登入登出按鈕 -->
   <div style="display: flex; justify-content: flex-end;" >
-      <span>使用者: {{this.userName}}</span>
       <button type="button" class="btn btn-outline-primary" @click="logout()" v-if="isLogined">
         登出
       </button>
@@ -302,240 +309,270 @@
         登入
       </button>
   </div>
+
   <div id="test">
-  <!-- 搜尋欄 -->
-  <div class="search-bar">
-    <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
-    <button class="btn btn-outline-success" @click="searchByKeyword" style="width:100px">搜尋</button>
-  </div>
-  
-  <!-- 分類 -->
-  <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
-        <ul class="navbar-nav center" >
-            <!-- <div class="list-product-type"></div> -->
-          <li class="nav-item">
-            |
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '全部商品','btn-primary': productType == '全部商品', }"
-              @click="selectedType('全部商品')"
-            >
-              <span class="icon">🌟</span><span style="font-weight:bold;"> 全部商品</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '精選食品','btn-primary': productType == '精選食品', }"
-              @click="selectedType('精選食品')"
-            >
-              <span class="icon">🍔</span><span style="font-weight:bold;"> 精選食品</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '日用生活','btn-primary': productType == '日用生活', }"
-              @click="selectedType('日用生活')"
-            >
-              <span class="icon">🏠</span><span style="font-weight:bold;"> 日用生活</span>
-            </button>
-            |
-          </li>
+    <!-- 搜尋欄 -->
+    <div class="search-bar">
+      <input class="form-control me-2" type="search" placeholder="請輸入關鍵字" aria-label="Search" v-model="keyword"/>
+      <button class="btn btn-outline-success" @click="searchByKeyword" style="width:100px">搜尋</button>
+    </div>
+    
+    <!-- 分類 -->
+    <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
+      <ul class="navbar-nav center" >
+          <!-- <div class="list-product-type"></div> -->
+        <li class="nav-item">
           
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '旅行戶外','btn-primary': productType == '旅行戶外', }"
-              @click="selectedType('旅行戶外')"
-            >
-              <span class="icon">🌴</span><span style="font-weight:bold;"> 旅行戶外</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '休閒用品','btn-primary': productType == '休閒用品', }"
-              @click="selectedType('休閒用品')"
-            >
-              <span class="icon">⛱️</span><span style="font-weight:bold;"> 休閒用品</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '數位產品','btn-primary': productType == '數位產品', }"
-              @click="selectedType('數位產品')"
-            >
-              <span class="icon">🎮</span><span style="font-weight:bold;"> 數位產品</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '紀念商品','btn-primary': productType == '紀念商品', }"
-              @click="selectedType('紀念商品')"
-            >
-              <span class="icon">🎁</span><span style="font-weight:bold;"> 紀念商品</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '經典模型','btn-primary': productType == '經典模型', }"
-              @click="selectedType('經典模型')"
-            >
-              <span class="icon">🎨</span><span style="font-weight:bold;"> 經典模型</span>
-            </button>
-            |
-          </li>
-          <li class="nav-item">
-            <button
-              class="btn btn-lg mb-0 border-0 btn-width"
-              :class="{'btn-outline-primary': productType != '實用文具','btn-primary': productType == '實用文具', }"
-              @click="selectedType('實用文具')"
-            >
-              <span class="icon">✏️</span><span style="font-weight:bold;"> 實用文具</span>
-            </button>
-            |
-          </li>
-        </ul>
-  </nav>
+          <button
+            id="product-type-allproduct"
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-dark': productType != '全部商品','btn-dark': productType == '全部商品', }"
+            @click="selectedType('全部商品')"
+          >
+            <span class="icon">🌟</span><span style="font-weight:bold;"> 全部商品</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '精選食品','btn-secondary': productType == '精選食品', }"
+            @click="selectedType('精選食品')"
+          >
+            <span class="icon">🍔</span><span style="font-weight:bold;"> 精選食品</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '日用生活','btn-secondary': productType == '日用生活', }"
+            @click="selectedType('日用生活')"
+          >
+            <span class="icon">🏠</span><span style="font-weight:bold;"> 日用生活</span>
+          </button>
+          
+        </li>         
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '旅行戶外','btn-secondary': productType == '旅行戶外', }"
+            @click="selectedType('旅行戶外')"
+          >
+            <span class="icon">🌴</span><span style="font-weight:bold;"> 旅行戶外</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '休閒用品','btn-secondary': productType == '休閒用品', }"
+            @click="selectedType('休閒用品')"
+          >
+            <span class="icon">⛱️</span><span style="font-weight:bold;"> 休閒用品</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '數位產品','btn-secondary': productType == '數位產品', }"
+            @click="selectedType('數位產品')"
+          >
+            <span class="icon">🎮</span><span style="font-weight:bold;"> 數位產品</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '紀念商品','btn-secondary': productType == '紀念商品', }"
+            @click="selectedType('紀念商品')"
+          >
+            <span class="icon">🎁</span><span style="font-weight:bold;"> 紀念商品</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '經典模型','btn-secondary': productType == '經典模型', }"
+            @click="selectedType('經典模型')"
+          >
+            <span class="icon">🎨</span><span style="font-weight:bold;"> 經典模型</span>
+          </button>
+          
+        </li>
+        <li class="nav-item">
+          <button
+            class="btn btn-lg mb-0 border-0 btn-width"
+            :class="{'btn-outline-secondary': productType != '實用文具','btn-secondary': productType == '實用文具', }"
+            @click="selectedType('實用文具')"
+          >
+            <span class="icon">✏️</span><span style="font-weight:bold;"> 實用文具</span>
+          </button>
+          
+        </li>
+      </ul>
+    </nav>
 
-  <!-- 展示窗 -->
-  <!-- <div id="carouselExampleCaptions" class="carousel slide mx-auto" data-bs-ride="carousel" style="width:400px">
-    <div class="carousel-indicators">
-      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-      <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-    </div>
-    <div>
-      <div class="carousel-inner">
-        <h2 style="text-align:center">熱銷商品</h2>
-        <div class="carousel-item active" >
-          <img :src="products[0].photoData" class="d-block w-100" :alt="products[0].productName">
-          <div class="carousel-caption d-none d-md-block">
-            <h5 class="showcase-productName">{{products[0].productName}}</h5>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <img :src="products[19].photoData" class="d-block w-100" :alt="products[19].productName">
-          <div class="carousel-caption d-none d-md-block">
-            <h5 class="showcase-productName">{{products[19].productName}}</h5>
-          </div>
-        </div>
-        <div class="carousel-item">
-          <img :src="products[18].photoData" class="d-block w-100" :alt="products[18].productName">
-          <div class="carousel-caption d-none d-md-block">
-            <h5 class="showcase-productName">{{products[18].productName}}</h5>
-          </div>
-        </div>
+    <!-- 展示窗 -->
+    <!-- <div id="carouselExampleCaptions" class="carousel slide mx-auto" data-bs-ride="carousel" style="width:400px">
+      <div class="carousel-indicators">
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
       </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
-    </div>
-  </div> -->
-
-  <!-- 側邊攔 -->
-  <aside class="sideBar">
-    <fieldset style="text-align: center;">
-        <legend style="display: inline; text-align: center">價格範圍</legend>
-            <div>
-                <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
-                ——
-                <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
-                <div style="height: 1.2em;">
-                <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
-                </div>
-            </div>
-        <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
-        <button class="btn btn-outline-success price-btn" @click="clearPrice" type="submit">清除</button>
-    </fieldset>
-  </aside>
-
-  <!-- <aside class="sideBar">
-    <fieldset>
-        <span>價格範圍</span>
-            <span>
-                <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
-                ——
-                <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
-                <div style="height: 1.2em;">
-                  <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
-                </div>
-            </span>
-        <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
-        <button class="btn btn-outline-success price-btn" @click="clearPrice" type="submit">清除</button>
-    </fieldset>
-  </aside> -->
-
-  <!-- 產品 -->
-  <article> 
-    <div class="each-product">
-      <div class="card card-gap" style="width: 300px; box-shadow: 5px 5px 5px #EBD6D6" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
-        <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
-          <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="width: 100%; height: 300px;"/>
-          <div v-show="p.showAddInCart" class="inimg-notification">已加入購物車</div>
-          <div v-show="p.showAddInTracking" class="inimg-notification">已加入追蹤</div>
-          <div class="row" style="font-weight: bold;">
-            <div class="col-7">
-              <p class="card-title title" >{{ p.productName }}</p>
-              <p class="product-price">${{ p.productPrice }}</p>
+      <div>
+        <div class="carousel-inner">
+          <h2 style="text-align:center">熱銷商品</h2>
+          <div class="carousel-item active" >
+            <img :src="products[0].photoData" class="d-block w-100" :alt="products[0].productName">
+            <div class="carousel-caption d-none d-md-block">
+              <h5 class="showcase-productName">{{products[0].productName}}</h5>
             </div>
           </div>
-          <div class="btn-add">
-            <span class="tracking-icon" @click.stop="addProductToTrackingList(p)" v-show="!p.isTracking">🤍</span>
-            <span class="tracking-icon" @click.stop="cancelTracking(p)" v-show="p.isTracking">❤️</span>
-            <button class="btn btn-success add-btn" @click.stop="addItemToShoppingCart(p)" type="submit">加入購物車</button>
-            <!-- <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">❤️</button>
-            <button class="btn btn-success mt-3 add-btn" @click.stop="addProductToTrackingList(p)" type="submit">🤍</button> -->
+          <div class="carousel-item">
+            <img :src="products[19].photoData" class="d-block w-100" :alt="products[19].productName">
+            <div class="carousel-caption d-none d-md-block">
+              <h5 class="showcase-productName">{{products[19].productName}}</h5>
+            </div>
+          </div>
+          <div class="carousel-item">
+            <img :src="products[18].photoData" class="d-block w-100" :alt="products[18].productName">
+            <div class="carousel-caption d-none d-md-block">
+              <h5 class="showcase-productName">{{products[18].productName}}</h5>
+            </div>
           </div>
         </div>
-      </div> 
-    </div>
-  </article>
-  <!-- 分頁 -->
-  <nav aria-label="Page navigation example">
-    <ul class="pagination justify-content-center">
-      <!-- 上一頁 -->
-      <li class="page-item" @click.prevent="setPage(currentPage-1)">
-        <a class="page-link" href="#" aria-label="Previous">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
+        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
+      </div>
+    </div> -->
+  
+    <!-- 側邊攔 -->
+    <aside class="sideBar">
+      <fieldset style="text-align: center;">
+          <legend style="display: inline; text-align: center">價格範圍</legend>
+              <div>
+                  <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
+                  ——
+                  <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
+                  <div style="height: 1.2em;">
+                  <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
+                  </div>
+              </div>
+          <button class="btn btn-outline-success set-price-range-btn" @click="searchByPrice" type="submit">套用</button>
+          <button class="btn btn-outline-success set-price-range-btn" @click="clearPrice" type="submit">清除</button>
+      </fieldset>
+    </aside>
 
-      <!-- 頁數 -->
-      <!-- <div v-for="page in totalPages" :key="page" :class="{ active: pageNumber === page }"> -->
+  <!-- 讀取圖示 -->
+  <div v-if="this.products.length == 0" class="loading-container">
+    <div class="spinner-grow text-primary large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-secondary large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-success large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-danger large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-warning large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-info large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="spinner-grow text-light large" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+    <!-- <aside class="sideBar">
+      <fieldset>
+          <span>價格範圍</span>
+              <span>
+                  <input type="text" placeholder=" $ 最小值" class="min-price" v-model="minPrice"/>
+                  ——
+                  <input type="text" placeholder=" $ 最大值" class="max-price" v-model="maxPrice"/>
+                  <div style="height: 1.2em;">
+                    <p style="color:red; margin-bottom: 0;">{{priceErrorMessage}}</p>
+                  </div>
+              </span>
+          <button class="btn btn-outline-success price-btn" @click="searchByPrice" type="submit">套用</button>
+          <button class="btn btn-outline-success price-btn" @click="clearPrice" type="submit">清除</button>
+      </fieldset>
+    </aside> -->
+  
+  <div v-else>
+    <!-- 產品 -->
+    <article> 
+      <div class="each-product">
+        <div class="card card-gap" id="product-card" v-for="p of products.slice(pageStart, pageEnd)" :key="p.productId" @click="goToGoodsDetail(p.productId)">
+          <div @mouseover="handleMouseOver(p.productId)" @mouseleave="handleMouseLeave" :style="{ border: highlightId === p.productId ? '1px solid rgb(221, 112, 112)' : 'none','pos-ab': p.showAddInCart}"> 
+            <img :src="p.photoData" class="img-thumbnail" :alt="p.productName" style="width: 100%; height: 300px;"/>
+            <div v-show="p.showAddSuccseeInCartMessage" class="inimg-notification">成功加入購物車</div>
+            <div v-show="p.showAddInTracking" class="inimg-notification">已加入追蹤</div>
+            <div class="row">
+              <div class="col-7">
+                <h3 class="card-title product-name">{{ p.productName }}</h3>
+                <p class="product-price">$ {{ p.productPrice }}</p>
+              </div>
+            </div>
+            <div class="btn-add">
+              <button class="btn btn-success add-cart-btn" @click.stop="addItemToShoppingCart(p)" type="submit">🛒 加入購物車</button>
+              <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="addProductToTrackingList(p)" v-show="!p.isTracking">🤍 加入追蹤</button>
+              <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="cancelTracking(p)" v-show="p.isTracking">❤️ 已追蹤</button> 
+            </div>
+          </div>
+        </div> 
+      </div>
+    </article>
+    <!-- 分頁 -->
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <!-- 上一頁 -->
+        <li class="page-item" @click.prevent="setPage(currentPage-1)">
+          <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+
+        <!-- 頁數 -->
+        <!-- <div v-for="page in totalPages" :key="page" :class="{ active: pageNumber === page }"> -->
         <li class="page-item" :class="{'active': (currentPage === (page))}"
             v-for="(page, index) in totalPage" :key="index" @click.prevent="setPage(page)">
           <!-- <a class="page-link" href="#" @click="goToPage(page)">{{ page }}</a> -->
           <a class="page-link" href="#">{{ page }}</a>
         </li>
-      <!-- </div> -->
-      
-      <!-- 下一頁 -->
-      <li class="page-item" @click.prevent="setPage(currentPage+1)">
-        <a class="page-link" href="#" aria-label="Next">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    </ul>
-
-  </nav>
-  <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
-  <!-- Button trigger modal -->
+        <!-- </div> -->
+        
+        <!-- 下一頁 -->
+        <li class="page-item" @click.prevent="setPage(currentPage+1)">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- <div v-show="showNotification" class="notification">{{this.notification}}</div> -->
+    <!-- Button trigger modal -->
+  </div>
 </div>
 
 <!-- Modal -->
@@ -565,6 +602,23 @@
 </template>
 
 <style>
+#product-card{
+  width: 300px; 
+  box-shadow: 5px 5px 10px #6d6d6d
+}
+.spacer {
+  margin-right: 2rem; /* 設定右邊距，根據需要調整 */
+}
+.spinner-grow.large {
+  width: 4rem; 
+  height: 4rem;
+}
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* 設定高度為視窗高度，使其垂直置中 */
+}
 .search-bar {
   padding: 0px;
   margin: 20px 30%;
@@ -585,8 +639,10 @@
   float: left;
   height: 200px;
   padding: 10px;
-  background: rgb(243, 243, 233);
-  margin-left: 20px;
+  background: rgb(242, 251, 251);
+  /* border: rgb(189, 186, 186) 3px;； */
+  border-style:groove;
+  margin: 20px 0px 0px 20px;
 }
 .min-price {
   width: 100px;
@@ -598,7 +654,7 @@
   margin-left: 10px;
   display: inline;
 }
-.price-btn {
+.set-price-range-btn {
   width: 80px;
   margin: 20px 28px;
   /* padding: 20px; */
@@ -616,12 +672,14 @@
 .showcase-productName{
   color: rgb(47, 35, 11);
 }
-.title{
-  margin: 10px 0px 0px 20px;
+.product-name{
+  margin: 10px 0px 0px 13px;
+  font-weight: bold;
 }
 .product-price{
-  color:#EA7500;
-  margin: 0px 0px 10px 20px;
+  color:#da0202;
+  margin: 0px 0px 10px 13px;
+  font-weight: bold;
 }
 .inimg-notification {
   position:absolute;
@@ -637,18 +695,20 @@
 .pos-ab{
   position: absolute;
 }
-.add-btn{
-  width:110px;
-  margin-bottom: 10px;
+.add-cart-btn{
+  width:140px;
+  margin-bottom: 5px;
 }
-.tracking-icon{
-  font-size:25px; 
-  cursor:pointer;
-  padding:15px;
+.add-tracking-btn{
+  width:120px;
+  margin: 0px 0px 5px 15px;
 }
 #test{
   width:80%;
   /* border:2px red solid;  */
   margin:auto;
+}
+.btn-add{
+  text-align: center;
 }
 </style>

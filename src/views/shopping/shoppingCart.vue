@@ -17,6 +17,9 @@
 
           checkoutPrice:ref(0),
           passwordVisible:ref(false),
+
+          currentPage: ref(1),
+          perpage: ref(3),
           
           // forCheckoutItemsId: reactive([]),
         }
@@ -37,6 +40,18 @@
         isLogined(){              
           return (this.memberId == 'undefined')? false: true;
         },
+        totalPage() {
+          return Math.ceil(this.shoppingCartItems.length / this.perpage)
+          //Math.ceil()取最小分頁整數
+        },
+        pageStart() {
+          return (this.currentPage - 1) * this.perpage
+          //取得該頁第一個值的index
+        },
+        pageEnd() {
+          return this.currentPage * this.perpage
+          //取得該頁最後一個值的index
+        }
       },
       watch:{
         getSelectedTotalPrice(total){
@@ -48,7 +63,7 @@
           // 篩選已勾選的品項
           const selectedItems = this.shoppingCartItems.filter(item => item.isSelected)
           if(selectedItems.length === 0){
-            alert('您未選取任何商品。')
+            alert('您未選取任何商品，請選取至少一件商品才可前往結帳。')
             return;
           }
           // // 儲存已勾選的品項Id儲存成陣列
@@ -168,6 +183,14 @@
           // totalPrice += itemPrice;
         },
 
+        // 設定分頁
+        setPage(page) {
+          if(page <= 0 || page > this.totalPage) {
+              return //結束方法
+          }
+          this.currentPage = page
+        },
+
         // 計算金額
         updateTotalPrice(item){
           item.totalPrice = item.productPrice * item.quantity
@@ -239,44 +262,45 @@
   </div>
 
   <!-- 購物車內容 -->
-  <div >
   <div v-if="this.memberId === 'undefined'" style="text-align: center">
     <br>
     <br>
-    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查詢購物車</h1>
+    <h1>請先<span data-bs-toggle="modal" data-bs-target="#exampleModal" style="cursor: pointer; color:blue">登入</span>會員，即可查看購物車</h1>
   </div>
   <div v-else>
-    <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
-    <hr>
+    <div style="width:70%; margin: auto">
+      <h1 style="text-align:center; margin:30px">🛒 購物車</h1>
+      <hr>
+    </div>
     <!-- <span class="cart-items-title-bottomLine"></span> -->
     <!-- 購物車品項 -->
     <!-- <div v-if="this.shoppingCartItems.length === 0">
       <h2 style="text-align:center; margin:30px">您的購物車是空的。</h2>
     </div> -->
-    <div style="padding:0% 15% 10% 15%">
+    <div style="padding:0% 15% 2% 15%">
       <table class="table" style="margin:auto 0%; text-align:center" ><!--style="width: 1600px; margin:auto;"-->
         <thead>
           <tr class="cart-head-style table-info">
             <th scope="col" style="width:70px">
-                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span>全選</span>
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span style="color:blue">全選</span>
             </th>
             <th scope="col" style="width:280px">商品</th>
             <th scope="col" style="width:200px">商品名稱</th>
             <th scope="col" style="width:250px">單價</th>
             <th scope="col" style="width:130px">數量</th>
-            <th scope="col" style="width:300px">總計</th>
-            <th scope="col">
-              <span style="color: blue;" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
+            <th scope="col" style="width:170px">小計</th>
+            <th scope="col" style="width:100px">
+              <span @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id="remove-all-cart-item" >
                 全部移除
               </span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr class="cart-items-info-style" v-for="item in shoppingCartItems" :key="item.shoppingCartItemId">
+          <tr class="cart-items-info-style" v-for="item in shoppingCartItems.slice(pageStart, pageEnd)" :key="item.shoppingCartItemId">
             <th scope="row" class="narrow-th">
               <div class="form-check" style="display: flex; justify-content: center; align-items: center;">
-                <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
+                <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1.3); border-color:darkgray">
               </div>
             </th>
             <td style="width: 200px;">
@@ -312,7 +336,33 @@
         </tbody>
       </table>
     </div>
+
+    <!-- 分頁 -->
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+        <!-- 上一頁 -->
+        <li class="page-item" @click.prevent="setPage(currentPage-1)">
+          <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+
+        <!-- 頁數 -->
+        <li class="page-item" :class="{'active': (currentPage === (page))}"
+            v-for="(page, index) in totalPage" :key="index" @click.prevent="setPage(page)">
+          <a class="page-link" href="#">{{ page }}</a>
+        </li>
+        
+        <!-- 下一頁 -->
+        <li class="page-item" @click.prevent="setPage(currentPage+1)">
+          <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
   </div>
+
     <!-- 結帳用懸浮視窗 -->
     <div class="floating-window">
       <div>
@@ -325,11 +375,10 @@
           <span style="color: red; font-size: 20px; vertical-align: middle;">{{getSelectedTotalPrice}}</span>
         </div>
         <div class="d-grid gap-2 col-6 mx-auto" style="margin:10px">
-          <button class="btn btn-success" type="button" @click="goToCheckoutPage()">結帳</button>
+          <button class="btn btn-success" type="button" @click="goToCheckoutPage()">前往結帳</button>
         </div>
       </div>
     </div>
-  </div>
 
   <!-- modal -->
   <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -358,6 +407,10 @@
 </template>
 
 <style>
+  #remove-all-cart-item{
+    cursor: pointer;
+    color: darkgray
+  }
   .cart-items-title-bottomLine{
     position: absolute; 
     bottom: 0; 
@@ -392,17 +445,15 @@
     border-color:darkgray ; 
     margin-left: 40%;
   }
-  #removeAll {
-    cursor: pointer;
-  }
-
   .cart-items-info-style{
     vertical-align: middle;
+    height: 180px;
   }
   .cart-head-style{
     color: blue
   }
   .narrow-th {
-    width: 50px; /* 設定寬度，根據需要調整 */
+    width: 50px;
   }
+  
 </style>

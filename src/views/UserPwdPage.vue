@@ -1,13 +1,12 @@
 <script setup>
-import axios from "axios";
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
-import {useRouter, useRoute} from 'vue-router'
+import {useRouter} from 'vue-router'
+import httpClient from '@/main'
 
 const $cookies = inject('$cookies');
 
 const router = useRouter()
-const route = useRoute()
 
 // 響應式引用
 const user = ref({
@@ -29,9 +28,7 @@ onMounted(() => {
   if (getInfo === "") {
     console.log("no cookie")
     router.push("/login")
-    return;
   }
-
 });
 
 
@@ -45,14 +42,14 @@ async function edit() {
     if (!$cookies.isKey('info')) {
       //登入不存在
       console.log("info not find")
-      router.push("/login")
+      await router.push("/login")
 
       return;
     }
     let getInfo = $cookies.get("info");
     if (getInfo === "") {
       console.log("info not find 2")
-      router.push("/login")
+      await router.push("/login")
       return;
     }
 
@@ -65,8 +62,12 @@ async function edit() {
       new_password: user.value.new_password,
       mode: 0
     }
-    const response = await axios.post('/api/member/editpwd', pwdPost);
-    console.log('Response:', response.data);
+
+    // console.log('Response:', response.data);
+
+    const response = await httpClient.post('/member/editpwd', pwdPost);
+    // console.log('Response:', response.data);
+
 
     if (response.data !== null) {
       errorMessage.value = '變更成功';
@@ -179,32 +180,4 @@ label {
   font-size: 14px;
 }
 
-.logout-button {
-  background-color: #ffb700;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.logout-button:hover {
-  background-color: #ff8000;
-}
-
-
-.delete-button {
-  background-color: #ffb700;
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  margin-top: 20px;
-}
-
-.delete-button:hover {
-  background-color: #d32f2f;
-}
 </style>

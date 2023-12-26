@@ -13,19 +13,21 @@ onBeforeMount(() => {
 });
 </script>
 <template>
-  <div class="home-page-container">
-    <Transition>
-      <div class="page-block" id="div1" v-show="pageBlockDisplayArr[0]"></div>
-    </Transition>
-    <Transition>
-      <div class="page-block" id="div2" v-show="pageBlockDisplayArr[1]"></div>
-    </Transition>
-    <Transition>
-      <div class="page-block" id="div3" v-show="pageBlockDisplayArr[2]"></div>
-    </Transition>
-    <Transition>
-      <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]"></div>
-    </Transition>
+  <div class="bg">
+    <div class="home-page-container">
+      <Transition>
+        <div class="page-block" id="div1" v-show="pageBlockDisplayArr[0]"></div>
+      </Transition>
+      <Transition>
+        <div class="page-block" id="div2" v-show="pageBlockDisplayArr[1]"></div>
+      </Transition>
+      <Transition>
+        <div class="page-block" id="div3" v-show="pageBlockDisplayArr[2]"></div>
+      </Transition>
+      <Transition>
+        <div class="page-block" id="div4" v-show="pageBlockDisplayArr[3]"></div>
+      </Transition>
+    </div>
   </div>
 </template>
 
@@ -60,5 +62,9 @@ onBeforeMount(() => {
 .v-enter-from,
 .v-leave-to {
   opacity: 0;
+}
+.bg {
+  background-color: #3ca86c;
+  height: 2600px;
 }
 </style>

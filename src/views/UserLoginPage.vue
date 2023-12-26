@@ -1,63 +1,76 @@
+<script setup>
+
+import {Base64} from 'js-base64'
+import {inject, onMounted, ref} from "vue";
+import router from "@/router";
+import httpClient from '@/main';
+const $cookies = inject('$cookies');
+const errorMessage = ref('');
+
+onMounted(() => {
+  console.log("start login");
+  if ($cookies.isKey('token')) {
+    if ($cookies.isKey('info')) {
+      console.log("cookie in alive")
+      router.push("/profile")
+    }
+  }
+})
+
+const user = ref({
+  email: '',
+  password: ''
+});
+
+async function submitLogin() {
+  try {
+    let loginPost = {
+      email: user.value.email,
+      password: user.value.password
+    }
+    console.log("submitLogin");
+    // console.log('Login attempt with:', this.email, this.password);
+    const response = await httpClient.post('/member/signin', loginPost);
+    // console.log('data ' + JSON.stringify(response.data))
+    if (response.data === null) {
+      errorMessage.value = "帳號或密碼錯誤";
+    } else {
+      console.log("login success");
+      // 處理成功的響應數據
+      errorMessage.value = "登入成功";
+      // 創建cookie並將回傳值放進cookie
+      $cookies.set('token', response.data.login_token, 60 * 60 * 24 * 3)
+      //memberInfo base64後儲存
+      $cookies.set('info', Base64.encode(JSON.stringify(response.data)), 60 * 60 * 24 * 3)
+      await router.push('/profile');
+    }
+  } catch (error) {
+    console.error(error);
+    errorMessage.value = "帳號或密碼錯誤"; // 處理錯誤
+  }
+}
+
+
+</script>
 <template>
   <div class="login-page">
     <div class="login-container">
       <img src="@/assets/taiwan-high-speed-rail-logo.png" alt="Taiwan High Speed Rail Logo" class="logo">
       <div class="login-form">
         <h3>會員登入</h3>
-        <input type="text" placeholder="帳號" v-model="username" class="input-field" />
-        <input type="password" placeholder="密碼" v-model="password" class="input-field" />
-        <button @click="submitLogin" class="login-btn">登入</button>
+        <input type="email" placeholder="帳號" id="email" v-model="user.email"/>
+        <input type="password" placeholder="密碼" id="password" v-model="user.password"/>
+        <div class="form-row">
+          <!-- 錯誤訊息顯示區域 -->
+          <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        </div>
+        <button type="button" @click="submitLogin" class="login-btn">登入</button>
+        <div class="register-a"><a href="/register">還沒有帳號請點此註冊</a></div>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import axios from 'axios';
-import { useRouter } from 'vue-router';
-
-export default {
-  data() {
-    return {
-      username: '',
-      password: ''
-    };
-  },
-  methods: {
-    async submitLogin() {
-      try {
-        console.log(response.data);
-        const response = await axios.post('/login', {
-          username: this.username,
-          password: this.password
-        }, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.data.success) {
-          this.$router.push('/profile');
-        } else {
-          // 處理登入失敗
-
-        }
-        // 處理響應數據
-      } catch (error) {
-        console.error(error);
-        // 處理錯誤
-      }
-
-      console.log('Login attempt with:', this.username, this.password);
-      // 重置表單字段
-      this.username = '';
-      this.password = '';
-    }
-  },
-  props:['memberId'],
-  emits: ['updateMemberId'],
-};
-</script>
 
 <style scoped>
 .login-page {
@@ -100,5 +113,14 @@ export default {
 
 .login-form button:hover {
   background-color: #ffb700;
+}
+
+.error-message {
+  color: red;
+  margin-top: 10px;
+}
+
+.register-a {
+  margin-top: 30px;
 }
 </style>

@@ -1,118 +1,261 @@
-<template>
-    <div class="user-profile">
-        <h3>個人資訊</h3>
-        <form @submit.prevent="submitForm">
-            <div class="form-row">
-                <label for="name">姓名:</label>
-                <input type="text" id="name" v-model="user.name">
-            </div>
-            <div class="form-row">
-                <label for="password">密碼:</label>
-                <input type="password" id="password" v-model="user.password">
-            </div>
-            <div class="form-row">
-                <label for="email">信箱:</label>
-                <input type="email" id="email" v-model="user.email">
-            </div>
-            <div class="form-row">
-                <label for="phone">電話:</label>
-                <input type="tel" id="phone" v-model="user.phone">
-            </div>
-            <div class="form-row">
-                <button type="submit">Save</button>
-            </div>
-        </form>
-    </div>
-</template>  
-  
-<script>
-export default {
-    name: 'UserProfile',
-    data() {
-        return {
-            user: {
-                name: '',
-                password: '',
-                email: '',
-                phone: ''
-            }
-        };
-    },
-    methods: {
-        submitForm() {
-            // 處理表單提交
-            console.log(this.user);
-        },
-        edit(field) {
-            // 處理特定欄位的修改
-            console.log(`Modify ${field}`);
-        }
-    },
-    props:['memberId'],
-    emits: ['updateMemberId'],
+<script setup>
+import {ref, onMounted, inject} from 'vue'
+import {Base64} from 'js-base64'
+import {useRouter} from 'vue-router'
+import httpClient from '@/main'
+const $cookies = inject('$cookies');
+
+const router = useRouter()
+// 響應式引用
+const user = ref({
+  id: '',
+  name: '',
+  email: '',
+  phone: ''
+})
+const errorMessage = ref('');
+
+
+onMounted(() => {
+  console.log("start profile");
+  if (!$cookies.isKey('info')) {
+    console.log("no cookie")
+    router.push("/login")
+    return;
+  }
+  let getInfo = $cookies.get("info");
+  if (getInfo === "") {
+    console.log("no cookie")
+    router.push("/login")
+    return;
+  }
+  let memberInfo = JSON.parse(Base64.decode(getInfo));
+  user.value.id = memberInfo.member_id;
+  user.value.name = memberInfo.member_name;
+  user.value.email = memberInfo.member_email;
+  user.value.phone = memberInfo.member_phone;
+});
+
+
+async function logout() {
+  try {
+    const myToken = $cookies.get('token')
+
+    // console.log('Response:' + JSON.stringify(response.data));
+    const response = await httpClient.post('/member/signout', {login_token: myToken});
+    console.log('Response:' + JSON.stringify(response.data));
+
+  } catch (error) {
+    console.log('Error:' + error);
+    errorMessage.value = '錯誤'; // 更新錯誤訊息
+  }
+  $cookies.remove("info");
+  $cookies.remove("token");
+  await router.push('/login');
+
 }
+
+function pwd() {
+  router.push('/pwd');
+}
+
+async function deleteInfo() {
+  try {
+    let deletePost = {
+      member_id: user.value.id,
+      member_name: user.value.name,
+      member_email: "",
+      member_phone: ""
+    }
+
+    // console.log('Response:' + JSON.stringify(response.data));
+    const response = await httpClient.post('/member/removeUser', deletePost);
+    console.log('Response:' + JSON.stringify(response.data));
+
+    if (response.data !== null) {
+      $cookies.remove("info");
+      $cookies.remove("token");
+      await router.push('/login');
+    }
+  } catch (error) {
+    console.log('Error:' + error);
+    errorMessage.value = '錯誤'; // 更新錯誤訊息
+  }
+}
+
+async function edit() {
+  try {
+    if (user.value.id === "") {
+      await router.push("/login")
+      return;
+    }
+    if (user.value.name === "") {
+      errorMessage.value = '名稱不得為空'
+      return;
+    }
+    if (user.value.email === "") {
+      errorMessage.value = '信箱不得為空'
+      return;
+    }
+    if (user.value.phone === "") {
+      errorMessage.value = '電話不得為空'
+      return;
+    }
+    let memberPost = {
+      member_id: user.value.id,
+      member_name: user.value.name,
+      member_email: user.value.email,
+      member_phone: user.value.phone
+    }
+
+    // console.log('Response:' + JSON.stringify(response.data));
+
+    const response = await httpClient.post('/member/edit', memberPost);
+    console.log('Response:' + JSON.stringify(response.data));
+
+    if (response.data !== null) {
+      errorMessage.value = "更新成功"
+      $cookies.set('info',Base64.encode(JSON.stringify(response.data)), 60 * 60 * 24 * 3)
+    }
+  } catch (error) {
+    console.log('Error:' + error);
+    errorMessage.value = '輸入錯誤'; // 更新錯誤訊息
+  }
+}
+
 </script>
-  
+
+<template>
+  <div class="menu-wrapper">
+    <!-- 條列式選單 -->
+    <button class="menu-item" @click="pwd">更改密碼</button>
+    <button class="menu-item" @click="logout">登出</button>
+    <button class="menu-item" @click="deleteInfo">刪除資料</button>
+    <!-- 根據需要添加更多按鈕 -->
+  </div>
+  <div class="user-profile">
+    <h3>個人資訊</h3>
+    <form>
+      <div class="form-row">
+        <label for="name">姓名:</label>
+        <input type="text" id="name" v-model="user.name">
+      </div>
+      <div class="form-row">
+        <label for="email">信箱:</label>
+        <input type="email" id="email" v-model="user.email">
+      </div>
+      <div class="form-row">
+        <label for="phone">電話:</label>
+        <input type="tel" id="phone" v-model="user.phone">
+      </div>
+      <div class="form-row">
+        <!-- 錯誤訊息顯示區域 -->
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+      </div>
+
+      <button type="button" class="save-button" @click="edit">更改資訊</button>
+<!--      <button type="button" class="pwd-button" @click="pwd">變更密碼</button>-->
+<!--      <button type="button" class="logout-button" @click="logout">登出</button>-->
+<!--      <button type="button" class="delete-button" @click="deleteInfo">刪除帳號</button>-->
+    </form>
+
+  </div>
+</template>
+
+
 <style scoped>
 .user-profile {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 水平置中 */
-    justify-content: center; /* 垂直置中 */
-    height: 100vh;
-    width: 100%; /* 確保佔滿整個螢幕寬度 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 水平置中 */
+  justify-content: center; /* 垂直置中 */
+  height: 100vh;
+  width: 100%; /* 確保佔滿整個螢幕寬度 */
 }
 
 h3 {
-    font-size: 24px;
-    margin-bottom: 20px;
+  font-size: 24px;
+  margin-bottom: 20px;
 }
 
 form {
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* 保持元素在form內部居中 */
-    justify-content: center;
-    width: 50%; /* 可根據需要調整表單的寬度 */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* 保持元素在form內部居中 */
+  justify-content: center;
+  width: 50%; /* 可根據需要調整表單的寬度 */
 }
+
 .form-row {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-bottom: 15px;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 15px;
 }
 
 input {
-    width: calc(100% - 10px);
-    background-color: transparent;
-    border: none;
-    border-bottom: 1px solid grey;
-    outline: none;
-    padding: 5px;
+  width: calc(100% - 10px);
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid grey;
+  outline: none;
+  padding: 5px;
 }
 
 input:focus {
-    border-bottom: 2px solid darkgrey;
+  border-bottom: 2px solid darkgrey;
 }
 
 label {
-    margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
-button[type="submit"] {
-    width: calc(100% - 10px);
-    /* 按鈕寬度與輸入框相同 */
-    background-color: #ffb700;
-    color: white;
-    border: none;
-    padding: 10px;
-    border-radius: 5px;
-    cursor: pointer;
+.save-button {
+  background-color: #ffb700;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 20px;
 }
 
-button[type="submit"]:hover {
-    background-color: #ffb700;
-    /* 鼠標懸停時的背景顏色 */
+.save-button:hover {
+  background-color: #ff8000;
+  /* 鼠標懸停時的背景顏色 */
 }
+
+.error-message {
+  color: red;
+  font-size: 14px;
+}
+
+.menu-wrapper {
+  position: sticky; /* 改為 absolute 定位 */
+  top: 0; /* 頂部對齊 */
+  right: 0; /* 右側對齊 */
+  width: 200px; /* 選單的寬度 */
+  height: auto; /* 根據內容自動調整高度 */
+  background-color: #f9f9f9; /* 背景顏色 */
+  box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* 調整陰影方向到左側 */
+  z-index: 1000; /* 確保選單在其他內容之上 */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* 確保元素對齊父元素的右側 */
+}
+
+.menu-item {
+  padding: 10px 15px; /* 內部間距 */
+  text-align: left; /* 文字對齊 */
+  border: none; /* 去除邊框 */
+  background-color: transparent; /* 透明背景 */
+  width: 100%; /* 充滿容器寬度 */
+  cursor: pointer; /* 鼠標樣式 */
+}
+
+.menu-item:hover {
+  background-color: #eaeaea; /* 鼠標懸停背景色 */
+}
+
 </style>

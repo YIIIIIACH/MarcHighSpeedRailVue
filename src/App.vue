@@ -15,23 +15,23 @@ function updatemId(newId) {
 }
 </script>
 <template>
-  <a class="navbar-brand" @click="router.push('/')" id="navLogo"
-    ><img src="@\assets\IndexLogo.png"
-  /></a>
-  <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+  <a class="navbar-brand" @click="router.push('/')" id="navLogo"></a>
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="height: 100px;">
+    <div style="float:left;overflow: visible;margin-top:95px" >
+      <router-link :to="{name: '/'}"><img src="@\assets\IndexLogo.png"/></router-link>
+    </div>
     <div class="container-fluid">
-      <div class="collapse navbar-collapse">
-        <div></div>
+      <div class="collapse navbar-collapse" >
         <ul class="navbar-nav me-auto" id="mynavbar">
           <!-- <li class="nav-item" id="navLogo">
             <router-link class="nav-link" id="fontcolor" to="/"> </router-link>
           </li> -->
-          <li class="nav-item">
+          <li class="nav-item " style="overflow: visible;">
             <router-link to="/lostItem" class="nav-link" id="fontcolor"
               >遺失物搜尋</router-link
             >
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown " style="overflow: visible;">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -59,7 +59,7 @@ function updatemId(newId) {
             <router-link to="/goods" class="nav-link">shopping</router-link>
           </li> -->
 
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown" style="overflow: visible;">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -90,16 +90,16 @@ function updatemId(newId) {
                 class="dropdown-item"
                 id="fontcolor"
               >
-                訂購清單
+                訂購紀錄
               </router-link>
             </div>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" style="overflow: visible;">
             <router-link to="/login" class="nav-link" id="fontcolor"
               >會員登入</router-link
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item " style="overflow: visible;">
             <router-link to="/register" class="nav-link" id="fontcolor"
               >會員註冊</router-link
             >

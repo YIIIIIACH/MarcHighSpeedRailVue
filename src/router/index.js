@@ -14,6 +14,7 @@ import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
 import bookFail from '../views/bookingSystem/bookFail.vue'
 import userLogin from '../views/UserLoginPage.vue'
 import userProfile from '../views/UserProfilePage.vue'
+import userPwd from '../views/UserPwdPage.vue'
 import UserRegister from '../views/UserRegisterPage.vue'
 import memberTicketOrder from '../views/bookingSystem/memberTicketOrder.vue'
 import ticketOrderDetail from '../views/bookingSystem/ticketOrderDetail.vue'
@@ -29,6 +30,7 @@ const router = createRouter({
     {
       path: '/',
       component: Home,
+      name: '/'
     },
     {
       path: '/lostItem',
@@ -80,7 +82,8 @@ const router = createRouter({
     },
     {
       path: '/goods',
-      component: goods
+      component: goods,
+      name: 'goods'
     },
     {
       path: '/goods/goodsDetail/:Id',
@@ -89,11 +92,9 @@ const router = createRouter({
       props: true
     },
     {
-      // path: '/shoppingCart/:memberId',
       path: '/shoppingCart',
       component: shoppingCart,
       name: 'shoppingCart',
-      // props: true
     },
     {
       path:'/watchList',
@@ -108,21 +109,14 @@ const router = createRouter({
       props: true
     },
     {
-      path:'/orderPaymentSuccess/:orderId',
+      path:'/orderPaymentSuccess/:orderId/:orderNumber/:checkoutPrice',
       component: orderPaymentSuccess,
       props: true
     },
-    // {
-    //   path:'/orderPaymentFailed/:orderId',
-    //   component: orderPaymentSuccess,
-    //   props: true
-    // },
     {
-      // path: '/shoppingHistory/:checkoutPrice',
       path: '/shoppingHistory',
       component: shoppingHistory,
       name: 'shoppingHistory',
-      // props: true
     },
     {
       path: '/login',
@@ -131,6 +125,10 @@ const router = createRouter({
     {
       path: '/profile',
       component: userProfile
+    },
+    {
+      path: '/pwd',
+      component: userPwd
     },
     {
       path: '/register',

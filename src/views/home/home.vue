@@ -14,9 +14,14 @@ onBeforeMount(() => {
 </script>
 <template>
   <div class="bg">
+    <!-- <img src="@/src/assets/background.jpg " /> -->
     <div class="home-page-container">
       <Transition>
-        <div class="page-block" id="div1" v-show="pageBlockDisplayArr[0]"></div>
+        <div class="page-block" id="div1" v-show="pageBlockDisplayArr[0]">
+          <router-link to="/booking">
+            <img class="centerDiv" src="src\assets\div1.jpg"
+          /></router-link>
+        </div>
       </Transition>
       <Transition>
         <div class="page-block" id="div2" v-show="pageBlockDisplayArr[1]"></div>
@@ -64,7 +69,17 @@ onBeforeMount(() => {
   opacity: 0;
 }
 .bg {
+  background-image: url("../src/assets/background.jpg");
+  background-attachment: fixed; /* 設定背景圖片固定 */
+  background-position: center center; /* 調整背景圖片位置為中心 */
+  background-repeat: no-repeat; /* 禁止背景圖片重複 */
+  background-size: cover; /* 使背景圖片充滿整個容器 */
+  position: static;
+  z-index: -1000;
   background-color: #3ca86c;
   height: 2600px;
+}
+.centerDiv {
+  text-align: center;
 }
 </style>

@@ -30,6 +30,7 @@ const router = createRouter({
     {
       path: '/',
       component: Home,
+      name: '/'
     },
     {
       path: '/lostItem',

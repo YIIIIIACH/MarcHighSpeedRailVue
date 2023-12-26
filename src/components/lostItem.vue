@@ -58,8 +58,6 @@ function getSearchSimple(simpleOutward) {
       // Handle the error as needed
     });
 }
-
-onMounted();
 </script>
 <style>
 .slide-left-enter-active,

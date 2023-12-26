@@ -12,10 +12,29 @@
       />
       <button @click="performSearch" class="btn btn-primary">搜尋</button>
     </div>
-
-    <ul class="list-group">
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>發現站名</th>
+            <th>發現日期</th>
+            <th>遺失物所在站</th>
+            <th>物品種類</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in jsonData.values" :key="index">
+            <td>{{ item.stationName }}</td>
+            <td>{{ item.findDate }}</td>
+            <td>{{ item.stayStation }}</td>
+            <td>{{ item.simpleOutward }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- <ul class="list-group">
       <li
-        v-for="(item, index) in jsonData"
+        v-for="(item, index) in jsonData.values"
         :key="index"
         class="list-group-item"
       >
@@ -28,15 +47,18 @@
           <li><strong>Simple Outward:</strong> {{ item.simpleOutward }}</li>
         </ul>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 
 <script setup>
 import httpClient from "@/main";
-import { ref, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 
-const jsonData = ref([]);
+const props = defineProps(["memberId"]);
+const emits = defineEmits(["updateMemberId"]);
+
+const jsonData = reactive([]);
 const searchTerm = ref("");
 
 function performSearch() {
@@ -50,14 +72,17 @@ function getSearchSimple(simpleOutward) {
       jsonData
     )
     .then((res) => {
-      console.log(res.data);
-      jsonData.value = res.data;
+      // console.log(res.data);
+      jsonData.values = res.data;
+      console.log(jsonData.values);
     })
     .catch(function (err) {
       console.error("Error:", err);
       // Handle the error as needed
     });
 }
+
+// onMounted();
 </script>
 <style>
 .slide-left-enter-active,

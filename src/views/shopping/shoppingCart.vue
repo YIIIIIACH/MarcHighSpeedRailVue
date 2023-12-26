@@ -282,15 +282,15 @@
         <thead>
           <tr class="cart-head-style table-info">
             <th scope="col" style="width:70px">
-                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span>全選</span>
+                <input class="form-check-input" type="checkbox" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray; " v-model="selectAll" @change="handleSelectAll"><span style="color:blue">全選</span>
             </th>
             <th scope="col" style="width:280px">商品</th>
             <th scope="col" style="width:200px">商品名稱</th>
             <th scope="col" style="width:250px">單價</th>
             <th scope="col" style="width:130px">數量</th>
-            <th scope="col" style="width:300px">小計</th>
-            <th scope="col">
-              <span style="color: blue;" @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id = "removeAll">
+            <th scope="col" style="width:170px">小計</th>
+            <th scope="col" style="width:100px">
+              <span @click="removeAllItem" @mouseover="changeStyle(true)" @mouseleave="changeStyle(false)" id="remove-all-cart-item" >
                 全部移除
               </span>
             </th>
@@ -300,7 +300,7 @@
           <tr class="cart-items-info-style" v-for="item in shoppingCartItems.slice(pageStart, pageEnd)" :key="item.shoppingCartItemId">
             <th scope="row" class="narrow-th">
               <div class="form-check" style="display: flex; justify-content: center; align-items: center;">
-                <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1); border-color:darkgray">
+                <input class="form-check-input" type="checkbox" v-model="item.isSelected" id="flexCheckDefault" style="transform: scale(1.3); border-color:darkgray">
               </div>
             </th>
             <td style="width: 200px;">
@@ -407,6 +407,10 @@
 </template>
 
 <style>
+  #remove-all-cart-item{
+    cursor: pointer;
+    color: darkgray
+  }
   .cart-items-title-bottomLine{
     position: absolute; 
     bottom: 0; 
@@ -441,10 +445,6 @@
     border-color:darkgray ; 
     margin-left: 40%;
   }
-  #removeAll {
-    cursor: pointer;
-  }
-
   .cart-items-info-style{
     vertical-align: middle;
     height: 180px;

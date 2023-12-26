@@ -26,7 +26,7 @@
         highlightId: ref(0),
 
         currentPage: ref(1),
-        perpage: ref(6), //一頁的商品資料數
+        perpage: ref(8), //一頁的商品資料數
 
         priceErrorMessage: ref(''),
 
@@ -319,7 +319,7 @@
     
     <!-- 分類 -->
     <nav class="navbar navbar-expand-lg bg-light justify-content-center" >
-      <ul class="navbar-nav center" >
+      <ul class="navbar-nav center" style="display: flex; justify-content: center;">
           <!-- <div class="list-product-type"></div> -->
         <li class="nav-item">
           
@@ -666,7 +666,7 @@
   margin: 10px 400px;
 }
 .btn-width{
-  width: 150px;
+  width: 170px;
   color: aquamarine;
 }
 .showcase-productName{

@@ -15,7 +15,7 @@
 
     <ul class="list-group">
       <li
-        v-for="(item, index) in jsonData"
+        v-for="(item, index) in jsonData.values"
         :key="index"
         class="list-group-item"
       >
@@ -34,9 +34,12 @@
 
 <script setup>
 import httpClient from "@/main";
-import { ref, onMounted } from "vue";
+import { reactive, ref, onMounted } from "vue";
 
-const jsonData = ref([]);
+const props = defineProps(["memberId"]);
+const emits = defineEmits(["updateMemberId"]);
+
+const jsonData = reactive([]);
 const searchTerm = ref("");
 
 function performSearch() {
@@ -50,8 +53,9 @@ function getSearchSimple(simpleOutward) {
       jsonData
     )
     .then((res) => {
-      console.log(res.data);
-      jsonData.value = res.data;
+      // console.log(res.data);
+      jsonData.values = res.data;
+      console.log(jsonData.values);
     })
     .catch(function (err) {
       console.error("Error:", err);
@@ -59,7 +63,7 @@ function getSearchSimple(simpleOutward) {
     });
 }
 
-onMounted();
+// onMounted();
 </script>
 <style>
 .slide-left-enter-active,

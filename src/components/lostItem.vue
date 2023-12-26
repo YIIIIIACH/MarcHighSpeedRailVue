@@ -12,8 +12,27 @@
       />
       <button @click="performSearch" class="btn btn-primary">搜尋</button>
     </div>
-
-    <ul class="list-group">
+    <div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>發現站名</th>
+            <th>發現日期</th>
+            <th>遺失物所在站</th>
+            <th>物品種類</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(item, index) in jsonData.values" :key="index">
+            <td>{{ item.stationName }}</td>
+            <td>{{ item.findDate }}</td>
+            <td>{{ item.stayStation }}</td>
+            <td>{{ item.simpleOutward }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- <ul class="list-group">
       <li
         v-for="(item, index) in jsonData.values"
         :key="index"
@@ -28,7 +47,7 @@
           <li><strong>Simple Outward:</strong> {{ item.simpleOutward }}</li>
         </ul>
       </li>
-    </ul>
+    </ul> -->
   </div>
 </template>
 

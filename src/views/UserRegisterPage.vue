@@ -1,9 +1,8 @@
 <script setup>
-import axios from "axios";
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
 import {useRouter, useRoute} from 'vue-router'
-
+import httpClient from '@/main'
 const $cookies = inject('$cookies');
 
 const router = useRouter()
@@ -27,7 +26,7 @@ onMounted(async () => {
       let memberInfo = JSON.parse(Base64.decode(getInfo));
       console.log(Base64.decode(getInfo));
       try {
-        const response = await axios.post('/api/member/tokenlogin', {login_token: memberInfo.login_token});
+        const response = await httpClient.post('/member/tokenlogin', {login_token: memberInfo.login_token});
         console.log('Response:' + JSON.stringify(response.data));
         if (response.data !== null) {
           await router.push("/profile")
@@ -68,7 +67,7 @@ async function submitInfo() {
       member_email: user.value.email,
       member_phone:user.value.phone
     }
-    const response = await axios.post('/api/member/register', registerPost);
+    const response = await httpClient.post('/member/register', registerPost);
     console.log('Response:'+ JSON.stringify(response.data));
 
     if (response.data !== null) {

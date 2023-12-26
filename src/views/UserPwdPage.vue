@@ -1,8 +1,8 @@
 <script setup>
-import axios from "axios";
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
 import {useRouter, useRoute} from 'vue-router'
+import httpClient from '@/main'
 
 const $cookies = inject('$cookies');
 
@@ -65,7 +65,7 @@ async function edit() {
       new_password: user.value.new_password,
       mode: 0
     }
-    const response = await axios.post('/api/member/editpwd', pwdPost);
+    const response = await httpClient.post('/member/editpwd', pwdPost);
     console.log('Response:', response.data);
 
     if (response.data !== null) {

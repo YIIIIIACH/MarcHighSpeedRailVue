@@ -1,9 +1,8 @@
 <script setup>
-import axios from "axios";
 import {ref, onMounted, inject} from 'vue'
 import {Base64} from 'js-base64'
 import {useRouter, useRoute} from 'vue-router'
-
+import httpClient from '@/main'
 const $cookies = inject('$cookies');
 
 const router = useRouter()
@@ -63,7 +62,7 @@ onMounted(() => {
 async function logout() {
   try {
     const myToken = $cookies.get('token')
-    const response = await axios.post('/api/member/signout', {login_token: myToken});
+    const response = await httpClient.post('/member/signout', {login_token: myToken});
     console.log('Response:' + JSON.stringify(response.data));
   } catch (error) {
     console.log('Error:' + error);
@@ -87,7 +86,7 @@ async function deleteInfo() {
       member_email: "",
       member_phone: ""
     }
-    const response = await axios.post('/api/member/removeUser', deletePost);
+    const response = await httpClient.post('/member/removeUser', deletePost);
     console.log('Response:' + JSON.stringify(response.data));
 
     if (response.data !== null) {
@@ -125,7 +124,7 @@ async function edit() {
       member_email: user.value.email,
       member_phone: user.value.phone
     }
-    const response = await axios.post('/api/member/edit', memberPost);
+    const response = await httpClient.post('/member/edit', memberPost);
     console.log('Response:' + JSON.stringify(response.data));
 
     if (response.data !== null) {

@@ -1,7 +1,7 @@
 <script>
 import axios from 'axios';
-import {Base64} from 'js-base64'
-
+import {Base64} from 'js-base64';
+import httpClient from '@/main';
 
 export default {
   data() {
@@ -16,7 +16,7 @@ export default {
       try {
         console.log("submitLogin");
         console.log('Login attempt with:', this.email, this.password);
-        const response = await axios.post('/api/member/signin', {
+        const response = await httpClient.post('/member/signin', {
           email: this.email,
           password: this.password
         }, {

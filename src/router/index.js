@@ -14,6 +14,7 @@ import bookSuccess from '../views/bookingSystem/bookSuccess.vue'
 import bookFail from '../views/bookingSystem/bookFail.vue'
 import userLogin from '../views/UserLoginPage.vue'
 import userProfile from '../views/UserProfilePage.vue'
+import userPwd from '../views/UserPwdPage.vue'
 import UserRegister from '../views/UserRegisterPage.vue'
 import memberTicketOrder from '../views/bookingSystem/memberTicketOrder.vue'
 import ticketOrderDetail from '../views/bookingSystem/ticketOrderDetail.vue'
@@ -123,6 +124,10 @@ const router = createRouter({
     {
       path: '/profile',
       component: userProfile
+    },
+    {
+      path: '/pwd',
+      component: userPwd
     },
     {
       path: '/register',

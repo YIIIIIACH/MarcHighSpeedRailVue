@@ -61,7 +61,8 @@ export default {
                 httpClient.post('/createPaypalOrder',{
                     orderId: order.orderId,
                     memerId: this.memberId,
-                    totalPrice: sum
+                    totalPrice: sum,
+                    orderNumber: order.orderNumber
                 }).then((res)=>{
                    if( res.status == 200){
                     

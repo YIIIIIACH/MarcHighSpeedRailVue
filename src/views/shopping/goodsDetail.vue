@@ -183,44 +183,44 @@
     </div>
 
     <div style="width:80%;margin:auto">
-    <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}</h1>
-    <hr>
+        <h1 class="display-7" id="productType-head" style="text-align:center; margin:30px">{{this.productType}}</h1>
+        <hr>
 
-    <!-- 商品資訊 -->
-    <div class="card mb-3" style="max-width: 1400px; margin:auto;">
-        <div class="row g-0">
-            <div class="col-md-6">
-                <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px; height: 500px">
-            </div>
-            <div class="col-md-4">
-                <div class="card-body" style="width: 520px">
-                    <h5 class="card-title" style="color:darkblue; font-size:25px; margin-top:40px">{{this.product.value?.productName}}</h5>
-                    
-                    <h4 class="mb-5 mt-5">
-                        <small class="text-muted ">建議售價 </small>
-                        <span :style="{ color: 'red' }">$ {{this.product.value?.productPrice}}</span>
-                        <hr style="margin: 0px; width:140px">
-                    </h4>
-                    <h5 class="card-text">{{this.product.value?.productDescription}}</h5>
-                    <hr style="margin: 0px;">
-                    <h5 class="mb-4 mt-5">數量  
-                        <span class="quantity-controls">
-                            <button @click="decrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">－</button>
-                            <input v-model="quantity" type="text" @input="handleNumberInput" style="width:50px; text-align: center;"/>
-                            <button @click="incrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">＋</button>
-                        </span>
-                    </h5>
-                    <div>
-                        <button type="button" class="btn btn-success add-cart-btn" @click="addItemToShoppingCart(this.Id, this.quantity)">🛒 加入購物車</button> 
-                        <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="addProductToTrackingList()" v-show="!this.product.value?.isTracking">🤍 加入追蹤</button>
-                        <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="cancelTracking()" v-show="this.product.value?.isTracking">❤️ 已追蹤</button>
-                        <p v-show="showRemind" class="remind">商品已在購物車中，無需重複添加</p>
-                        <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button> -->
+        <!-- 商品資訊 -->
+        <div class="card mb-3" style="max-width: 1400px; margin:auto;">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    <img :src="this.product.value?.photoData" class="img-fluid rounded-start" :alt="this.product.value?.productName" style="margin-left:70px; height: 500px">
+                </div>
+                <div class="col-md-4">
+                    <div class="card-body" style="width: 520px">
+                        <h5 class="card-title" style="color:darkblue; font-size:25px; margin-top:40px">{{this.product.value?.productName}}</h5>
+                        
+                        <h4 class="mb-5 mt-5">
+                            <small class="text-muted ">建議售價 </small>
+                            <span :style="{ color: 'red' }">$ {{this.product.value?.productPrice}}</span>
+                            <hr style="margin: 0px; width:140px">
+                        </h4>
+                        <h5 class="card-text">{{this.product.value?.productDescription}}</h5>
+                        <hr style="margin: 0px;">
+                        <h5 class="mb-4 mt-5">數量  
+                            <span class="quantity-controls">
+                                <button @click="decrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">－</button>
+                                <input v-model="quantity" type="text" @input="handleNumberInput" style="width:50px; text-align: center;"/>
+                                <button @click="incrementQuantity" class="btn btn-outline-secondary btn-sm custom-button">＋</button>
+                            </span>
+                        </h5>
+                        <div>
+                            <button type="button" class="btn btn-success add-cart-btn" @click="addItemToShoppingCart(this.Id, this.quantity)">🛒 加入購物車</button> 
+                            <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="addProductToTrackingList()" v-show="!this.product.value?.isTracking">🤍 加入追蹤</button>
+                            <button type="submit" class="btn btn-outline-danger add-tracking-btn" @click.stop="cancelTracking()" v-show="this.product.value?.isTracking">❤️ 已追蹤</button>
+                            <p v-show="showRemind" class="remind">商品已在購物車中，無需重複添加</p>
+                            <!-- <button type="button" class="btn btn-primary mx-6" data-bs-toggle="button" autocomplete="off">直接購買</button> -->
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     </div>
     <!-- 商品細項舊版面 -->
     <!-- <div class="product-container">  

@@ -41,7 +41,7 @@ onBeforeMount(()=>{
                 <h3 class="paymentSuccseeMsg">您已付款成功。</h3>
                 
                 <img 
-                src="https://static.vecteezy.com/system/resources/thumbnails/009/385/615/small_2x/tick-icon-accept-approve-sign-design-free-png.png" 
+                src="@\assets\checked-mark.webp" 
                 alt="成功"
                 class="checkedImg-style"
                 >
